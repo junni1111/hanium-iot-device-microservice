@@ -12,7 +12,6 @@ export class DeviceService {
 
   publishEvent(topic: string, message: string) {
     try {
-      console.log(message);
       this.mqttBroker.emit(topic, message);
       return { status: HttpStatus.OK, message, topic };
     } catch (e) {

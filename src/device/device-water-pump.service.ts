@@ -4,12 +4,15 @@ import { ClientProxy } from '@nestjs/microservices';
 import { WaterPumpPacketDto } from './dto/water-pump-packet.dto';
 import { SlaveConfigDto } from '../api/dto/slave-config.dto';
 import { DeviceService } from './device.service';
+import { IWaterPumpConfig } from './interfaces/slave-configs';
+import { SlaveRepository } from './repositories/slave.repository';
 
 @Injectable()
 export class DeviceWaterPumpService {
   constructor(
     @Inject(MQTT_BROKER) private readonly mqttBroker: ClientProxy,
     private readonly deviceService: DeviceService,
+    private readonly slaveRepository: SlaveRepository,
   ) {}
 
   async requestWaterPump({
@@ -23,8 +26,9 @@ export class DeviceWaterPumpService {
       const cycleLow = waterPumpCycle & 0x00ff;
       const runtimeHigh = (waterPumpRuntime & 0xff00) / 0x100;
       const runtimeLow = waterPumpRuntime & 0x00ff;
-      const topic = `master/${masterId.toString(16)}/water`;
+      const topic = `master/${parseInt(masterId.toString(), 16)}/water`;
 
+      console.log(`request water pump: `, slaveId);
       const message = new WaterPumpPacketDto(
         0x23,
         0x22,
@@ -54,5 +58,22 @@ export class DeviceWaterPumpService {
       [],
     );
     this.deviceService.publishEvent(topic, JSON.stringify(motorMessage));
+  }
+
+  async setWaterPumpConfig({
+    masterId,
+    slaveId,
+    waterPumpCycle,
+    waterPumpRuntime,
+  }: Partial<SlaveConfigDto>) {
+    try {
+      const config: IWaterPumpConfig = {
+        waterPumpCycle,
+        waterPumpRuntime,
+      };
+      return this.slaveRepository.setConfig(masterId, slaveId, config);
+    } catch (e) {
+      console.log(e);
+    }
   }
 }

@@ -35,6 +35,7 @@ export class DeviceController {
     @Payload() pollingStatus: EPollingState,
   ) {
     const masterId = this.deviceService.getMasterId(context.getTopic());
+    console.log(pollingStatus);
     this.pollingService.setPollingStatus(masterId, pollingStatus);
   }
 
@@ -45,27 +46,26 @@ export class DeviceController {
   ) {
     const [, masterId, , slaveId] = context.getTopic().split('/');
 
+    console.log(`Recv temperature`, masterId, slaveId);
+    console.log(`temp: `, temperature);
     /* TODO: If temperature < ??
      *       THEN  ~~~ */
     try {
       const data = await this.deviceTemperatureService.saveTemperature(
-        new Temperature(
-          Number(parseInt(masterId).toString(16)),
-          Number(parseInt(slaveId).toString(16)),
-          temperature,
-        ),
+        new Temperature(parseInt(masterId), parseInt(slaveId), temperature),
       );
-      await this.deviceTemperatureService.saveTemperature(data);
+      console.log(data);
     } catch (e) {
       throw e;
     }
   }
 
   @EventPattern(SLAVE_STATE, Transport.MQTT)
-  receiveSlaveState(@Payload() data: string, @Ctx() context: MqttContext) {
+  receiveSlaveState(@Payload() data: number, @Ctx() context: MqttContext) {
     console.log(`Recv State`);
     console.log(context.getTopic());
+    console.log(context.getPacket());
     console.log('data:', data);
-    console.log('packet: ', context.getPacket());
+    // console.log('packet: ', context.getPacket());
   }
 }

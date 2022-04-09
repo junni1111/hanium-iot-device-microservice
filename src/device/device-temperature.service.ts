@@ -6,6 +6,9 @@ import { TemperaturePacketDto } from './dto/temperature-packet.dto';
 import { TemperatureRepository } from './repositories/temperature.repository';
 import { Interval } from '@nestjs/schedule';
 import { DeviceService } from './device.service';
+import { SlaveRepository } from './repositories/slave.repository';
+import { SlaveConfigDto } from '../api/dto/slave-config.dto';
+import { ITemperatureConfig } from './interfaces/slave-configs';
 
 @Injectable()
 export class DeviceTemperatureService {
@@ -13,6 +16,7 @@ export class DeviceTemperatureService {
     @Inject(MQTT_BROKER) private readonly mqttBroker: ClientProxy,
     private readonly temperatureRepository: TemperatureRepository,
     private readonly deviceService: DeviceService,
+    private readonly slaveRepository: SlaveRepository,
   ) {}
 
   async saveTemperature(temperature: Temperature): Promise<Temperature> {
@@ -28,7 +32,7 @@ export class DeviceTemperatureService {
   /*  TODO: Change Slave Count After Demo  */
   @Interval(3000)
   private requestTemperatureInterval() {
-    this.requestTemperature(1, 0x11);
+    // this.requestTemperature(1, 0x11);
     // for (let masterId = 0; masterId <= 5; masterId++) {
     //   for (let slaveId = 0; slaveId <= 0x127; slaveId += 0x11) {
     //     this.requestTemperature(masterId, slaveId);
@@ -61,6 +65,25 @@ export class DeviceTemperatureService {
       );
 
       return result;
+    } catch (e) {
+      console.log(e);
+    }
+  }
+
+  async setTemperatureConfig({
+    masterId,
+    slaveId,
+    startTemperatureRange,
+    endTemperatureRange,
+    temperatureUpdateCycle,
+  }: Partial<SlaveConfigDto>) {
+    try {
+      const config: ITemperatureConfig = {
+        startTemperatureRange,
+        endTemperatureRange,
+        temperatureUpdateCycle,
+      };
+      return this.slaveRepository.setConfig(masterId, slaveId, config);
     } catch (e) {
       console.log(e);
     }

@@ -4,12 +4,15 @@ import { ClientProxy } from '@nestjs/microservices';
 import { LedPacketDto } from './dto/led-packet.dto';
 import { SlaveConfigDto } from '../api/dto/slave-config.dto';
 import { DeviceService } from './device.service';
+import { ILedConfig } from './interfaces/slave-configs';
+import { SlaveRepository } from './repositories/slave.repository';
 
 @Injectable()
 export class DeviceLedService {
   constructor(
     @Inject(MQTT_BROKER) private readonly mqttBroker: ClientProxy,
     private readonly deviceService: DeviceService,
+    private readonly slaveRepository: SlaveRepository,
   ) {}
 
   async requestLed({
@@ -29,7 +32,7 @@ export class DeviceLedService {
       const message = new LedPacketDto(
         0x23,
         0x22,
-        parseInt(slaveId.toString(), 16),
+        slaveId,
         0xd1,
         0x05,
         0x0f,
@@ -59,5 +62,19 @@ export class DeviceLedService {
       [],
     );
     this.deviceService.publishEvent(topic, JSON.stringify(ledMessage));
+  }
+
+  async setLedConfig({
+    masterId,
+    slaveId,
+    ledCycle,
+    ledRuntime,
+  }: Partial<SlaveConfigDto>) {
+    try {
+      const config: ILedConfig = { ledCycle, ledRuntime };
+      return this.slaveRepository.setConfig(masterId, slaveId, config);
+    } catch (e) {
+      console.log(e);
+    }
   }
 }
