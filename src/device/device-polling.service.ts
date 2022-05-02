@@ -20,6 +20,7 @@ export class DevicePollingService {
     });
   }
 
+  /* TODO: Change to better way */
   @Interval('gateway-polling', 10000)
   private increasePollingCount() {
     this.gateways.map((gateway) => gateway.pollingCount++);

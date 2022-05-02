@@ -9,24 +9,47 @@ import { DeviceService } from './device.service';
 import { SlaveRepository } from './repositories/slave.repository';
 import { SlaveConfigDto } from '../api/dto/slave-config.dto';
 import { ITemperatureConfig } from './interfaces/slave-configs';
+import { createQueryBuilder } from 'typeorm';
+import { DoubleKeysMap } from '../util/double-keys-map';
 
 @Injectable()
 export class DeviceTemperatureService {
+  public readonly currentTemperatures: DoubleKeysMap;
+
   constructor(
     @Inject(MQTT_BROKER) private readonly mqttBroker: ClientProxy,
     private readonly temperatureRepository: TemperatureRepository,
     private readonly deviceService: DeviceService,
     private readonly slaveRepository: SlaveRepository,
-  ) {}
+  ) {
+    this.currentTemperatures = new DoubleKeysMap();
+  }
 
-  async saveTemperature(temperature: Temperature): Promise<Temperature> {
+  async saveTemperature(temperature: Temperature) {
     try {
       const data = await this.temperatureRepository.create(temperature);
 
-      return this.temperatureRepository.save(data);
+      return createQueryBuilder()
+        .insert()
+        .into(Temperature)
+        .values(data)
+        .execute();
     } catch (e) {
       throw e;
     }
+  }
+
+  setCurrentTemperature(
+    masterId: number,
+    slaveId: number,
+    temperature: number,
+  ) {
+    return this.currentTemperatures.set([masterId, slaveId], temperature);
+  }
+
+  getCurrentTemperature(masterId: number, slaveId: number) {
+    /* get cached temperature */
+    return this.currentTemperatures.get([masterId, slaveId]);
   }
 
   /*  TODO: Change Slave Count After Demo  */
@@ -87,5 +110,9 @@ export class DeviceTemperatureService {
     } catch (e) {
       console.log(e);
     }
+  }
+
+  async createTestData() {
+    return this.temperatureRepository.createTestData(1, 0x12);
   }
 }

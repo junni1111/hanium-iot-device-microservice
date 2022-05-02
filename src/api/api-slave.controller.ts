@@ -9,14 +9,11 @@ import {
   ESlaveConfigTopic,
   TEMPERATURE_WEEK,
 } from '../util/constants/api-topic';
-import { POLLING, TEMPERATURE } from '../util/constants/mqtt-topic';
-import { EPollingState } from '../device/interfaces/polling-status';
+import { TEMPERATURE } from '../util/constants/mqtt-topic';
 import { SlaveConfigDto } from './dto/slave-config.dto';
 import { DeviceLedService } from '../device/device-led.service';
 import { DeviceWaterPumpService } from '../device/device-water-pump.service';
 import { DeviceTemperatureService } from '../device/device-temperature.service';
-import { CreateMasterDto } from './dto/create-master.dto';
-import { CreateSlaveDto } from './dto/create-slave.dto';
 
 @Controller()
 export class ApiSlaveController {
@@ -41,6 +38,7 @@ export class ApiSlaveController {
         master_id,
         slave_id,
       );
+
       return {
         status: HttpStatus.OK,
         topic: 'slave/state',
@@ -56,6 +54,7 @@ export class ApiSlaveController {
     try {
       const { master_id, slave_id } = JSON.parse(payload);
       console.log(`call config message`, master_id, slave_id);
+      console.log(`payload: `, payload);
 
       const result = await this.masterService.getConfigs(master_id, slave_id);
       console.log(result);
@@ -67,31 +66,43 @@ export class ApiSlaveController {
 
   @MessagePattern(ESlaveConfigTopic.LED, Transport.TCP)
   async setLedConfig(@Payload() ledConfigDto: SlaveConfigDto) {
-    const configUpdateResult = await this.deviceLedService.setLedConfig(
-      ledConfigDto,
-    );
+    console.log(`call set led config`, ledConfigDto);
 
-    if (!configUpdateResult.affected) {
+    try {
+      const requestResult = this.deviceLedService.requestLed(ledConfigDto);
+
+      const configUpdateResult = await this.deviceLedService.setLedConfig(
+        ledConfigDto,
+      );
+
+      if (!configUpdateResult.affected) {
+        return {
+          status: HttpStatus.BAD_REQUEST,
+          topic: ESlaveConfigTopic.LED,
+          message: 'led config not affected',
+          data: configUpdateResult,
+        };
+      }
+
       return {
-        status: HttpStatus.BAD_REQUEST,
-        topic: ESlaveConfigTopic.LED,
-        message: 'led config not affected',
-        data: configUpdateResult,
+        status: HttpStatus.OK,
+        topic: ESlaveConfigTopic.TEMPERATURE,
+        message: 'send led packet to device',
+        data: requestResult,
       };
+    } catch (e) {
+      console.log(`catch led config error`, e);
+      return e;
     }
-
-    const requestResult = this.deviceLedService.requestLed(ledConfigDto);
-
-    return {
-      status: HttpStatus.OK,
-      topic: ESlaveConfigTopic.TEMPERATURE,
-      message: 'send led packet to device',
-      data: requestResult,
-    };
   }
 
   @MessagePattern(ESlaveConfigTopic.TEMPERATURE, Transport.TCP)
   async setTemperatureConfig(@Payload() temperatureConfigDto: SlaveConfigDto) {
+    const requestResult = this.deviceTemperatureService.requestTemperature(
+      temperatureConfigDto.masterId,
+      temperatureConfigDto.slaveId,
+    );
+
     const configUpdateResult =
       await this.deviceTemperatureService.setTemperatureConfig(
         temperatureConfigDto,
@@ -100,16 +111,11 @@ export class ApiSlaveController {
     if (!configUpdateResult.affected) {
       return {
         status: HttpStatus.BAD_REQUEST,
-        topic: ESlaveConfigTopic.WATER_PUMP,
+        topic: ESlaveConfigTopic.TEMPERATURE,
         message: 'temperature config not affected',
         data: configUpdateResult,
       };
     }
-
-    const requestResult = this.deviceTemperatureService.requestTemperature(
-      temperatureConfigDto.masterId,
-      temperatureConfigDto.slaveId,
-    );
 
     return {
       status: HttpStatus.OK,
@@ -128,6 +134,11 @@ export class ApiSlaveController {
     @Payload() waterPumpConfigDto: SlaveConfigDto,
   ): Promise<ResponseStatus> {
     try {
+      console.log(`call set waterpump config`, waterPumpConfigDto);
+
+      const waterPumpPacket =
+        await this.deviceWaterPumpService.requestWaterPump(waterPumpConfigDto);
+
       const configUpdateResult =
         await this.deviceWaterPumpService.setWaterPumpConfig(
           waterPumpConfigDto,
@@ -141,9 +152,6 @@ export class ApiSlaveController {
           data: configUpdateResult,
         };
       }
-
-      const waterPumpPacket =
-        await this.deviceWaterPumpService.requestWaterPump(waterPumpConfigDto);
 
       return {
         status: HttpStatus.OK,
@@ -162,6 +170,7 @@ export class ApiSlaveController {
     @Payload() payload: string,
   ): Promise<ResponseStatus> {
     try {
+      /* Todo: Change to DTO */
       const { master_id, slave_id } = JSON.parse(payload);
       const data = await this.deviceTemperatureService.fetchTemperature(
         master_id,
@@ -177,6 +186,27 @@ export class ApiSlaveController {
     } catch (e) {
       console.log(e);
     }
+  }
+
+  /* Todo: Change topic */
+  @MessagePattern('temperature/now', Transport.TCP)
+  async getCurrentTemperature(
+    @Payload() payload: string,
+  ): Promise<ResponseStatus> {
+    /* Todo: Change to DTO */
+    const { master_id, slave_id } = JSON.parse(payload);
+    const data = this.deviceTemperatureService.getCurrentTemperature(
+      parseInt(master_id),
+      parseInt(slave_id),
+    );
+
+    console.log(`current temp:`, data);
+    return {
+      status: HttpStatus.OK,
+      topic: 'temperature',
+      message: 'success fetch current temperature',
+      data,
+    };
   }
 
   @MessagePattern(TEMPERATURE, Transport.TCP)
