@@ -26,7 +26,7 @@ export class DeviceLedService {
       const cycleLow = ledCycle & 0x00ff;
       const runtimeHigh = (ledRuntime & 0xff00) / 0x100;
       const runtimeLow = ledRuntime & 0x00ff;
-      const topic = `master/${masterId.toString(16)}/led`;
+      const topic = `master/${masterId}/led`;
 
       console.log(topic);
       const message = new LedPacketDto(

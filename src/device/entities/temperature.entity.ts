@@ -11,7 +11,8 @@ export class Temperature {
   @Column({ type: 'float' })
   temperature: number;
 
-  @CreateDateColumn({ type: 'timestamptz', name: 'create_at' })
+  // @PrimaryColumn({type: 'timestamptz', name: 'create_at', })
+  @CreateDateColumn({ type: 'timestamptz', name: 'create_at', primary: true })
   createAt: Date;
 
   constructor(

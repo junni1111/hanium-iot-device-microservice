@@ -31,7 +31,7 @@ async function bootstrap() {
   await app.startAllMicroservices();
   await app.listen(8888, () => {
     console.log(
-      `Device Microservice Listening HOST:${device_host} PORT:${device_port} MQTT BROKER:${mqtt_broker_url}...`,
+      `Device Microservice Listening HOST:${device_host} PORT:${device_port} MQTT URL:${mqtt_broker_url}...`,
     );
   });
 }

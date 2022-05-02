@@ -35,6 +35,7 @@ export class DeviceController {
     @Payload() pollingStatus: EPollingState,
   ) {
     const masterId = this.deviceService.getMasterId(context.getTopic());
+    console.log(`polling from master: `, masterId);
     console.log(pollingStatus);
     this.pollingService.setPollingStatus(masterId, pollingStatus);
   }
@@ -46,15 +47,25 @@ export class DeviceController {
   ) {
     const [, masterId, , slaveId] = context.getTopic().split('/');
 
-    console.log(`Recv temperature`, masterId, slaveId);
-    console.log(`temp: `, temperature);
     /* TODO: If temperature < ??
      *       THEN  ~~~ */
     try {
+      this.deviceTemperatureService.setCurrentTemperature(
+        parseInt(masterId),
+        parseInt(slaveId),
+        temperature,
+      );
+
       const data = await this.deviceTemperatureService.saveTemperature(
         new Temperature(parseInt(masterId), parseInt(slaveId), temperature),
       );
-      console.log(data);
+
+      console.log(
+        this.deviceTemperatureService.getCurrentTemperature(
+          parseInt(masterId),
+          parseInt(slaveId),
+        ),
+      );
     } catch (e) {
       throw e;
     }

@@ -26,13 +26,13 @@ export class DeviceWaterPumpService {
       const cycleLow = waterPumpCycle & 0x00ff;
       const runtimeHigh = (waterPumpRuntime & 0xff00) / 0x100;
       const runtimeLow = waterPumpRuntime & 0x00ff;
-      const topic = `master/${parseInt(masterId.toString(), 16)}/water`;
+      const topic = `master/${masterId}/water`;
 
       console.log(`request water pump: `, slaveId);
       const message = new WaterPumpPacketDto(
         0x23,
         0x22,
-        parseInt(slaveId.toString(), 16),
+        slaveId,
         0xd1,
         0x05,
         0x0f,
