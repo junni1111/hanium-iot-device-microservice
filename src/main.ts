@@ -21,6 +21,7 @@ async function bootstrap() {
       port: device_port,
     },
   });
+
   const microserviceMqtt = app.connectMicroservice({
     transport: Transport.MQTT,
     options: {
