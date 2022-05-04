@@ -9,9 +9,9 @@ export class ApiUtilityController {
   ) {}
 
   @Get()
-  async healthCheck(@Res() res) {
+  healthCheck(@Res() res) {
     console.log(`Health Check`);
-    return res.status(HttpStatus.OK).send('ok');
+    return res.status(HttpStatus.OK).send('ok device');
   }
 
   @MessagePattern('ping', Transport.TCP)
