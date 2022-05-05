@@ -16,21 +16,15 @@ export class CacheController {
   @Get('test/:key')
   async getCache(@Res() res: Response, @Param('key') key: string) {
     console.log(`call cache key: `, key);
-    const value = await this.cacheManager.get(key);
-    if (value) {
-      console.log(`value hit!`, value);
+    const cachedValue = await this.cacheManager.get<string>(key);
+    if (cachedValue) {
+      console.log(`cache hit!`, cachedValue);
+      return res.send(`save time: ${cachedValue}`);
     }
 
-    const setValue = await this.cacheManager.set(key, 'val-' + key);
-    const TIME_KEY = 'time';
-    const saveTime = await this.cacheManager.get<number>(TIME_KEY);
+    const now = new Date().toDateString();
+    await this.cacheManager.set<string>(key, now);
 
-    if (saveTime) {
-      console.log(`cache hit!`);
-      return res.send(`save time: ${saveTime}`);
-    }
-    const now = new Date().getTime();
-    await this.cacheManager.set<number>(TIME_KEY, now, { ttl: 1000 });
-    return res.send(`save time: ${saveTime}`);
+    return res.send(`save time: ${now}`);
   }
 }
