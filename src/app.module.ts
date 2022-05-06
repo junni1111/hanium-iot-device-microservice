@@ -4,14 +4,14 @@ import { ApiModule } from './api/api.module';
 import { TypeOrmModule } from '@nestjs/typeorm';
 import { databaseService } from './config/database.service';
 import { ScheduleModule } from '@nestjs/schedule';
-import { CacheModuleModule } from './cache/cache.module';
+import { RedisModule } from './cache/cache.module';
 
 @Module({
   imports: [
     TypeOrmModule.forRoot(databaseService.getTypeOrmConfig()),
     DeviceModule,
     ApiModule,
-    CacheModuleModule,
+    RedisModule,
     ScheduleModule.forRoot(),
   ],
 })

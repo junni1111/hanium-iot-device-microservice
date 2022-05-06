@@ -1,4 +1,4 @@
-import { Controller } from '@nestjs/common';
+import { CACHE_MANAGER, Controller, Inject } from '@nestjs/common';
 import {
   Ctx,
   EventPattern,
@@ -18,10 +18,12 @@ import { Temperature } from './entities/temperature.entity';
 import { DeviceLedService } from './device-led.service';
 import { DeviceTemperatureService } from './device-temperature.service';
 import { DeviceWaterPumpService } from './device-water-pump.service';
+import { Cache } from 'cache-manager';
 
 @Controller()
 export class DeviceController {
   constructor(
+    @Inject(CACHE_MANAGER) private readonly cacheManager: Cache,
     private readonly deviceService: DeviceService,
     private readonly pollingService: DevicePollingService,
     private readonly deviceLedService: DeviceLedService,
@@ -60,12 +62,18 @@ export class DeviceController {
         /**
          * Todo: Something Trigger
          * */
+        console.log(`정상 온도 값 벗어남`);
       }
       this.deviceTemperatureService.setCurrentTemperature(
         parseInt(masterId),
         parseInt(slaveId),
         temperature,
       );
+
+      /**
+       * Todo: 현재 온도 값
+       *       Redis 캐싱 */
+      await this.cacheManager.set<number>(context.getTopic(), temperature);
 
       const data = await this.deviceTemperatureService.saveTemperature(
         new Temperature(parseInt(masterId), parseInt(slaveId), temperature),

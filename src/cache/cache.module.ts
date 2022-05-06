@@ -14,4 +14,4 @@ import { REDIS_HOST, REDIS_PORT } from '../config/redis.config';
   controllers: [CacheController],
   // providers: [CacheModuleService],
 })
-export class CacheModuleModule {}
+export class RedisModule {}
