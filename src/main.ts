@@ -5,6 +5,7 @@ import { DEVICE_HOST, DEVICE_PORT, MQTT_BROKER_URL } from './config/config';
 import { ValidationPipe } from '@nestjs/common';
 
 async function bootstrap() {
+  console.log(`Start ENV = `, process.env.NODE_ENV);
   const app = await NestFactory.create(AppModule, { cors: true });
   app.useGlobalPipes(
     new ValidationPipe({

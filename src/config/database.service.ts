@@ -1,7 +1,5 @@
 import { TypeOrmModuleOptions } from '@nestjs/typeorm';
 import {
-  DATABASE_MICROSERVICES_HOST,
-  DATABASE_MICROSERVICES_PORT,
   DATABASE_HOST,
   DATABASE_NAME,
   DATABASE_PASSWORD,
@@ -11,9 +9,7 @@ import {
   MODE,
   POSTGRES,
 } from '../util/constants/database';
-import { join } from 'path';
-// eslint-disable-next-line @typescript-eslint/no-var-requires
-require('dotenv').config();
+import * as path from 'path';
 
 class DatabaseService {
   constructor(private env: { [k: string]: string | undefined }) {}
@@ -31,14 +27,6 @@ class DatabaseService {
   public ensureValues(keys: string[]) {
     keys.forEach((k) => this.getValue(k, true));
     return this;
-  }
-
-  public getDatabaseMicroservicesHost() {
-    return this.getValue(DATABASE_MICROSERVICES_HOST, true);
-  }
-
-  public getDatabaseMicroservicesPort() {
-    return this.getValue(DATABASE_MICROSERVICES_PORT, true);
   }
 
   public getDatabasePort() {
@@ -59,7 +47,7 @@ class DatabaseService {
       password: this.getValue(DATABASE_PASSWORD),
       port: parseInt(this.getValue(DATABASE_PORT)),
 
-      entities: [join(__dirname, '../**/*.entity{.ts,.js}')],
+      entities: [path.join(__dirname, '../**/*.entity{.ts,.js}')],
       migrationsTableName: 'migration',
       migrations: ['src/migration/*.ts'],
 
@@ -74,12 +62,11 @@ class DatabaseService {
 }
 
 const databaseService = new DatabaseService(process.env).ensureValues([
-  DATABASE_MICROSERVICES_HOST,
   DATABASE_HOST,
   DATABASE_NAME,
   DATABASE_USER,
-  DATABASE_PASSWORD,
   DATABASE_PORT,
+  DATABASE_PASSWORD,
 ]);
 
 export { databaseService };
