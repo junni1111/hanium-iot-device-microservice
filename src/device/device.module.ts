@@ -3,7 +3,7 @@ import { DeviceService } from './device.service';
 import { DeviceController } from './device.controller';
 import { ClientsModule, Transport } from '@nestjs/microservices';
 import { MQTT_BROKER } from '../util/constants/constants';
-import { mqtt_broker_url } from '../config/config';
+import { MQTT_BROKER_URL } from '../config/config';
 import { TypeOrmModule } from '@nestjs/typeorm';
 import { Temperature } from './entities/temperature.entity';
 import { DevicePollingService } from './device-polling.service';
@@ -38,7 +38,7 @@ import { DeviceLedService } from './device-led.service';
         name: MQTT_BROKER,
         transport: Transport.MQTT,
         options: {
-          url: mqtt_broker_url,
+          url: MQTT_BROKER_URL,
         },
       },
     ]),

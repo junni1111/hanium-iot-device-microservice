@@ -45,11 +45,22 @@ export class DeviceController {
     @Payload() temperature: number,
     @Ctx() context: MqttContext,
   ) {
+    /**
+     * Todo: 추후 사용자가 지정한 온도 범위값을
+     *       감지할 수 있게 수정 */
+    const MIN_AVAILABLE_TEMPERATURE = 20;
+    const MAX_AVAILABLE_TEMPERATURE = 30;
     const [, masterId, , slaveId] = context.getTopic().split('/');
 
-    /* TODO: If temperature < ??
-     *       THEN  ~~~ */
     try {
+      if (
+        temperature < MIN_AVAILABLE_TEMPERATURE ||
+        temperature > MAX_AVAILABLE_TEMPERATURE
+      ) {
+        /**
+         * Todo: Something Trigger
+         * */
+      }
       this.deviceTemperatureService.setCurrentTemperature(
         parseInt(masterId),
         parseInt(slaveId),

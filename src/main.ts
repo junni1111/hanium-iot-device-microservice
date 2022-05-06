@@ -1,7 +1,7 @@
 import { NestFactory } from '@nestjs/core';
 import { AppModule } from './app.module';
 import { Transport } from '@nestjs/microservices';
-import { device_host, device_port, mqtt_broker_url } from './config/config';
+import { DEVICE_HOST, DEVICE_PORT, MQTT_BROKER_URL } from './config/config';
 import { ValidationPipe } from '@nestjs/common';
 
 async function bootstrap() {
@@ -17,22 +17,22 @@ async function bootstrap() {
   const microserviceTcp = app.connectMicroservice({
     transport: Transport.TCP,
     options: {
-      host: device_host,
-      port: device_port,
+      host: DEVICE_HOST,
+      port: DEVICE_PORT,
     },
   });
 
   const microserviceMqtt = app.connectMicroservice({
     transport: Transport.MQTT,
     options: {
-      url: mqtt_broker_url,
+      url: MQTT_BROKER_URL,
     },
   });
 
   await app.startAllMicroservices();
   await app.listen(8888, () => {
     console.log(
-      `Device Microservice Listening HOST:${device_host} PORT:${device_port} MQTT URL:${mqtt_broker_url}...`,
+      `Device Microservice Listening HOST:${DEVICE_HOST} PORT:${DEVICE_PORT} MQTT URL:${MQTT_BROKER_URL}...`,
     );
   });
 }
