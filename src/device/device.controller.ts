@@ -70,10 +70,12 @@ export class DeviceController {
         temperature,
       );
 
+      console.log(`캐싱 시작`);
       /**
        * Todo: 현재 온도 값
        *       Redis 캐싱 */
       await this.cacheManager.set<number>(context.getTopic(), temperature);
+      console.log(`캐싱 끝`);
 
       const data = await this.deviceTemperatureService.saveTemperature(
         new Temperature(parseInt(masterId), parseInt(slaveId), temperature),
