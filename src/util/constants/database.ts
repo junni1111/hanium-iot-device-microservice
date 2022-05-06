@@ -5,5 +5,5 @@ export const DATABASE_USER = 'DATABASE_USER';
 export const DATABASE_PASSWORD = 'DATABASE_PASSWORD';
 export const MODE = 'MODE';
 export const DEV = 'DEV';
-export const PRODUCT = 'PRODUCT';
+export const PRDO = 'PRDO';
 export const POSTGRES = 'postgres';

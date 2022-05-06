@@ -55,7 +55,9 @@ class DatabaseService {
         migrationsDir: 'src/migration',
       },
 
-      ssl: this.isProduction(),
+      /**
+       * Todo: SSL key 추가 */
+      // ssl: this.isProduction(),
       synchronize: true,
     };
   }
