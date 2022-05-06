@@ -20,6 +20,8 @@ import { DeviceTemperatureService } from './device-temperature.service';
 import { DeviceWaterPumpService } from './device-water-pump.service';
 import { DeviceLedService } from './device-led.service';
 import { RedisModule } from '../cache/cache.module';
+import * as redisStore from 'cache-manager-ioredis';
+import { REDIS_HOST, REDIS_PORT } from '../config/redis.config';
 
 @Module({
   imports: [
@@ -43,7 +45,11 @@ import { RedisModule } from '../cache/cache.module';
         },
       },
     ]),
-    RedisModule,
+    CacheModule.register({
+      store: redisStore,
+      host: REDIS_HOST,
+      port: REDIS_PORT,
+    }),
   ],
   controllers: [DeviceController],
   providers: [
