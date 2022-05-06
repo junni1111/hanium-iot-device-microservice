@@ -1,4 +1,4 @@
-import { Inject, Injectable } from '@nestjs/common';
+import { CACHE_MANAGER, Inject, Injectable } from '@nestjs/common';
 import { MQTT_BROKER } from '../util/constants/constants';
 import { ClientProxy } from '@nestjs/microservices';
 import { Temperature } from './entities/temperature.entity';
@@ -11,6 +11,7 @@ import { SlaveConfigDto } from '../api/dto/slave-config.dto';
 import { ITemperatureConfig } from './interfaces/slave-configs';
 import { createQueryBuilder } from 'typeorm';
 import { DoubleKeysMap } from '../util/double-keys-map';
+import { Cache } from 'cache-manager';
 
 @Injectable()
 export class DeviceTemperatureService {
@@ -18,6 +19,7 @@ export class DeviceTemperatureService {
 
   constructor(
     @Inject(MQTT_BROKER) private readonly mqttBroker: ClientProxy,
+    @Inject(CACHE_MANAGER) private readonly cacheManager: Cache,
     private readonly temperatureRepository: TemperatureRepository,
     private readonly deviceService: DeviceService,
     private readonly slaveRepository: SlaveRepository,
@@ -47,9 +49,18 @@ export class DeviceTemperatureService {
     return this.currentTemperatures.set([masterId, slaveId], temperature);
   }
 
-  getCurrentTemperature(masterId: number, slaveId: number) {
+  /**
+   * Todo: Redis로 대체해서
+   *       걷어내야함*/
+  async getCurrentTemperature(masterId: number, slaveId: number) {
+    try {
+      const key = `temperature/${masterId}/${slaveId}`;
+      return this.cacheManager.get<number>(key);
+    } catch (e) {
+      throw e;
+    }
     /* get cached temperature */
-    return this.currentTemperatures.get([masterId, slaveId]);
+    // return this.currentTemperatures.get([masterId, slaveId]);
   }
 
   /*  TODO: Change Slave Count After Demo  */
@@ -114,5 +125,9 @@ export class DeviceTemperatureService {
 
   async createTestData() {
     return this.temperatureRepository.createTestData(1, 0x12);
+  }
+
+  mockOverRangeTrigger() {
+    console.log(`온도 범위 값 초과`);
   }
 }

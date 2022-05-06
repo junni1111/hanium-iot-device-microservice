@@ -195,7 +195,7 @@ export class ApiSlaveController {
   ): Promise<ResponseStatus> {
     /* Todo: Change to DTO */
     const { master_id, slave_id } = JSON.parse(payload);
-    const data = this.deviceTemperatureService.getCurrentTemperature(
+    const data = await this.deviceTemperatureService.getCurrentTemperature(
       parseInt(master_id),
       parseInt(slave_id),
     );

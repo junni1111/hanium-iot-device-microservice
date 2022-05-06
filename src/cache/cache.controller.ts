@@ -27,4 +27,12 @@ export class CacheController {
 
     return res.send(`save time: ${now}`);
   }
+
+  async setTestCache(key: string, value: number) {
+    await this.cacheManager.set<number>(key, value);
+  }
+
+  async getTestCache(key: string) {
+    return this.cacheManager.get<number>(key);
+  }
 }

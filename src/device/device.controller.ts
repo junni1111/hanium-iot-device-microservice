@@ -63,6 +63,7 @@ export class DeviceController {
          * Todo: Something Trigger
          * */
         console.log(`정상 온도 값 벗어남`);
+        this.deviceTemperatureService.mockOverRangeTrigger();
       }
       this.deviceTemperatureService.setCurrentTemperature(
         parseInt(masterId),
@@ -81,6 +82,8 @@ export class DeviceController {
         new Temperature(parseInt(masterId), parseInt(slaveId), temperature),
       );
 
+      /**
+       * Todo: Redis로 걷어내야함*/
       console.log(
         this.deviceTemperatureService.getCurrentTemperature(
           parseInt(masterId),
