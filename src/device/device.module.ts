@@ -1,4 +1,4 @@
-import { Module } from '@nestjs/common';
+import { CacheModule, Module } from '@nestjs/common';
 import { DeviceService } from './device.service';
 import { DeviceController } from './device.controller';
 import { ClientsModule, Transport } from '@nestjs/microservices';
@@ -19,6 +19,7 @@ import { SlaveRepository } from './repositories/slave.repository';
 import { DeviceTemperatureService } from './device-temperature.service';
 import { DeviceWaterPumpService } from './device-water-pump.service';
 import { DeviceLedService } from './device-led.service';
+import { RedisModule } from '../cache/cache.module';
 
 @Module({
   imports: [
@@ -42,6 +43,7 @@ import { DeviceLedService } from './device-led.service';
         },
       },
     ]),
+    RedisModule,
   ],
   controllers: [DeviceController],
   providers: [
