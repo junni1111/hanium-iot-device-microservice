@@ -52,8 +52,13 @@ export class DeviceTemperatureService {
   /**
    * Todo: Redis로 대체해서
    *       걷어내야함*/
-  async getCurrentTemperature(masterId: number, slaveId: number) {
+  async getCurrentTemperature(
+    masterId: number,
+    slaveId: number,
+  ): Promise<number> {
     try {
+      /**
+       * Todo: Extract create key function */
       const key = `temperature/${masterId}/${slaveId}`;
       return this.cacheManager.get<number>(key);
     } catch (e) {
@@ -129,5 +134,19 @@ export class DeviceTemperatureService {
 
   mockOverRangeTrigger() {
     console.log(`온도 범위 값 초과`);
+  }
+
+  async cacheTemperature(
+    masterId: number,
+    slaveId: number,
+    temperature: number,
+  ) {
+    /**
+     * Todo: Extract Create Key Function */
+    const key = `temperature/${masterId}/${slaveId}`;
+    console.log(`key: `, key);
+    const beforeValue = await this.cacheManager.get<number>(key);
+    console.log(`before cached value: `, beforeValue);
+    return this.cacheManager.set<number>(key, temperature, { ttl: 0 });
   }
 }

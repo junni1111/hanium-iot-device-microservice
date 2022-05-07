@@ -65,30 +65,17 @@ export class DeviceController {
         console.log(`정상 온도 값 벗어남`);
         this.deviceTemperatureService.mockOverRangeTrigger();
       }
-      this.deviceTemperatureService.setCurrentTemperature(
+
+      await this.deviceTemperatureService.cacheTemperature(
         parseInt(masterId),
         parseInt(slaveId),
         temperature,
       );
 
-      console.log(`캐싱 시작`);
       /**
-       * Todo: 현재 온도 값
-       *       Redis 캐싱 */
-      await this.cacheManager.set<number>(context.getTopic(), temperature);
-      console.log(`캐싱 끝`);
-
+       * Todo: Handling data */
       const data = await this.deviceTemperatureService.saveTemperature(
         new Temperature(parseInt(masterId), parseInt(slaveId), temperature),
-      );
-
-      /**
-       * Todo: Redis로 걷어내야함*/
-      console.log(
-        this.deviceTemperatureService.getCurrentTemperature(
-          parseInt(masterId),
-          parseInt(slaveId),
-        ),
       );
     } catch (e) {
       throw e;
