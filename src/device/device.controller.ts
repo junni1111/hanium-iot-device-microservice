@@ -74,9 +74,12 @@ export class DeviceController {
 
       /**
        * Todo: Handling data */
-      const data = await this.deviceTemperatureService.saveTemperature(
-        new Temperature(parseInt(masterId), parseInt(slaveId), temperature),
-      );
+      await this.cacheManager.set<number>(context.getTopic(), temperature);
+
+      // >>>>>>> parent of 13ff04a (배포 env 체크)
+      // const data = await this.deviceTemperatureService.saveTemperature(
+      //   new Temperature(parseInt(masterId), parseInt(slaveId), temperature),
+      // );
     } catch (e) {
       throw e;
     }
