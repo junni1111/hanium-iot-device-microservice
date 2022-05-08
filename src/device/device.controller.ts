@@ -14,7 +14,6 @@ import {
 } from '../util/constants/mqtt-topic';
 import { EPollingState } from './interfaces/polling-status';
 import { DevicePollingService } from './device-polling.service';
-import { Temperature } from './entities/temperature.entity';
 import { DeviceLedService } from './device-led.service';
 import { DeviceTemperatureService } from './device-temperature.service';
 import { DeviceWaterPumpService } from './device-water-pump.service';
@@ -31,15 +30,35 @@ export class DeviceController {
     private readonly waterPumpService: DeviceWaterPumpService,
   ) {}
 
+  /**
+   * Todo: Validate Polling Status Is Number */
   @EventPattern(POLLING, Transport.MQTT)
-  receivePollingResult(
+  async receivePollingResult(
     @Ctx() context: MqttContext,
     @Payload() pollingStatus: EPollingState,
   ) {
-    const masterId = this.deviceService.getMasterId(context.getTopic());
-    console.log(`polling from master: `, masterId);
-    console.log(pollingStatus);
-    this.pollingService.setPollingStatus(masterId, pollingStatus);
+    const key = context.getTopic();
+    console.log(`이전 상태 값: `, await this.cacheManager.get<number>(key));
+
+    if (pollingStatus !== EPollingState.OK) {
+      /**
+       * Todo: Trigger Some Mock Method */
+      console.log(`Polling 값 문제 발생`);
+      console.log(`추후 여기서 트리거 발생`);
+      this.pollingService.mockPollingExceptionTrigger(context, pollingStatus);
+    }
+
+    /**
+     * Todo: Cache Status To Redis */
+    await this.cacheManager.set<number>(key, pollingStatus, { ttl: 0 });
+    console.log(`캐싱 값: `, key, pollingStatus);
+
+    /**
+     * Todo: Refactor After Pass Test */
+    // const masterId = this.deviceService.getMasterId(context.getTopic());
+    // console.log(`polling from master: `, masterId);
+    // console.log(pollingStatus);
+    // this.pollingService.setPollingStatus(masterId, pollingStatus);
   }
 
   @EventPattern(TEMPERATURE, Transport.MQTT)
