@@ -86,7 +86,7 @@ export class ApiSlaveController {
 
       return {
         status: HttpStatus.OK,
-        topic: ESlaveConfigTopic.TEMPERATURE,
+        topic: ESlaveConfigTopic.LED,
         message: 'send led packet to device',
         data: requestResult,
       };
