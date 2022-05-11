@@ -69,8 +69,8 @@ export class DeviceController {
     /**
      * Todo: 추후 사용자가 지정한 온도 범위값을
      *       감지할 수 있게 수정 */
-    const MIN_AVAILABLE_TEMPERATURE = 20;
-    const MAX_AVAILABLE_TEMPERATURE = 30;
+    const MIN_AVAILABLE_TEMPERATURE = 10;
+    const MAX_AVAILABLE_TEMPERATURE = 33;
     const [, masterId, , slaveId] = context.getTopic().split('/');
 
     try {
@@ -82,7 +82,7 @@ export class DeviceController {
          * Todo: Something Trigger
          * */
         console.log(`정상 온도 값 벗어남`);
-        this.deviceTemperatureService.mockOverRangeTrigger();
+        this.deviceTemperatureService.mockOverRangeTrigger(parseInt(masterId));
       }
 
       await this.deviceTemperatureService.cacheTemperature(
