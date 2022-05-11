@@ -1,11 +1,11 @@
 import { Test, TestingModule } from '@nestjs/testing';
-import { CacheController } from './cache.controller';
+import { RedisController } from './redis.controller';
 import { CacheModule } from '@nestjs/common';
 import * as redisStore from 'cache-manager-ioredis';
 import { REDIS_HOST, REDIS_PORT } from '../config/redis.config';
 
 describe('Redis 컨트롤러 테스트', () => {
-  let controller: CacheController;
+  let controller: RedisController;
 
   beforeEach(async () => {
     const module: TestingModule = await Test.createTestingModule({
@@ -16,10 +16,10 @@ describe('Redis 컨트롤러 테스트', () => {
           port: REDIS_PORT,
         }),
       ],
-      controllers: [CacheController],
+      controllers: [RedisController],
     }).compile();
 
-    controller = module.get<CacheController>(CacheController);
+    controller = module.get<RedisController>(RedisController);
   });
 
   it('로컬 redis key: test, value: 10을 저장하고 그 값을 가져온다', async () => {

@@ -12,6 +12,7 @@ import { ITemperatureConfig } from './interfaces/slave-configs';
 import { createQueryBuilder } from 'typeorm';
 import { DoubleKeysMap } from '../util/double-keys-map';
 import { Cache } from 'cache-manager';
+import { MockBuzzerPacketDto } from './dto/mock-buzzer-packet.dto';
 
 @Injectable()
 export class DeviceTemperatureService {
@@ -132,8 +133,20 @@ export class DeviceTemperatureService {
     return this.temperatureRepository.createTestData(1, 0x12);
   }
 
-  mockOverRangeTrigger() {
+  mockOverRangeTrigger(masterId: number) {
     console.log(`온도 범위 값 초과`);
+    const topic = `master/${masterId}/temperature`;
+    const message = new MockBuzzerPacketDto(
+      0x23,
+      0x21,
+      0xff,
+      0xd1,
+      0x01,
+      0x20,
+      0x0b,
+      [0x21],
+    );
+    return this.deviceService.publishEvent(topic, JSON.stringify(message));
   }
 
   async cacheTemperature(

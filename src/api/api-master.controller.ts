@@ -5,16 +5,8 @@ import { DeviceService } from '../device/device.service';
 import { DevicePollingService } from '../device/device-polling.service';
 import { DeviceMasterService } from '../device/device-master.service';
 import { ResponseStatus } from '../device/interfaces/response-status';
-import {
-  ESlaveConfigTopic,
-  TEMPERATURE_WEEK,
-} from '../util/constants/api-topic';
-import { POLLING, TEMPERATURE } from '../util/constants/mqtt-topic';
+import { POLLING } from '../util/constants/mqtt-topic';
 import { EPollingState } from '../device/interfaces/polling-status';
-import { SlaveConfigDto } from './dto/slave-config.dto';
-import { DeviceLedService } from '../device/device-led.service';
-import { DeviceWaterPumpService } from '../device/device-water-pump.service';
-import { DeviceTemperatureService } from '../device/device-temperature.service';
 import { CreateMasterDto } from './dto/create-master.dto';
 import { CreateSlaveDto } from './dto/create-slave.dto';
 
@@ -79,11 +71,16 @@ export class ApiMasterController {
     }
   }
 
+  /**
+   * Todo: Refactor To Better Status Code */
+  /**
+   * Todo: Remove Old Polling Service  */
   @MessagePattern(POLLING, Transport.TCP)
   async getPollingState(@Payload() masterId: string): Promise<ResponseStatus> {
     try {
-      const state = this.pollingService.getPollingState(parseInt(masterId));
-      switch (state) {
+      const pollingState = await this.pollingService.getPollingState(masterId);
+
+      switch (pollingState) {
         case EPollingState.OK:
           return {
             status: HttpStatus.OK,
@@ -93,21 +90,20 @@ export class ApiMasterController {
 
         case EPollingState.ERROR1:
           return {
-            status: HttpStatus.GATEWAY_TIMEOUT,
+            status: HttpStatus.BAD_REQUEST,
             topic: 'polling',
-            message: 'Fail. Error code 1',
+            message: `Mock Polling State Error ID:${masterId}`,
           };
 
         default:
           return {
             status: HttpStatus.BAD_REQUEST,
             topic: 'polling',
-            message: 'Fail. Default Error',
+            message: `Mock Polling State Error ID:${masterId}`,
           };
       }
     } catch (e) {
-      console.log('polling Error: ', e);
-      return { status: HttpStatus.BAD_REQUEST, topic: 'polling', message: e };
+      console.log(e);
     }
   }
 }

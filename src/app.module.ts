@@ -4,7 +4,7 @@ import { ApiModule } from './api/api.module';
 import { TypeOrmModule } from '@nestjs/typeorm';
 import { databaseService } from './config/database.service';
 import { ScheduleModule } from '@nestjs/schedule';
-import { RedisModule } from './cache/cache.module';
+import { RedisModule } from './cache/redis.module';
 
 @Module({
   imports: [

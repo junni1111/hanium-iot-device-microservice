@@ -14,7 +14,6 @@ import {
 } from '../util/constants/mqtt-topic';
 import { EPollingState } from './interfaces/polling-status';
 import { DevicePollingService } from './device-polling.service';
-import { Temperature } from './entities/temperature.entity';
 import { DeviceLedService } from './device-led.service';
 import { DeviceTemperatureService } from './device-temperature.service';
 import { DeviceWaterPumpService } from './device-water-pump.service';
@@ -31,15 +30,35 @@ export class DeviceController {
     private readonly waterPumpService: DeviceWaterPumpService,
   ) {}
 
+  /**
+   * Todo: Validate Polling Status Is Number */
   @EventPattern(POLLING, Transport.MQTT)
-  receivePollingResult(
+  async receivePollingResult(
     @Ctx() context: MqttContext,
     @Payload() pollingStatus: EPollingState,
   ) {
-    const masterId = this.deviceService.getMasterId(context.getTopic());
-    console.log(`polling from master: `, masterId);
-    console.log(pollingStatus);
-    this.pollingService.setPollingStatus(masterId, pollingStatus);
+    const key = context.getTopic();
+    console.log(`이전 상태 값: `, await this.cacheManager.get<number>(key));
+
+    if (pollingStatus !== EPollingState.OK) {
+      /**
+       * Todo: Trigger Some Mock Method */
+      console.log(`Polling 값 문제 발생`);
+      console.log(`추후 여기서 트리거 발생`);
+      this.pollingService.mockPollingExceptionTrigger(context, pollingStatus);
+    }
+
+    /**
+     * Todo: Cache Status To Redis */
+    await this.cacheManager.set<number>(key, pollingStatus, { ttl: 0 });
+    console.log(`캐싱 값: `, key, pollingStatus);
+
+    /**
+     * Todo: Refactor After Pass Test */
+    // const masterId = this.deviceService.getMasterId(context.getTopic());
+    // console.log(`polling from master: `, masterId);
+    // console.log(pollingStatus);
+    // this.pollingService.setPollingStatus(masterId, pollingStatus);
   }
 
   @EventPattern(TEMPERATURE, Transport.MQTT)
@@ -50,8 +69,8 @@ export class DeviceController {
     /**
      * Todo: 추후 사용자가 지정한 온도 범위값을
      *       감지할 수 있게 수정 */
-    const MIN_AVAILABLE_TEMPERATURE = 20;
-    const MAX_AVAILABLE_TEMPERATURE = 30;
+    const MIN_AVAILABLE_TEMPERATURE = 10;
+    const MAX_AVAILABLE_TEMPERATURE = 33;
     const [, masterId, , slaveId] = context.getTopic().split('/');
 
     try {
@@ -63,7 +82,7 @@ export class DeviceController {
          * Todo: Something Trigger
          * */
         console.log(`정상 온도 값 벗어남`);
-        this.deviceTemperatureService.mockOverRangeTrigger();
+        this.deviceTemperatureService.mockOverRangeTrigger(parseInt(masterId));
       }
 
       await this.deviceTemperatureService.cacheTemperature(

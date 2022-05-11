@@ -10,7 +10,7 @@ import { Cache } from 'cache-manager';
 import { Response } from 'express';
 
 @Controller('cache')
-export class CacheController {
+export class RedisController {
   constructor(@Inject(CACHE_MANAGER) private readonly cacheManager: Cache) {}
 
   @Get('test/:key')
