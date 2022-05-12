@@ -13,6 +13,7 @@ import { createQueryBuilder } from 'typeorm';
 import { DoubleKeysMap } from '../util/double-keys-map';
 import { Cache } from 'cache-manager';
 import { MockBuzzerPacketDto } from './dto/mock-buzzer-packet.dto';
+import { LedPacketDto } from './dto/led-packet.dto';
 
 @Injectable()
 export class DeviceTemperatureService {
@@ -133,20 +134,31 @@ export class DeviceTemperatureService {
     return this.temperatureRepository.createTestData(1, 0x12);
   }
 
+  /**
+   * Todo: 이상 온도 감지하면 발생하는 트리거
+   *       추후 문자나 푸시 등 사용자에게 알림 기능 추가
+   *       지금은 임시로 마스터 보드의 LED를 1초정도 켰다 끔 */
   mockOverRangeTrigger(masterId: number) {
     console.log(`온도 범위 값 초과`);
     const topic = `master/${masterId}/temperature`;
-    const message = new MockBuzzerPacketDto(
+
+    const mockLedMessage = new LedPacketDto(
       0x23,
       0x21,
       0xff,
       0xd1,
       0x01,
       0x20,
-      0x0b,
-      [0x21],
+      0x09,
+      [0xe1],
     );
-    return this.deviceService.publishEvent(topic, JSON.stringify(message));
+
+    console.log(`send mock led message: `, mockLedMessage);
+
+    return this.deviceService.publishEvent(
+      topic,
+      JSON.stringify(mockLedMessage),
+    );
   }
 
   async cacheTemperature(
