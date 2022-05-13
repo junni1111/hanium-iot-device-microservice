@@ -6,6 +6,8 @@ import { SlaveConfigDto } from '../api/dto/slave-config.dto';
 import { DeviceService } from './device.service';
 import { IWaterPumpConfig } from './interfaces/slave-configs';
 import { SlaveRepository } from './repositories/slave.repository';
+import { WaterPumpTurnDto } from '../api/dto/water-pump-turn.dto';
+import { EPowerState, ESlaveTurnPowerTopic } from '../util/constants/api-topic';
 
 @Injectable()
 export class DeviceWaterPumpService {
@@ -14,6 +16,19 @@ export class DeviceWaterPumpService {
     private readonly deviceService: DeviceService,
     private readonly slaveRepository: SlaveRepository,
   ) {}
+
+  async turnWaterPump({ masterId, slaveId, powerState }: WaterPumpTurnDto) {
+    console.log(`power state: `, powerState);
+    const waterPumpCycle = powerState === EPowerState.ON ? 0xffff : 0;
+    const waterPumpRuntime = powerState === EPowerState.ON ? 0xffff : 0;
+
+    return this.requestWaterPump({
+      masterId,
+      slaveId,
+      waterPumpCycle,
+      waterPumpRuntime,
+    });
+  }
 
   async requestWaterPump({
     masterId,

@@ -6,6 +6,7 @@ import { SlaveConfigDto } from '../api/dto/slave-config.dto';
 import { DeviceService } from './device.service';
 import { ILedConfig } from './interfaces/slave-configs';
 import { SlaveRepository } from './repositories/slave.repository';
+import { LedTurnDto } from '../api/dto/led-turn.dto';
 
 @Injectable()
 export class DeviceLedService {
@@ -14,6 +15,15 @@ export class DeviceLedService {
     private readonly deviceService: DeviceService,
     private readonly slaveRepository: SlaveRepository,
   ) {}
+
+  /**
+   * Todo: 더 좋은 방법 고민 */
+  async turnLed({ masterId, slaveId, powerState }: LedTurnDto) {
+    const ledCycle = powerState === 'on' ? 0xffff : 0;
+    const ledRuntime = powerState === 'on' ? 0xffff : 0;
+
+    return this.requestLed({ masterId, slaveId, ledCycle, ledRuntime });
+  }
 
   async requestLed({
     masterId,

@@ -7,6 +7,7 @@ import { DeviceMasterService } from '../device/device-master.service';
 import { ResponseStatus } from '../device/interfaces/response-status';
 import {
   ESlaveConfigTopic,
+  ESlaveTurnPowerTopic,
   TEMPERATURE_WEEK,
 } from '../util/constants/api-topic';
 import { TEMPERATURE } from '../util/constants/mqtt-topic';
@@ -14,6 +15,8 @@ import { SlaveConfigDto } from './dto/slave-config.dto';
 import { DeviceLedService } from '../device/device-led.service';
 import { DeviceWaterPumpService } from '../device/device-water-pump.service';
 import { DeviceTemperatureService } from '../device/device-temperature.service';
+import { LedTurnDto } from './dto/led-turn.dto';
+import { WaterPumpTurnDto } from './dto/water-pump-turn.dto';
 
 @Controller()
 export class ApiSlaveController {
@@ -46,6 +49,46 @@ export class ApiSlaveController {
       };
     } catch (e) {
       console.log(e);
+    }
+  }
+
+  /**
+   * Todo: LED, 모터 둘다 포함 가능하게 변경*/
+  @MessagePattern(ESlaveTurnPowerTopic.WATER_PUMP, Transport.TCP)
+  async turnWaterPump(@Payload() waterPumpTurnDto: WaterPumpTurnDto) {
+    try {
+      const requestResult = await this.deviceWaterPumpService.turnWaterPump(
+        waterPumpTurnDto,
+      );
+
+      return {
+        status: HttpStatus.OK,
+        topic: ESlaveTurnPowerTopic.WATER_PUMP,
+        message: 'send turn water pump packet to device',
+        data: requestResult,
+      };
+    } catch (e) {
+      console.log(`catch led config error`, e);
+      return e;
+    }
+  }
+
+  /**
+   * Todo: LED, 모터 둘다 포함 가능하게 변경*/
+  @MessagePattern(ESlaveTurnPowerTopic.LED, Transport.TCP)
+  async turnLed(@Payload() ledTurnDto: LedTurnDto) {
+    try {
+      const requestResult = await this.deviceLedService.turnLed(ledTurnDto);
+
+      return {
+        status: HttpStatus.OK,
+        topic: ESlaveTurnPowerTopic.LED,
+        message: 'send turn led packet to device',
+        data: requestResult,
+      };
+    } catch (e) {
+      console.log(`catch led config error`, e);
+      return e;
     }
   }
 

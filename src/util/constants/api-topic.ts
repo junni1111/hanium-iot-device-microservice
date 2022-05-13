@@ -5,4 +5,19 @@ export enum ESlaveConfigTopic {
   LED = 'config/led',
 }
 
+export enum ESlaveTurnPowerTopic {
+  WATER_PUMP = 'power/water',
+  LED = 'power/led',
+}
+
+export enum EPowerState {
+  ON = 'on',
+  OFF = 'off',
+}
+
+export enum ESensor {
+  LED = 'led',
+  WATER_PUMP = 'water',
+}
+
 export const TEMPERATURE_WEEK = 'temperature/week';
