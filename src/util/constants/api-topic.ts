@@ -20,4 +20,11 @@ export enum ESensor {
   WATER_PUMP = 'water',
 }
 
+export enum ESlaveState {
+  ALL = 'state',
+  TEMPERATURE = 'temperature/state',
+  WATER_PUMP = 'water/state',
+  LED = 'led/state',
+}
+
 export const TEMPERATURE_WEEK = 'temperature/week';

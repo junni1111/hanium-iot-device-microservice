@@ -38,20 +38,20 @@ export class DeviceController {
     @Payload() pollingStatus: EPollingState,
   ) {
     const key = context.getTopic();
-    // console.log(`이전 상태 값: `, await this.cacheManager.get<number>(key));
+    console.log(`이전 상태 값: `, await this.cacheManager.get<number>(key));
 
     if (pollingStatus !== EPollingState.OK) {
       /**
        * Todo: Trigger Some Mock Method */
-      // console.log(`Polling 값 문제 발생`);
-      // console.log(`추후 여기서 트리거 발생`);
+      console.log(`Polling 값 문제 발생`);
+      console.log(`추후 여기서 트리거 발생`);
       this.pollingService.mockPollingExceptionTrigger(context, pollingStatus);
     }
 
     /**
      * Todo: Cache Status To Redis */
     await this.cacheManager.set<number>(key, pollingStatus, { ttl: 0 });
-    // console.log(`캐싱 값: `, key, pollingStatus);
+    console.log(`캐싱 값: `, key, pollingStatus);
 
     /**
      * Todo: Refactor After Pass Test */
@@ -93,9 +93,10 @@ export class DeviceController {
 
       /**
        * Todo: Handling data */
-      await this.cacheManager.set<number>(context.getTopic(), temperature);
+      await this.cacheManager.set<number>(context.getTopic(), temperature, {
+        ttl: 0,
+      });
 
-      // >>>>>>> parent of 13ff04a (배포 env 체크)
       // const data = await this.deviceTemperatureService.saveTemperature(
       //   new Temperature(parseInt(masterId), parseInt(slaveId), temperature),
       // );
@@ -105,31 +106,22 @@ export class DeviceController {
   }
 
   @EventPattern(SLAVE_STATE, Transport.MQTT)
-  receiveSlaveState(@Payload() data: number, @Ctx() context: MqttContext) {
-    console.log(`Recv State`);
-    console.log(context.getTopic());
-    console.log(context.getPacket());
-    console.log('data:', data);
-    // console.log('packet: ', context.getPacket());
-  }
+  async receiveSlaveState(
+    @Payload() data: string,
+    @Ctx() context: MqttContext,
+  ) {
+    console.log(`topic `, context.getTopic());
+    console.log(
+      `before cached value `,
+      await this.cacheManager.get<string>(context.getTopic()),
+    );
+    if (data === 'on' || data === 'off') {
+      await this.cacheManager.set<string>(context.getTopic(), data, { ttl: 0 });
+    } else {
+      console.log(`Slave State Event Exception. Payload is not 'on' or 'off'`);
+      console.log(`receive packet: `, context.getPacket());
+    }
 
-  /**
-   * Todo: 테스트 완료 후 상태 캐싱 구현 */
-  @EventPattern('master/+/slave/+/mock', Transport.MQTT)
-  mockE0Event(@Payload() data: string, @Ctx() context: MqttContext) {
-    console.log(`Receive Mock Event`);
-    console.log(context.getTopic());
-    console.log(context.getPacket());
-    console.log(`data: `, data);
-  }
-
-  /**
-   * Todo: 테스트 완료 후 상태 캐싱 구현 */
-  @EventPattern('master/+/assert', Transport.MQTT)
-  mockAssert(@Payload() data: string, @Ctx() context: MqttContext) {
-    console.log(`Receive Assert Event`);
-    console.log(context.getTopic());
-    console.log(context.getPacket());
-    console.log(`data: `, data);
+    console.log(`receive value `, data);
   }
 }

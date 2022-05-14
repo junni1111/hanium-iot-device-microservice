@@ -169,9 +169,9 @@ export class DeviceTemperatureService {
     /**
      * Todo: Extract Create Key Function */
     const key = `temperature/${masterId}/${slaveId}`;
-    // console.log(`key: `, key);
+    console.log(`key: `, key);
     const beforeValue = await this.cacheManager.get<number>(key);
-    // console.log(`before cached value: `, beforeValue);
+    console.log(`before cached value: `, beforeValue);
     return this.cacheManager.set<number>(key, temperature, { ttl: 0 });
   }
 }

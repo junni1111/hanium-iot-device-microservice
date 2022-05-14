@@ -1,4 +1,4 @@
-import { Controller, HttpStatus } from '@nestjs/common';
+import { CACHE_MANAGER, Controller, HttpStatus, Inject } from '@nestjs/common';
 import { MessagePattern, Payload, Transport } from '@nestjs/microservices';
 
 import { DeviceService } from '../device/device.service';
@@ -7,20 +7,24 @@ import { DeviceMasterService } from '../device/device-master.service';
 import { ResponseStatus } from '../device/interfaces/response-status';
 import {
   ESlaveConfigTopic,
+  ESlaveState,
   ESlaveTurnPowerTopic,
   TEMPERATURE_WEEK,
 } from '../util/constants/api-topic';
-import { TEMPERATURE } from '../util/constants/mqtt-topic';
+import { SLAVE_STATE, TEMPERATURE } from '../util/constants/mqtt-topic';
 import { SlaveConfigDto } from './dto/slave-config.dto';
 import { DeviceLedService } from '../device/device-led.service';
 import { DeviceWaterPumpService } from '../device/device-water-pump.service';
 import { DeviceTemperatureService } from '../device/device-temperature.service';
 import { LedTurnDto } from './dto/led-turn.dto';
 import { WaterPumpTurnDto } from './dto/water-pump-turn.dto';
+import { LedStateDto } from './dto/led-state.dto';
+import { Cache } from 'cache-manager';
 
 @Controller()
 export class ApiSlaveController {
   constructor(
+    @Inject(CACHE_MANAGER) private readonly cacheManager: Cache,
     private readonly masterService: DeviceMasterService,
     private readonly pollingService: DevicePollingService,
     private readonly deviceService: DeviceService,
@@ -46,6 +50,31 @@ export class ApiSlaveController {
         status: HttpStatus.OK,
         topic: 'slave/state',
         message: 'request check slave state success',
+      };
+    } catch (e) {
+      console.log(e);
+    }
+  }
+
+  /**
+   * Todo: Extract Controller */
+  @MessagePattern(ESlaveState.LED, Transport.TCP)
+  async getLedState(
+    @Payload() ledStateDto: LedStateDto,
+  ): Promise<ResponseStatus> {
+    try {
+      console.log(`get led state: `, ledStateDto);
+      const key = `master/${ledStateDto.masterId}/slave/${ledStateDto.slaveId}/${ESlaveState.LED}`;
+
+      const state = await this.cacheManager.get<string>(key);
+
+      console.log(`get cached value `, state);
+
+      return {
+        status: HttpStatus.OK,
+        topic: ESlaveState.LED,
+        message: 'request check led state success',
+        data: state,
       };
     } catch (e) {
       console.log(e);
