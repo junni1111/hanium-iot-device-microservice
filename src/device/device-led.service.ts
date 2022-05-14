@@ -30,7 +30,7 @@ export class DeviceLedService {
       0x22,
       slaveId,
       0xd1,
-      0x05,
+      0x01,
       0x0f,
       0xdd,
       //통보없이 자동 off : 0xaf
