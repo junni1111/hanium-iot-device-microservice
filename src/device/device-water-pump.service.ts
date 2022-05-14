@@ -52,7 +52,8 @@ export class DeviceWaterPumpService {
         0x05,
         0x0f,
         0xa1,
-        [0xaf, cycleHigh, cycleLow, runtimeHigh, runtimeLow],
+        //통보없이 자동 off : 0xaf
+        [0xaa, cycleHigh, cycleLow, runtimeHigh, runtimeLow],
       );
       return this.deviceService.publishEvent(topic, JSON.stringify(message));
     } catch (e) {
