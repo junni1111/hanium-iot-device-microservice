@@ -38,20 +38,20 @@ export class DeviceController {
     @Payload() pollingStatus: EPollingState,
   ) {
     const key = context.getTopic();
-    console.log(`이전 상태 값: `, await this.cacheManager.get<number>(key));
+    // console.log(`이전 상태 값: `, await this.cacheManager.get<number>(key));
 
     if (pollingStatus !== EPollingState.OK) {
       /**
        * Todo: Trigger Some Mock Method */
-      console.log(`Polling 값 문제 발생`);
-      console.log(`추후 여기서 트리거 발생`);
+      // console.log(`Polling 값 문제 발생`);
+      // console.log(`추후 여기서 트리거 발생`);
       this.pollingService.mockPollingExceptionTrigger(context, pollingStatus);
     }
 
     /**
      * Todo: Cache Status To Redis */
     await this.cacheManager.set<number>(key, pollingStatus, { ttl: 0 });
-    console.log(`캐싱 값: `, key, pollingStatus);
+    // console.log(`캐싱 값: `, key, pollingStatus);
 
     /**
      * Todo: Refactor After Pass Test */
@@ -111,5 +111,25 @@ export class DeviceController {
     console.log(context.getPacket());
     console.log('data:', data);
     // console.log('packet: ', context.getPacket());
+  }
+
+  /**
+   * Todo: 테스트 완료 후 상태 캐싱 구현 */
+  @EventPattern('master/+/slave/+/mock', Transport.MQTT)
+  mockE0Event(@Payload() data: string, @Ctx() context: MqttContext) {
+    console.log(`Receive Mock Event`);
+    console.log(context.getTopic());
+    console.log(context.getPacket());
+    console.log(`data: `, data);
+  }
+
+  /**
+   * Todo: 테스트 완료 후 상태 캐싱 구현 */
+  @EventPattern('master/+/assert', Transport.MQTT)
+  mockAssert(@Payload() data: string, @Ctx() context: MqttContext) {
+    console.log(`Receive Assert Event`);
+    console.log(context.getTopic());
+    console.log(context.getPacket());
+    console.log(`data: `, data);
   }
 }

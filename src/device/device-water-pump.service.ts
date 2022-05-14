@@ -7,7 +7,8 @@ import { DeviceService } from './device.service';
 import { IWaterPumpConfig } from './interfaces/slave-configs';
 import { SlaveRepository } from './repositories/slave.repository';
 import { WaterPumpTurnDto } from '../api/dto/water-pump-turn.dto';
-import { EPowerState, ESlaveTurnPowerTopic } from '../util/constants/api-topic';
+import { EPowerState } from '../util/constants/api-topic';
+import { LedTurnDto } from '../api/dto/led-turn.dto';
 
 @Injectable()
 export class DeviceWaterPumpService {
@@ -17,17 +18,26 @@ export class DeviceWaterPumpService {
     private readonly slaveRepository: SlaveRepository,
   ) {}
 
-  async turnWaterPump({ masterId, slaveId, powerState }: WaterPumpTurnDto) {
-    console.log(`power state: `, powerState);
-    const waterPumpCycle = powerState === EPowerState.ON ? 0xffff : 0;
-    const waterPumpRuntime = powerState === EPowerState.ON ? 0xffff : 0;
+  async turnWaterPump({ masterId, slaveId, powerState }: LedTurnDto) {
+    const topic = `master/${masterId}/water`;
+    const waterPumpState = powerState === EPowerState.ON ? 0xfb : 0x0f;
 
-    return this.requestWaterPump({
-      masterId,
+    console.log(topic);
+    const message = new WaterPumpPacketDto(
+      0x23,
+      0x22,
       slaveId,
-      waterPumpCycle,
-      waterPumpRuntime,
-    });
+      0xd1,
+      0x05,
+      0x0f,
+      0xdd,
+      //통보없이 자동 off : 0xaf
+      [waterPumpState],
+    );
+
+    console.log(message);
+
+    return this.deviceService.publishEvent(topic, JSON.stringify(message));
   }
 
   async requestWaterPump({

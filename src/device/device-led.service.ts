@@ -7,6 +7,7 @@ import { DeviceService } from './device.service';
 import { ILedConfig } from './interfaces/slave-configs';
 import { SlaveRepository } from './repositories/slave.repository';
 import { LedTurnDto } from '../api/dto/led-turn.dto';
+import { EPowerState } from '../util/constants/api-topic';
 
 @Injectable()
 export class DeviceLedService {
@@ -19,10 +20,26 @@ export class DeviceLedService {
   /**
    * Todo: 더 좋은 방법 고민 */
   async turnLed({ masterId, slaveId, powerState }: LedTurnDto) {
-    const ledCycle = powerState === 'on' ? 0xffff : 0;
-    const ledRuntime = powerState === 'on' ? 0xffff : 0;
+    const ledState = powerState === EPowerState.ON ? 0xfb : 0x0f;
 
-    return this.requestLed({ masterId, slaveId, ledCycle, ledRuntime });
+    const topic = `master/${masterId}/led`;
+
+    console.log(topic);
+    const message = new LedPacketDto(
+      0x23,
+      0x22,
+      slaveId,
+      0xd1,
+      0x05,
+      0x0f,
+      0xdd,
+      //통보없이 자동 off : 0xaf
+      [ledState],
+    );
+
+    console.log(message);
+
+    return this.deviceService.publishEvent(topic, JSON.stringify(message));
   }
 
   async requestLed({
