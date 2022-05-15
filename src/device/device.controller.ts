@@ -38,7 +38,7 @@ export class DeviceController {
     @Payload() pollingStatus: EPollingState,
   ) {
     const key = context.getTopic();
-    console.log(`이전 상태 값: `, await this.cacheManager.get<number>(key));
+    // console.log(`이전 상태 값: `, await this.cacheManager.get<number>(key));
 
     if (pollingStatus !== EPollingState.OK) {
       /**
@@ -51,7 +51,7 @@ export class DeviceController {
     /**
      * Todo: Cache Status To Redis */
     await this.cacheManager.set<number>(key, pollingStatus, { ttl: 0 });
-    console.log(`캐싱 값: `, key, pollingStatus);
+    // console.log(`캐싱 값: `, key, pollingStatus);
 
     /**
      * Todo: Refactor After Pass Test */
@@ -119,8 +119,8 @@ export class DeviceController {
       await this.cacheManager.set<string>(context.getTopic(), data, { ttl: 0 });
     } else {
       console.log(`Slave State Event Exception. Payload is not 'on' or 'off'`);
-      console.log(`receive packet: `, context.getPacket());
     }
+    console.log(`receive packet: `, context.getPacket());
 
     console.log(`receive value `, data);
   }

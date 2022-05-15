@@ -49,7 +49,7 @@ export class DevicePollingService {
     const makeKey = (masterId: string) => POLLING.replace('+', `${masterId}`);
 
     const pollingState = await this.cacheManager.get<number>(makeKey(masterId));
-    console.log(`cached polling state: `, pollingState);
+    // console.log(`cached polling state: `, pollingState);
     return pollingState;
   }
 

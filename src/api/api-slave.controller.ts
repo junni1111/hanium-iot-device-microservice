@@ -116,6 +116,13 @@ export class ApiSlaveController {
       const requestResult = await this.deviceWaterPumpService.turnWaterPump(
         waterPumpTurnDto,
       );
+      /** Todo: Extract Service */
+      const key = `master/${waterPumpTurnDto.masterId}/slave/${waterPumpTurnDto.slaveId}/${ESlaveState.WATER_PUMP}`;
+      const state = await this.cacheManager.set<string>(
+        key,
+        waterPumpTurnDto.powerState,
+        { ttl: 0 },
+      );
 
       return {
         status: HttpStatus.OK,
@@ -135,6 +142,15 @@ export class ApiSlaveController {
   async turnLed(@Payload() ledTurnDto: LedTurnDto) {
     try {
       const requestResult = await this.deviceLedService.turnLed(ledTurnDto);
+
+      /** Todo: Extract Service */
+      const key = `master/${ledTurnDto.masterId}/slave/${ledTurnDto.slaveId}/${ESlaveState.LED}`;
+
+      const state = await this.cacheManager.set<string>(
+        key,
+        ledTurnDto.powerState,
+        { ttl: 0 },
+      );
 
       return {
         status: HttpStatus.OK,
@@ -299,7 +315,7 @@ export class ApiSlaveController {
       parseInt(slave_id),
     );
 
-    console.log(`current temp:`, data);
+    // console.log(`current temp:`, data);
     return {
       status: HttpStatus.OK,
       topic: 'temperature',
