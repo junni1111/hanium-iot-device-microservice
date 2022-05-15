@@ -20,6 +20,7 @@ import { LedTurnDto } from './dto/led-turn.dto';
 import { WaterPumpTurnDto } from './dto/water-pump-turn.dto';
 import { LedStateDto } from './dto/led-state.dto';
 import { Cache } from 'cache-manager';
+import { WaterPumpStateDto } from './dto/water-pump-state.dto';
 
 @Controller()
 export class ApiSlaveController {
@@ -58,11 +59,37 @@ export class ApiSlaveController {
 
   /**
    * Todo: Extract Controller */
+  @MessagePattern(ESlaveState.WATER_PUMP, Transport.TCP)
+  async getWaterPumpState(
+    @Payload() waterPumpStateDto: WaterPumpStateDto,
+  ): Promise<ResponseStatus> {
+    try {
+      console.log(`get water pump state: `, waterPumpStateDto);
+      /** Todo: Extract Service */
+      const key = `master/${waterPumpStateDto.masterId}/slave/${waterPumpStateDto.slaveId}/${ESlaveState.WATER_PUMP}`;
+
+      const state = await this.cacheManager.get<string>(key);
+
+      console.log(`get cached value `, state);
+
+      return {
+        status: HttpStatus.OK,
+        topic: ESlaveState.WATER_PUMP,
+        message: 'request check water pump state success',
+        data: state,
+      };
+    } catch (e) {
+      console.log(e);
+    }
+  }
+  /**
+   * Todo: Extract Controller */
   @MessagePattern(ESlaveState.LED, Transport.TCP)
   async getLedState(
     @Payload() ledStateDto: LedStateDto,
   ): Promise<ResponseStatus> {
     try {
+      /** Todo: Extract Service */
       console.log(`get led state: `, ledStateDto);
       const key = `master/${ledStateDto.masterId}/slave/${ledStateDto.slaveId}/${ESlaveState.LED}`;
 
@@ -82,7 +109,7 @@ export class ApiSlaveController {
   }
 
   /**
-   * Todo: LED, 모터 둘다 포함 가능하게 변경*/
+   * Todo: LED, 모터 둘다 포함 가능하게 고민*/
   @MessagePattern(ESlaveTurnPowerTopic.WATER_PUMP, Transport.TCP)
   async turnWaterPump(@Payload() waterPumpTurnDto: WaterPumpTurnDto) {
     try {
@@ -103,7 +130,7 @@ export class ApiSlaveController {
   }
 
   /**
-   * Todo: LED, 모터 둘다 포함 가능하게 변경*/
+   * Todo: LED, 모터 둘다 포함 가능하게 고민*/
   @MessagePattern(ESlaveTurnPowerTopic.LED, Transport.TCP)
   async turnLed(@Payload() ledTurnDto: LedTurnDto) {
     try {
