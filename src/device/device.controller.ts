@@ -18,6 +18,7 @@ import { DeviceLedService } from './device-led.service';
 import { DeviceTemperatureService } from './device-temperature.service';
 import { DeviceWaterPumpService } from './device-water-pump.service';
 import { Cache } from 'cache-manager';
+import { Temperature } from './entities/temperature.entity';
 
 @Controller()
 export class DeviceController {
@@ -38,7 +39,7 @@ export class DeviceController {
     @Payload() pollingStatus: EPollingState,
   ) {
     const key = context.getTopic();
-    console.log(`이전 상태 값: `, await this.cacheManager.get<number>(key));
+    // console.log(`이전 상태 값: `, await this.cacheManager.get<number>(key));
 
     if (pollingStatus !== EPollingState.OK) {
       /**
@@ -51,7 +52,7 @@ export class DeviceController {
     /**
      * Todo: Cache Status To Redis */
     await this.cacheManager.set<number>(key, pollingStatus, { ttl: 0 });
-    console.log(`캐싱 값: `, key, pollingStatus);
+    // console.log(`캐싱 값: `, key, pollingStatus);
 
     /**
      * Todo: Refactor After Pass Test */
@@ -70,7 +71,7 @@ export class DeviceController {
      * Todo: 추후 사용자가 지정한 온도 범위값을
      *       감지할 수 있게 수정 */
     const MIN_AVAILABLE_TEMPERATURE = 10;
-    const MAX_AVAILABLE_TEMPERATURE = 33;
+    const MAX_AVAILABLE_TEMPERATURE = 35;
     const [, masterId, , slaveId] = context.getTopic().split('/');
 
     try {
@@ -93,23 +94,35 @@ export class DeviceController {
 
       /**
        * Todo: Handling data */
-      await this.cacheManager.set<number>(context.getTopic(), temperature);
+      await this.cacheManager.set<number>(context.getTopic(), temperature, {
+        ttl: 0,
+      });
 
-      // >>>>>>> parent of 13ff04a (배포 env 체크)
-      // const data = await this.deviceTemperatureService.saveTemperature(
-      //   new Temperature(parseInt(masterId), parseInt(slaveId), temperature),
-      // );
+      const data = await this.deviceTemperatureService.saveTemperature(
+        new Temperature(parseInt(masterId), parseInt(slaveId), temperature),
+      );
     } catch (e) {
       throw e;
     }
   }
 
   @EventPattern(SLAVE_STATE, Transport.MQTT)
-  receiveSlaveState(@Payload() data: number, @Ctx() context: MqttContext) {
-    console.log(`Recv State`);
-    console.log(context.getTopic());
-    console.log(context.getPacket());
-    console.log('data:', data);
-    // console.log('packet: ', context.getPacket());
+  async receiveSlaveState(
+    @Payload() data: string,
+    @Ctx() context: MqttContext,
+  ) {
+    // console.log(`topic `, context.getTopic());
+    // console.log(
+    //   `before cached value `,
+    //   await this.cacheManager.get<string>(context.getTopic()),
+    // );
+    if (data === 'on' || data === 'off') {
+      await this.cacheManager.set<string>(context.getTopic(), data, { ttl: 0 });
+    } else {
+      console.log(`Slave State Event Exception. Payload is not 'on' or 'off'`);
+    }
+    console.log(`receive packet: `, context.getPacket());
+
+    console.log(`receive value `, data);
   }
 }

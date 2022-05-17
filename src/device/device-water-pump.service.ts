@@ -2,10 +2,13 @@ import { Inject, Injectable } from '@nestjs/common';
 import { MQTT_BROKER } from '../util/constants/constants';
 import { ClientProxy } from '@nestjs/microservices';
 import { WaterPumpPacketDto } from './dto/water-pump-packet.dto';
-import { SlaveConfigDto } from '../api/dto/slave-config.dto';
+import { SlaveConfigDto } from '../api/dto/slave/slave-config.dto';
 import { DeviceService } from './device.service';
 import { IWaterPumpConfig } from './interfaces/slave-configs';
 import { SlaveRepository } from './repositories/slave.repository';
+import { WaterPumpTurnDto } from '../api/dto/water-pump/water-pump-turn.dto';
+import { EPowerState } from '../util/constants/api-topic';
+import { LedTurnDto } from '../api/dto/led/led-turn.dto';
 
 @Injectable()
 export class DeviceWaterPumpService {
@@ -14,6 +17,28 @@ export class DeviceWaterPumpService {
     private readonly deviceService: DeviceService,
     private readonly slaveRepository: SlaveRepository,
   ) {}
+
+  async turnWaterPump({ masterId, slaveId, powerState }: LedTurnDto) {
+    const topic = `master/${masterId}/water`;
+    const waterPumpState = powerState === EPowerState.ON ? 0xfb : 0x0f;
+
+    console.log(topic);
+    const message = new WaterPumpPacketDto(
+      0x23,
+      0x22,
+      slaveId,
+      0xd1,
+      0x01,
+      0x0f,
+      0xa1,
+      //통보없이 자동 off : 0xaf
+      [waterPumpState],
+    );
+
+    console.log(message);
+
+    return this.deviceService.publishEvent(topic, JSON.stringify(message));
+  }
 
   async requestWaterPump({
     masterId,
@@ -37,7 +62,8 @@ export class DeviceWaterPumpService {
         0x05,
         0x0f,
         0xa1,
-        [0xaf, cycleHigh, cycleLow, runtimeHigh, runtimeLow],
+        //통보없이 자동 off : 0xaf
+        [0xaa, cycleHigh, cycleLow, runtimeHigh, runtimeLow],
       );
       return this.deviceService.publishEvent(topic, JSON.stringify(message));
     } catch (e) {
