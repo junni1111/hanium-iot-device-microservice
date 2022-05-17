@@ -7,7 +7,7 @@ import { TemperatureRepository } from './repositories/temperature.repository';
 import { Interval } from '@nestjs/schedule';
 import { DeviceService } from './device.service';
 import { SlaveRepository } from './repositories/slave.repository';
-import { SlaveConfigDto } from '../api/dto/slave-config.dto';
+import { SlaveConfigDto } from '../api/dto/slave/slave-config.dto';
 import { ITemperatureConfig } from './interfaces/slave-configs';
 import { createQueryBuilder } from 'typeorm';
 import { DoubleKeysMap } from '../util/double-keys-map';
@@ -131,7 +131,7 @@ export class DeviceTemperatureService {
   }
 
   async createTestData() {
-    return this.temperatureRepository.createTestData(1, 0x12);
+    return this.temperatureRepository.createTestData(1, 0x13);
   }
 
   /**
@@ -169,9 +169,6 @@ export class DeviceTemperatureService {
     /**
      * Todo: Extract Create Key Function */
     const key = `temperature/${masterId}/${slaveId}`;
-    // console.log(`key: `, key);
-    const beforeValue = await this.cacheManager.get<number>(key);
-    // console.log(`before cached value: `, beforeValue);
     return this.cacheManager.set<number>(key, temperature, { ttl: 0 });
   }
 }

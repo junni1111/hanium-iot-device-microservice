@@ -1,6 +1,6 @@
 import { EntityRepository, Repository } from 'typeorm';
 import { Master } from '../entities/master.entity';
-import { CreateMasterDto } from '../../api/dto/create-master.dto';
+import { CreateMasterDto } from '../../api/dto/master/create-master.dto';
 
 @EntityRepository(Master)
 export class MasterRepository extends Repository<Master> {

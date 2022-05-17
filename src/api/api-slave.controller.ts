@@ -11,16 +11,19 @@ import {
   ESlaveTurnPowerTopic,
   TEMPERATURE_WEEK,
 } from '../util/constants/api-topic';
-import { SLAVE_STATE, TEMPERATURE } from '../util/constants/mqtt-topic';
-import { SlaveConfigDto } from './dto/slave-config.dto';
+import { TEMPERATURE } from '../util/constants/mqtt-topic';
+import { SlaveConfigDto } from './dto/slave/slave-config.dto';
 import { DeviceLedService } from '../device/device-led.service';
 import { DeviceWaterPumpService } from '../device/device-water-pump.service';
 import { DeviceTemperatureService } from '../device/device-temperature.service';
-import { LedTurnDto } from './dto/led-turn.dto';
-import { WaterPumpTurnDto } from './dto/water-pump-turn.dto';
-import { LedStateDto } from './dto/led-state.dto';
+import { LedTurnDto } from './dto/led/led-turn.dto';
+import { WaterPumpTurnDto } from './dto/water-pump/water-pump-turn.dto';
+import { LedStateDto } from './dto/led/led-state.dto';
 import { Cache } from 'cache-manager';
-import { WaterPumpStateDto } from './dto/water-pump-state.dto';
+import { WaterPumpStateDto } from './dto/water-pump/water-pump-state.dto';
+import { ApiLedService } from './api-led.service';
+import { ApiWaterPumpService } from './api-water-pump.service';
+import { SlaveStateDto } from './dto/slave/slave-state.dto';
 
 @Controller()
 export class ApiSlaveController {
@@ -28,29 +31,38 @@ export class ApiSlaveController {
     @Inject(CACHE_MANAGER) private readonly cacheManager: Cache,
     private readonly masterService: DeviceMasterService,
     private readonly pollingService: DevicePollingService,
+    private readonly apiLedService: ApiLedService,
+    private readonly apiWaterPumpService: ApiWaterPumpService,
     private readonly deviceService: DeviceService,
     private readonly deviceLedService: DeviceLedService,
     private readonly deviceWaterPumpService: DeviceWaterPumpService,
     private readonly deviceTemperatureService: DeviceTemperatureService,
   ) {}
 
-  @MessagePattern('slave/state', Transport.TCP)
-  async getSlaveState(@Payload() payload: string): Promise<ResponseStatus> {
+  /** Todo: 센서들 상태 캐싱값 받아와서 돌려줌 */
+  @MessagePattern(ESlaveState.ALL, Transport.TCP)
+  async getSlaveState(
+    @Payload() slaveStateDto: SlaveStateDto,
+  ): Promise<ResponseStatus> {
     try {
-      const { master_id, slave_id } = JSON.parse(payload);
       /* TODO: Validate master id & slave id */
-      console.log(`call Slave State`, master_id, slave_id);
+      console.log(`call Slave State`, slaveStateDto);
+      console.log(`mid, sid:`, slaveStateDto.masterId, slaveStateDto.slaveId);
 
-      await this.deviceLedService.checkLedState(master_id, slave_id);
-      await this.deviceWaterPumpService.checkWaterPumpState(
-        master_id,
-        slave_id,
+      const ledState = await this.apiLedService.getLedState(slaveStateDto);
+      const waterPumpState = await this.apiWaterPumpService.getWaterPumpState(
+        slaveStateDto,
       );
+
+      console.log(`led State: `, ledState);
+
+      console.log(`waterPumpState: `, waterPumpState);
 
       return {
         status: HttpStatus.OK,
-        topic: 'slave/state',
+        topic: ESlaveState.ALL,
         message: 'request check slave state success',
+        data: { ledState, waterPumpState },
       };
     } catch (e) {
       console.log(e);
@@ -64,13 +76,9 @@ export class ApiSlaveController {
     @Payload() waterPumpStateDto: WaterPumpStateDto,
   ): Promise<ResponseStatus> {
     try {
-      console.log(`get water pump state: `, waterPumpStateDto);
-      /** Todo: Extract Service */
-      const key = `master/${waterPumpStateDto.masterId}/slave/${waterPumpStateDto.slaveId}/${ESlaveState.WATER_PUMP}`;
-
-      const state = await this.cacheManager.get<string>(key);
-
-      console.log(`get cached value `, state);
+      const state = await this.apiWaterPumpService.getWaterPumpState(
+        waterPumpStateDto,
+      );
 
       return {
         status: HttpStatus.OK,
@@ -89,13 +97,9 @@ export class ApiSlaveController {
     @Payload() ledStateDto: LedStateDto,
   ): Promise<ResponseStatus> {
     try {
-      /** Todo: Extract Service */
-      console.log(`get led state: `, ledStateDto);
-      const key = `master/${ledStateDto.masterId}/slave/${ledStateDto.slaveId}/${ESlaveState.LED}`;
-
-      const state = await this.cacheManager.get<string>(key);
-
-      console.log(`get cached value `, state);
+      console.log(`led dto: `, ledStateDto);
+      console.log(`led mid ,sid : `, ledStateDto.masterId, ledStateDto.slaveId);
+      const state = await this.apiLedService.getLedState(ledStateDto);
 
       return {
         status: HttpStatus.OK,
@@ -185,6 +189,11 @@ export class ApiSlaveController {
 
     try {
       const requestResult = this.deviceLedService.requestLed(ledConfigDto);
+      /** Todo: Extract to service */
+      if (ledConfigDto.ledRuntime > 0) {
+        const key = `master/${ledConfigDto.masterId}/slave/${ledConfigDto.slaveId}/${ESlaveState.LED}`;
+        await this.cacheManager.set<string>(key, 'on', { ttl: 0 });
+      }
 
       const configUpdateResult = await this.deviceLedService.setLedConfig(
         ledConfigDto,
@@ -253,6 +262,11 @@ export class ApiSlaveController {
 
       const waterPumpPacket =
         await this.deviceWaterPumpService.requestWaterPump(waterPumpConfigDto);
+
+      if (waterPumpConfigDto.waterPumpRuntime > 0) {
+        const key = `master/${waterPumpConfigDto.masterId}/slave/${waterPumpConfigDto.slaveId}/${ESlaveState.WATER_PUMP}`;
+        await this.cacheManager.set<string>(key, 'on', { ttl: 0 });
+      }
 
       const configUpdateResult =
         await this.deviceWaterPumpService.setWaterPumpConfig(

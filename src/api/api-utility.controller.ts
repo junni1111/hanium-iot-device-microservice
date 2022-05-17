@@ -23,7 +23,7 @@ export class ApiUtilityController {
   @MessagePattern('test/temperature', Transport.TCP)
   async createTestTemperatureData() {
     console.log(`create test data...`);
-    await this.deviceTemperatureService.createTestData();
-    return 'create done';
+
+    return await this.deviceTemperatureService.createTestData();
   }
 }

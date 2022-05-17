@@ -2,13 +2,13 @@ import { Inject, Injectable } from '@nestjs/common';
 import { MQTT_BROKER } from '../util/constants/constants';
 import { ClientProxy } from '@nestjs/microservices';
 import { WaterPumpPacketDto } from './dto/water-pump-packet.dto';
-import { SlaveConfigDto } from '../api/dto/slave-config.dto';
+import { SlaveConfigDto } from '../api/dto/slave/slave-config.dto';
 import { DeviceService } from './device.service';
 import { IWaterPumpConfig } from './interfaces/slave-configs';
 import { SlaveRepository } from './repositories/slave.repository';
-import { WaterPumpTurnDto } from '../api/dto/water-pump-turn.dto';
+import { WaterPumpTurnDto } from '../api/dto/water-pump/water-pump-turn.dto';
 import { EPowerState } from '../util/constants/api-topic';
-import { LedTurnDto } from '../api/dto/led-turn.dto';
+import { LedTurnDto } from '../api/dto/led/led-turn.dto';
 
 @Injectable()
 export class DeviceWaterPumpService {

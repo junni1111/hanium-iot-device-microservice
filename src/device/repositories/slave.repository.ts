@@ -1,7 +1,7 @@
 import { EntityRepository, Repository } from 'typeorm';
 import { Slave } from '../entities/slave.entity';
 import { defaultSlaveConfig, ISlaveConfigs } from '../interfaces/slave-configs';
-import { CreateSlaveDto } from '../../api/dto/create-slave.dto';
+import { CreateSlaveDto } from '../../api/dto/slave/create-slave.dto';
 
 @EntityRepository(Slave)
 export class SlaveRepository extends Repository<Slave> {

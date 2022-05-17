@@ -18,6 +18,7 @@ import { DeviceLedService } from './device-led.service';
 import { DeviceTemperatureService } from './device-temperature.service';
 import { DeviceWaterPumpService } from './device-water-pump.service';
 import { Cache } from 'cache-manager';
+import { Temperature } from './entities/temperature.entity';
 
 @Controller()
 export class DeviceController {
@@ -70,7 +71,7 @@ export class DeviceController {
      * Todo: 추후 사용자가 지정한 온도 범위값을
      *       감지할 수 있게 수정 */
     const MIN_AVAILABLE_TEMPERATURE = 10;
-    const MAX_AVAILABLE_TEMPERATURE = 29;
+    const MAX_AVAILABLE_TEMPERATURE = 35;
     const [, masterId, , slaveId] = context.getTopic().split('/');
 
     try {
@@ -97,9 +98,9 @@ export class DeviceController {
         ttl: 0,
       });
 
-      // const data = await this.deviceTemperatureService.saveTemperature(
-      //   new Temperature(parseInt(masterId), parseInt(slaveId), temperature),
-      // );
+      const data = await this.deviceTemperatureService.saveTemperature(
+        new Temperature(parseInt(masterId), parseInt(slaveId), temperature),
+      );
     } catch (e) {
       throw e;
     }
@@ -110,11 +111,11 @@ export class DeviceController {
     @Payload() data: string,
     @Ctx() context: MqttContext,
   ) {
-    console.log(`topic `, context.getTopic());
-    console.log(
-      `before cached value `,
-      await this.cacheManager.get<string>(context.getTopic()),
-    );
+    // console.log(`topic `, context.getTopic());
+    // console.log(
+    //   `before cached value `,
+    //   await this.cacheManager.get<string>(context.getTopic()),
+    // );
     if (data === 'on' || data === 'off') {
       await this.cacheManager.set<string>(context.getTopic(), data, { ttl: 0 });
     } else {

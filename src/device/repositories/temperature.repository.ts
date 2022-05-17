@@ -1,6 +1,6 @@
 import { createQueryBuilder, EntityRepository, Repository } from 'typeorm';
 import { Temperature } from '../entities/temperature.entity';
-import { subDays, subMinutes } from 'date-fns';
+import { subDays, subMinutes, subSeconds } from 'date-fns';
 
 @EntityRepository(Temperature)
 export class TemperatureRepository extends Repository<Temperature> {
@@ -29,26 +29,34 @@ export class TemperatureRepository extends Repository<Temperature> {
   async createTestData(masterId: number, slaveId: number) {
     const max = 25.5;
     const min = 23.0;
-    let date: Date = new Date(
+    const date: Date = new Date(
       new Date().getFullYear(),
       new Date().getMonth(),
       new Date().getHours(),
     );
-
+    let now = date;
+    let i = 0;
+    console.log(`date: `, date);
+    // now = subSeconds(now, 5);
+    console.log(`now: `, now);
     try {
-      for (let i = 0; i < 1100; i++) {
-        date = subMinutes(date, 10);
+      for (; now >= subDays(date, 7); now = subMinutes(now, 10)) {
+        console.log(`for now: `, now);
+
         const randomTemperature = Math.random() * (max - min) + min;
-        const mockData = this.create(
+        const mockData = await this.create(
           new Temperature(
             masterId,
             slaveId,
             parseFloat(randomTemperature.toFixed(1)),
-            date,
+            now,
           ),
         );
         await this.save(mockData);
+        console.log(`save count: `, ++i);
       }
+
+      return `save count: ${i}`;
     } catch (e) {
       console.log(e);
     }

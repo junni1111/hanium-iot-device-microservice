@@ -2,11 +2,11 @@ import { Inject, Injectable } from '@nestjs/common';
 import { MQTT_BROKER } from '../util/constants/constants';
 import { ClientProxy } from '@nestjs/microservices';
 import { LedPacketDto } from './dto/led-packet.dto';
-import { SlaveConfigDto } from '../api/dto/slave-config.dto';
+import { SlaveConfigDto } from '../api/dto/slave/slave-config.dto';
 import { DeviceService } from './device.service';
 import { ILedConfig } from './interfaces/slave-configs';
 import { SlaveRepository } from './repositories/slave.repository';
-import { LedTurnDto } from '../api/dto/led-turn.dto';
+import { LedTurnDto } from '../api/dto/led/led-turn.dto';
 import { EPowerState } from '../util/constants/api-topic';
 
 @Injectable()

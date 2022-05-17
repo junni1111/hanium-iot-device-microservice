@@ -7,15 +7,14 @@ import { DeviceMasterService } from '../device/device-master.service';
 import { ResponseStatus } from '../device/interfaces/response-status';
 import { POLLING } from '../util/constants/mqtt-topic';
 import { EPollingState } from '../device/interfaces/polling-status';
-import { CreateMasterDto } from './dto/create-master.dto';
-import { CreateSlaveDto } from './dto/create-slave.dto';
+import { CreateMasterDto } from './dto/master/create-master.dto';
+import { CreateSlaveDto } from './dto/slave/create-slave.dto';
 
 @Controller()
 export class ApiMasterController {
   constructor(
     private readonly masterService: DeviceMasterService,
     private readonly pollingService: DevicePollingService,
-    private readonly deviceService: DeviceService,
   ) {}
 
   @MessagePattern('create/master', Transport.TCP)
