@@ -51,7 +51,7 @@ export class DeviceController {
 
     /**
      * Todo: Cache Status To Redis */
-    await this.cacheManager.set<number>(key, pollingStatus, { ttl: 0 });
+    await this.cacheManager.set<number>(key, pollingStatus, { ttl: 60 });
     // console.log(`캐싱 값: `, key, pollingStatus);
 
     /**
@@ -108,20 +108,43 @@ export class DeviceController {
 
   @EventPattern(SLAVE_STATE, Transport.MQTT)
   async receiveSlaveState(
-    @Payload() data: string,
+    @Payload() runtimeMinutes: number,
     @Ctx() context: MqttContext,
   ) {
+    console.log(`salve runtime: `, runtimeMinutes);
+    if (runtimeMinutes > 0) {
+      await this.cacheManager.set<string>(context.getTopic(), 'on', {
+        ttl: runtimeMinutes * 60, // make minutes -> second
+      });
+    }
+    console.log(`receive packet: `, context.getPacket());
+    /** Todo: Remove after github slack integration test */
     // console.log(`topic `, context.getTopic());
     // console.log(
     //   `before cached value `,
     //   await this.cacheManager.get<string>(context.getTopic()),
     // );
-    if (data === 'on' || data === 'off') {
-      await this.cacheManager.set<string>(context.getTopic(), data, { ttl: 0 });
-    } else {
-      console.log(`Slave State Event Exception. Payload is not 'on' or 'off'`);
-    }
-    console.log(`receive packet: `, context.getPacket());
+    // if (data === 'on' || data === 'off') {
+    //   await this.cacheManager.set<string>(context.getTopic(), data, { ttl: 0 });
+    // } else {
+    //   console.log(`Slave State Event Exception. Payload is not 'on' or 'off'`);
+    // }
+    //
+    // console.log(`receive value `, data);
+  }
+
+  /**
+   * Todo: Slave 펌웨어 수정 이후 제거 예정 */
+  @EventPattern('master/+/assert', Transport.MQTT)
+  async receiveAssert(@Payload() data: string, @Ctx() context: MqttContext) {
+    console.log(`receive Assert packet: `, context.getPacket());
+
+    console.log(`receive value `, data);
+  }
+
+  @EventPattern('master/+/error', Transport.MQTT)
+  async receiveError(@Payload() data: string, @Ctx() context: MqttContext) {
+    console.log(`receive Error packet: `, context.getPacket());
 
     console.log(`receive value `, data);
   }

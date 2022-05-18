@@ -192,7 +192,9 @@ export class ApiSlaveController {
       /** Todo: Extract to service */
       if (ledConfigDto.ledRuntime > 0) {
         const key = `master/${ledConfigDto.masterId}/slave/${ledConfigDto.slaveId}/${ESlaveState.LED}`;
-        await this.cacheManager.set<string>(key, 'on', { ttl: 0 });
+        await this.cacheManager.set<string>(key, 'on', {
+          ttl: ledConfigDto.ledRuntime,
+        });
       }
 
       const configUpdateResult = await this.deviceLedService.setLedConfig(
@@ -265,7 +267,9 @@ export class ApiSlaveController {
 
       if (waterPumpConfigDto.waterPumpRuntime > 0) {
         const key = `master/${waterPumpConfigDto.masterId}/slave/${waterPumpConfigDto.slaveId}/${ESlaveState.WATER_PUMP}`;
-        await this.cacheManager.set<string>(key, 'on', { ttl: 0 });
+        await this.cacheManager.set<string>(key, 'on', {
+          ttl: waterPumpConfigDto.waterPumpRuntime,
+        });
       }
 
       const configUpdateResult =

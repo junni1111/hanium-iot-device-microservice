@@ -1,6 +1,6 @@
 import { createQueryBuilder, EntityRepository, Repository } from 'typeorm';
 import { Temperature } from '../entities/temperature.entity';
-import { subDays, subMinutes, subSeconds } from 'date-fns';
+import { subDays, subMinutes } from 'date-fns';
 
 @EntityRepository(Temperature)
 export class TemperatureRepository extends Repository<Temperature> {
@@ -37,7 +37,6 @@ export class TemperatureRepository extends Repository<Temperature> {
     let now = date;
     let i = 0;
     console.log(`date: `, date);
-    // now = subSeconds(now, 5);
     console.log(`now: `, now);
     try {
       for (; now >= subDays(date, 7); now = subMinutes(now, 10)) {

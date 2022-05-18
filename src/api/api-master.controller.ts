@@ -72,8 +72,6 @@ export class ApiMasterController {
 
   /**
    * Todo: Refactor To Better Status Code */
-  /**
-   * Todo: Remove Old Polling Service  */
   @MessagePattern(POLLING, Transport.TCP)
   async getPollingState(@Payload() masterId: string): Promise<ResponseStatus> {
     try {

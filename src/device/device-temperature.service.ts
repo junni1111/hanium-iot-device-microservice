@@ -169,6 +169,6 @@ export class DeviceTemperatureService {
     /**
      * Todo: Extract Create Key Function */
     const key = `temperature/${masterId}/${slaveId}`;
-    return this.cacheManager.set<number>(key, temperature, { ttl: 0 });
+    return this.cacheManager.set<number>(key, temperature, { ttl: 60 });
   }
 }
