@@ -7,13 +7,12 @@ import { TemperatureRepository } from './repositories/temperature.repository';
 import { Interval } from '@nestjs/schedule';
 import { DeviceService } from './device.service';
 import { SlaveRepository } from './repositories/slave.repository';
-import { SlaveConfigDto } from '../api/dto/slave/slave-config.dto';
 import { ITemperatureConfig } from './interfaces/slave-configs';
 import { createQueryBuilder } from 'typeorm';
 import { DoubleKeysMap } from '../util/double-keys-map';
 import { Cache } from 'cache-manager';
-import { MockBuzzerPacketDto } from './dto/mock-buzzer-packet.dto';
 import { LedPacketDto } from './dto/led-packet.dto';
+import { SlaveConfigDto } from '../api/dto/slave/slave-config.dto';
 
 @Injectable()
 export class DeviceTemperatureService {

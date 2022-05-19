@@ -95,7 +95,7 @@ export class DeviceController {
       /**
        * Todo: Handling data */
       await this.cacheManager.set<number>(context.getTopic(), temperature, {
-        ttl: 0,
+        ttl: 60,
       });
 
       const data = await this.deviceTemperatureService.saveTemperature(
@@ -118,19 +118,6 @@ export class DeviceController {
       });
     }
     console.log(`receive packet: `, context.getPacket());
-    /** Todo: Remove after github slack integration test */
-    // console.log(`topic `, context.getTopic());
-    // console.log(
-    //   `before cached value `,
-    //   await this.cacheManager.get<string>(context.getTopic()),
-    // );
-    // if (data === 'on' || data === 'off') {
-    //   await this.cacheManager.set<string>(context.getTopic(), data, { ttl: 0 });
-    // } else {
-    //   console.log(`Slave State Event Exception. Payload is not 'on' or 'off'`);
-    // }
-    //
-    // console.log(`receive value `, data);
   }
 
   /**
@@ -142,6 +129,8 @@ export class DeviceController {
     console.log(`receive value `, data);
   }
 
+  /**
+   * Todo: Slave 펌웨어 수정 이후 제거 예정 */
   @EventPattern('master/+/error', Transport.MQTT)
   async receiveError(@Payload() data: string, @Ctx() context: MqttContext) {
     console.log(`receive Error packet: `, context.getPacket());

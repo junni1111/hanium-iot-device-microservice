@@ -12,7 +12,6 @@ import {
   TEMPERATURE_WEEK,
 } from '../util/constants/api-topic';
 import { TEMPERATURE } from '../util/constants/mqtt-topic';
-import { SlaveConfigDto } from './dto/slave/slave-config.dto';
 import { DeviceLedService } from '../device/device-led.service';
 import { DeviceWaterPumpService } from '../device/device-water-pump.service';
 import { DeviceTemperatureService } from '../device/device-temperature.service';
@@ -24,6 +23,7 @@ import { WaterPumpStateDto } from './dto/water-pump/water-pump-state.dto';
 import { ApiLedService } from './api-led.service';
 import { ApiWaterPumpService } from './api-water-pump.service';
 import { SlaveStateDto } from './dto/slave/slave-state.dto';
+import { SlaveConfigDto } from './dto/slave/slave-config.dto';
 
 @Controller()
 export class ApiSlaveController {
