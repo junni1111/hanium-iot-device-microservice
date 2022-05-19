@@ -1,6 +1,5 @@
 import { CACHE_MANAGER, Controller, HttpStatus, Inject } from '@nestjs/common';
 import { MessagePattern, Payload, Transport } from '@nestjs/microservices';
-
 import { DeviceService } from '../device/device.service';
 import { DevicePollingService } from '../device/device-polling.service';
 import { DeviceMasterService } from '../device/device-master.service';
@@ -12,7 +11,6 @@ import {
   TEMPERATURE_WEEK,
 } from '../util/constants/api-topic';
 import { TEMPERATURE } from '../util/constants/mqtt-topic';
-import { SlaveConfigDto } from './dto/slave/slave-config.dto';
 import { DeviceLedService } from '../device/device-led.service';
 import { DeviceWaterPumpService } from '../device/device-water-pump.service';
 import { DeviceTemperatureService } from '../device/device-temperature.service';
@@ -24,6 +22,7 @@ import { WaterPumpStateDto } from './dto/water-pump/water-pump-state.dto';
 import { ApiLedService } from './api-led.service';
 import { ApiWaterPumpService } from './api-water-pump.service';
 import { SlaveStateDto } from './dto/slave/slave-state.dto';
+import { SlaveConfigDto } from './dto/slave/slave-config.dto';
 
 @Controller()
 export class ApiSlaveController {
@@ -169,13 +168,9 @@ export class ApiSlaveController {
   }
 
   @MessagePattern(ESlaveConfigTopic.ALL, Transport.TCP)
-  async fetchConfig(@Payload() payload: string) {
+  async fetchConfig(@Payload() { masterId, slaveId }: Partial<SlaveConfigDto>) {
     try {
-      const { master_id, slave_id } = JSON.parse(payload);
-      console.log(`call config message`, master_id, slave_id);
-      console.log(`payload: `, payload);
-
-      const result = await this.masterService.getConfigs(master_id, slave_id);
+      const result = await this.masterService.getConfigs(masterId, slaveId);
       console.log(result);
       return result;
     } catch (e) {
@@ -193,8 +188,9 @@ export class ApiSlaveController {
       if (ledConfigDto.ledRuntime > 0) {
         const key = `master/${ledConfigDto.masterId}/slave/${ledConfigDto.slaveId}/${ESlaveState.LED}`;
         await this.cacheManager.set<string>(key, 'on', {
-          ttl: ledConfigDto.ledRuntime,
+          ttl: ledConfigDto.ledRuntime * 60,
         });
+        console.log(`led runtime: `, ledConfigDto.ledRuntime);
       }
 
       const configUpdateResult = await this.deviceLedService.setLedConfig(
@@ -268,7 +264,7 @@ export class ApiSlaveController {
       if (waterPumpConfigDto.waterPumpRuntime > 0) {
         const key = `master/${waterPumpConfigDto.masterId}/slave/${waterPumpConfigDto.slaveId}/${ESlaveState.WATER_PUMP}`;
         await this.cacheManager.set<string>(key, 'on', {
-          ttl: waterPumpConfigDto.waterPumpRuntime,
+          ttl: waterPumpConfigDto.waterPumpRuntime * 60,
         });
       }
 
