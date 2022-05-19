@@ -1,6 +1,5 @@
 import { CACHE_MANAGER, Controller, HttpStatus, Inject } from '@nestjs/common';
 import { MessagePattern, Payload, Transport } from '@nestjs/microservices';
-
 import { DeviceService } from '../device/device.service';
 import { DevicePollingService } from '../device/device-polling.service';
 import { DeviceMasterService } from '../device/device-master.service';
@@ -169,13 +168,9 @@ export class ApiSlaveController {
   }
 
   @MessagePattern(ESlaveConfigTopic.ALL, Transport.TCP)
-  async fetchConfig(@Payload() payload: string) {
+  async fetchConfig(@Payload() { masterId, slaveId }: Partial<SlaveConfigDto>) {
     try {
-      const { master_id, slave_id } = JSON.parse(payload);
-      console.log(`call config message`, master_id, slave_id);
-      console.log(`payload: `, payload);
-
-      const result = await this.masterService.getConfigs(master_id, slave_id);
+      const result = await this.masterService.getConfigs(masterId, slaveId);
       console.log(result);
       return result;
     } catch (e) {
