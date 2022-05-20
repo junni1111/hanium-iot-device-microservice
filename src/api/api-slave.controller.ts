@@ -337,19 +337,19 @@ export class ApiSlaveController {
       data,
     };
   }
-  //
-  // @MessagePattern(TEMPERATURE, Transport.TCP)
-  // async publishTemperature(
-  //   @Payload() payload: string,
-  // ): Promise<ResponseStatus> {
-  //   try {
-  //     const { master_id, slave_id } = JSON.parse(payload);
-  //     return this.deviceTemperatureService.requestTemperature(
-  //       parseInt(master_id),
-  //       parseInt(slave_id),
-  //     );
-  //   } catch (e) {
-  //     console.log(e);
-  //   }
-  // }
+
+  @MessagePattern(TEMPERATURE, Transport.TCP)
+  async publishTemperature(
+    @Payload() payload: string,
+  ): Promise<ResponseStatus> {
+    try {
+      const { master_id, slave_id } = JSON.parse(payload);
+      return this.deviceTemperatureService.requestTemperature(
+        parseInt(master_id),
+        parseInt(slave_id),
+      );
+    } catch (e) {
+      console.log(e);
+    }
+  }
 }

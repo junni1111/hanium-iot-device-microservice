@@ -53,13 +53,6 @@ export class DeviceController {
      * Todo: Cache Status To Redis */
     await this.cacheManager.set<number>(key, pollingStatus, { ttl: 60 });
     // console.log(`캐싱 값: `, key, pollingStatus);
-
-    /**
-     * Todo: Refactor After Pass Test */
-    // const masterId = this.deviceService.getMasterId(context.getTopic());
-    // console.log(`polling from master: `, masterId);
-    // console.log(pollingStatus);
-    // this.pollingService.setPollingStatus(masterId, pollingStatus);
   }
 
   @EventPattern(TEMPERATURE, Transport.MQTT)
