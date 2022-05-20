@@ -92,12 +92,6 @@ export class DeviceController {
         temperature,
       );
 
-      /**
-       * Todo: Handling data */
-      await this.cacheManager.set<number>(context.getTopic(), temperature, {
-        ttl: 60,
-      });
-
       const data = await this.deviceTemperatureService.saveTemperature(
         new Temperature(parseInt(masterId), parseInt(slaveId), temperature),
       );

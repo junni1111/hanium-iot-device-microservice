@@ -129,8 +129,8 @@ export class DeviceTemperatureService {
     }
   }
 
-  async createTestData() {
-    return this.temperatureRepository.createTestData(1, 0x13);
+  async createTestData(masterId: number, slaveId: number) {
+    return this.temperatureRepository.createTestData(masterId, slaveId);
   }
 
   /**

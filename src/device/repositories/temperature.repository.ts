@@ -29,18 +29,13 @@ export class TemperatureRepository extends Repository<Temperature> {
   async createTestData(masterId: number, slaveId: number) {
     const max = 25.5;
     const min = 23.0;
-    const date: Date = new Date(
-      new Date().getFullYear(),
-      new Date().getMonth(),
-      new Date().getHours(),
-    );
-    let now = date;
+    const baseDate: Date = new Date();
+    let now = baseDate;
     let i = 0;
-    console.log(`date: `, date);
-    console.log(`now: `, now);
+
     try {
-      for (; now >= subDays(date, 7); now = subMinutes(now, 10)) {
-        console.log(`for now: `, now);
+      for (; now >= subDays(baseDate, 10); now = subMinutes(now, 1)) {
+        console.log(`now: `, now);
 
         const randomTemperature = Math.random() * (max - min) + min;
         const mockData = await this.create(
