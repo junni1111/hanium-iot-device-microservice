@@ -19,6 +19,7 @@ import { DeviceTemperatureService } from './device-temperature.service';
 import { DeviceWaterPumpService } from './device-water-pump.service';
 import { Cache } from 'cache-manager';
 import { Temperature } from './entities/temperature.entity';
+import { ESlaveTurnPowerTopic } from '../util/constants/api-topic';
 
 @Controller()
 export class DeviceController {
@@ -98,7 +99,16 @@ export class DeviceController {
     @Payload() runtimeMinutes: number,
     @Ctx() context: MqttContext,
   ) {
+    const [, masterId, , slaveId, sensorName] = context.getTopic().split('/');
+    /**
+     * Todo: Extract Service & cleanup */
+    console.log(`slave info: `, masterId, slaveId, sensorName);
     console.log(`salve runtime: `, runtimeMinutes);
+    const powerStateKey = `master/${masterId}/slave/${slaveId}/power/${sensorName}`;
+    console.log(`key: `, powerStateKey);
+    await this.cacheManager.set<string>(powerStateKey, 'on', {
+      ttl: 0,
+    });
     if (runtimeMinutes > 0) {
       await this.cacheManager.set<string>(context.getTopic(), 'on', {
         ttl: runtimeMinutes * 60, // make minutes -> second

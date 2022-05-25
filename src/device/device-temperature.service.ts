@@ -42,14 +42,6 @@ export class DeviceTemperatureService {
     }
   }
 
-  setCurrentTemperature(
-    masterId: number,
-    slaveId: number,
-    temperature: number,
-  ) {
-    return this.currentTemperatures.set([masterId, slaveId], temperature);
-  }
-
   /**
    * Todo: Redis로 대체해서
    *       걷어내야함*/
@@ -67,34 +59,6 @@ export class DeviceTemperatureService {
     }
     /* get cached temperature */
     // return this.currentTemperatures.get([masterId, slaveId]);
-  }
-
-  /*  TODO: Change Slave Count After Demo  */
-  @Interval(3000)
-  private requestTemperatureInterval() {
-    // this.requestTemperature(1, 0x11);
-    // for (let masterId = 0; masterId <= 5; masterId++) {
-    //   for (let slaveId = 0; slaveId <= 0x127; slaveId += 0x11) {
-    //     this.requestTemperature(masterId, slaveId);
-    //   }
-    // }
-  }
-
-  requestTemperature(masterId: number, slaveId: number) {
-    /*  TODO: Change Topic After Demo  */
-    const topic = `master/${masterId}/temperature`;
-    const message = new TemperaturePacketDto(
-      0x23,
-      0x21,
-      slaveId,
-      0xc1,
-      0x02,
-      0x07,
-      0xd0,
-      [],
-    );
-
-    return this.deviceService.publishEvent(topic, JSON.stringify(message));
   }
 
   async fetchTemperature(masterId: number, slaveId: number) {

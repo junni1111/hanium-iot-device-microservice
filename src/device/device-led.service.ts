@@ -1,4 +1,4 @@
-import { Inject, Injectable } from '@nestjs/common';
+import { CACHE_MANAGER, Inject, Injectable } from '@nestjs/common';
 import { MQTT_BROKER } from '../util/constants/constants';
 import { ClientProxy } from '@nestjs/microservices';
 import { LedPacketDto } from './dto/led-packet.dto';
@@ -7,12 +7,18 @@ import { DeviceService } from './device.service';
 import { ILedConfig } from './interfaces/slave-configs';
 import { SlaveRepository } from './repositories/slave.repository';
 import { LedTurnDto } from '../api/dto/led/led-turn.dto';
-import { EPowerState } from '../util/constants/api-topic';
+import {
+  EPowerState,
+  ESlaveState,
+  ESlaveTurnPowerTopic,
+} from '../util/constants/api-topic';
+import { Cache } from 'cache-manager';
 
 @Injectable()
 export class DeviceLedService {
   constructor(
     @Inject(MQTT_BROKER) private readonly mqttBroker: ClientProxy,
+    @Inject(CACHE_MANAGER) private readonly cacheManager: Cache,
     private readonly deviceService: DeviceService,
     private readonly slaveRepository: SlaveRepository,
   ) {}
@@ -21,10 +27,8 @@ export class DeviceLedService {
    * Todo: 더 좋은 방법 고민 */
   async turnLed({ masterId, slaveId, powerState }: LedTurnDto) {
     const ledState = powerState === EPowerState.ON ? 0xfb : 0x0f;
-
     const topic = `master/${masterId}/led`;
 
-    console.log(topic);
     const message = new LedPacketDto(
       0x23,
       0x22,
@@ -37,8 +41,6 @@ export class DeviceLedService {
       [ledState],
     );
 
-    console.log(message);
-
     return this.deviceService.publishEvent(topic, JSON.stringify(message));
   }
 
@@ -49,6 +51,7 @@ export class DeviceLedService {
     ledRuntime,
   }: Partial<SlaveConfigDto>) {
     try {
+      console.log(`Request LED: `, masterId, slaveId, ledCycle, ledRuntime);
       const cycleHigh = (ledCycle & 0xff00) / 0x100;
       const cycleLow = ledCycle & 0x00ff;
       const runtimeHigh = (ledRuntime & 0xff00) / 0x100;

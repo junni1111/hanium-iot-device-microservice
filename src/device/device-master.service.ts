@@ -31,6 +31,7 @@ export class DeviceMasterService {
   }
 
   async getConfigs(masterId: number, slaveId: number) {
+    console.log(`get configs: `, masterId, slaveId);
     return this.slaveRepository.getConfigs(masterId, slaveId);
   }
 }

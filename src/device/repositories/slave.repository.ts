@@ -51,7 +51,7 @@ export class SlaveRepository extends Repository<Slave> {
         where: { master: { id: masterId }, slaveId },
       });
     } catch (e) {
-      console.log(e);
+      console.log(`DB Exception: `, e);
     }
   }
 
