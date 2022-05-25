@@ -269,39 +269,6 @@ export class ApiSlaveController {
     }
   }
 
-  // @MessagePattern(ESlaveConfigTopic.TEMPERATURE, Transport.TCP)
-  // async setTemperatureConfig(@Payload() temperatureConfigDto: SlaveConfigDto) {
-  //   const requestResult = this.deviceTemperatureService.requestTemperature(
-  //     temperatureConfigDto.masterId,
-  //     temperatureConfigDto.slaveId,
-  //   );
-  //
-  //   const configUpdateResult =
-  //     await this.deviceTemperatureService.setTemperatureConfig(
-  //       temperatureConfigDto,
-  //     );
-  //
-  //   if (!configUpdateResult.affected) {
-  //     return {
-  //       status: HttpStatus.BAD_REQUEST,
-  //       topic: ESlaveConfigTopic.TEMPERATURE,
-  //       message: 'temperature config not affected',
-  //       data: configUpdateResult,
-  //     };
-  //   }
-  //
-  //   return {
-  //     status: HttpStatus.OK,
-  //     topic: ESlaveConfigTopic.TEMPERATURE,
-  //     message: 'send temperature packet to device',
-  //     data: requestResult,
-  //   };
-  // }
-  // catch(e) {
-  //   console.log(e);
-  //   throw e;
-  // }
-
   @MessagePattern(ESlaveConfigTopic.WATER_PUMP, Transport.TCP)
   async setWaterPumpConfig(
     @Payload() waterPumpConfigDto: SlaveConfigDto,
