@@ -9,6 +9,7 @@ import {
 import { DeviceService } from './device.service';
 import {
   POLLING,
+  SLAVE_RESPONSE,
   SLAVE_STATE,
   TEMPERATURE,
 } from '../util/constants/mqtt-topic';
@@ -19,7 +20,7 @@ import { DeviceTemperatureService } from './device-temperature.service';
 import { DeviceWaterPumpService } from './device-water-pump.service';
 import { Cache } from 'cache-manager';
 import { Temperature } from './entities/temperature.entity';
-import { ESlaveTurnPowerTopic } from '../util/constants/api-topic';
+import { ESlaveState, ESlaveTurnPowerTopic } from '../util/constants/api-topic';
 
 @Controller()
 export class DeviceController {
@@ -102,13 +103,16 @@ export class DeviceController {
     const [, masterId, , slaveId, sensorName] = context.getTopic().split('/');
     /**
      * Todo: Extract Service & cleanup */
+    /**
+     * Todo: Cache Power State oxd1 */
+    // if ()
     console.log(`slave info: `, masterId, slaveId, sensorName);
     console.log(`salve runtime: `, runtimeMinutes);
-    const powerStateKey = `master/${masterId}/slave/${slaveId}/power/${sensorName}`;
-    console.log(`key: `, powerStateKey);
-    await this.cacheManager.set<string>(powerStateKey, 'on', {
-      ttl: 0,
-    });
+    // const powerStateKey = `master/${masterId}/slave/${slaveId}/power/${sensorName}`;
+    // console.log(`key: `, powerStateKey);
+    // await this.cacheManager.set<string>(powerStateKey, 'on', {
+    //   ttl: 0,
+    // });
     if (runtimeMinutes > 0) {
       await this.cacheManager.set<string>(context.getTopic(), 'on', {
         ttl: runtimeMinutes * 60, // make minutes -> second
@@ -126,6 +130,56 @@ export class DeviceController {
     console.log(`receive value `, data);
   }
 
+  /**
+   * Todo: Refactoring */
+  @EventPattern(SLAVE_RESPONSE, Transport.MQTT)
+  async receiveMemoryWriteResponse(
+    @Payload() data: string,
+    @Ctx() context: MqttContext,
+  ) {
+    /**
+     * Todo: Get Sensor Name
+     *       Cache Sensor State */
+    const [, masterId, , slaveId, sensorName, , , responseStatus] = context
+      .getTopic()
+      .split('/');
+
+    /** Todo: Extract Service */
+    const runningStateKey = `master/${masterId}/slave/${slaveId}/${sensorName}/state`;
+    const powerStateKey = `master/${masterId}/slave/${slaveId}/power/${sensorName}`;
+    console.log(`res status: `, responseStatus);
+    // const cacheRunningState = this.cacheManager.set<string>(
+    //   runningStateKey,
+    //   powerState,
+    //   {
+    //     ttl: runtime ? runtime * 60 : 0,
+    //   },
+    // );
+    // const cachePowerState = this.cacheManager.set<string>(
+    //   powerStateKey,
+    //   powerState,
+    //   { ttl: 0 },
+    // );
+    //
+    // Promise.allSettled([cacheRunningState, cachePowerState]);
+
+    console.log(
+      `receive receiveMemoryWriteResponse packet: `,
+      context.getPacket(),
+    );
+
+    console.log(`receive value `, data);
+  }
+
+  @EventPattern('master/+/assert/#', Transport.MQTT)
+  async receiveMockAssert(
+    @Payload() data: string,
+    @Ctx() context: MqttContext,
+  ) {
+    console.log(`receive Assert packet: `, context.getPacket());
+
+    console.log(`receive value `, data);
+  }
   /**
    * Todo: Slave 펌웨어 수정 이후 제거 예정 */
   @EventPattern('master/+/error', Transport.MQTT)

@@ -104,6 +104,7 @@ export class ApiSlaveController {
       console.log(e);
     }
   }
+
   /**
    * Todo: Extract Controller */
   @MessagePattern(ESlaveState.LED, Transport.TCP)
@@ -130,30 +131,49 @@ export class ApiSlaveController {
    * Todo: LED, 모터 둘다 포함 가능하게 고민*/
   @MessagePattern(ESlaveTurnPowerTopic.WATER_PUMP, Transport.TCP)
   async turnWaterPump(@Payload() waterPumpTurnDto: WaterPumpTurnDto) {
+    let configs: Slave | undefined;
     try {
-      const requestResult = await this.deviceWaterPumpService.turnWaterPump(
-        waterPumpTurnDto,
-      );
-      /** Todo: Extract Service */
+      console.log(`turn water dto: `, waterPumpTurnDto);
+
+      if (waterPumpTurnDto.powerState === EPowerState.ON) {
+        configs = await this.masterService.getConfigs(
+          waterPumpTurnDto.masterId,
+          waterPumpTurnDto.slaveId,
+        );
+        await this.deviceWaterPumpService.requestWaterPump({
+          masterId: waterPumpTurnDto.masterId,
+          slaveId: waterPumpTurnDto.slaveId,
+          ...configs,
+        });
+      } else {
+        /* Turn Off */
+        await this.deviceWaterPumpService.turnWaterPump(waterPumpTurnDto);
+      }
+
+      /**
+       * Todo: Extract to service */
       const runningStateKey = `master/${waterPumpTurnDto.masterId}/slave/${waterPumpTurnDto.slaveId}/${ESlaveState.WATER_PUMP}`;
-      const runningState = await this.cacheManager.set<string>(
+      const powerStateKey = `master/${waterPumpTurnDto.masterId}/slave/${waterPumpTurnDto.slaveId}/${ESlaveTurnPowerTopic.WATER_PUMP}`;
+      const cacheRunningState = this.cacheManager.set<string>(
         runningStateKey,
         waterPumpTurnDto.powerState,
-        { ttl: 0 },
+        {
+          ttl: configs?.ledRuntime * 60 ?? 0,
+        },
       );
-
-      const powerStateKey = `master/${waterPumpTurnDto.masterId}/slave/${waterPumpTurnDto.slaveId}/${ESlaveTurnPowerTopic.WATER_PUMP}`;
-      const powerState = await this.cacheManager.set<string>(
+      const cachePowerState = this.cacheManager.set<string>(
         powerStateKey,
         waterPumpTurnDto.powerState,
         { ttl: 0 },
       );
 
+      Promise.allSettled([cacheRunningState, cachePowerState]);
+
       return {
         status: HttpStatus.OK,
-        topic: ESlaveTurnPowerTopic.WATER_PUMP,
-        message: 'send turn water pump packet to device',
-        data: requestResult,
+        topic: ESlaveTurnPowerTopic.LED,
+        message: 'send turn led packet to device',
+        data: waterPumpTurnDto.powerState,
       };
     } catch (e) {
       console.log(`catch led config error`, e);
