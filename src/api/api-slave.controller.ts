@@ -358,6 +358,56 @@ export class ApiSlaveController {
     }
   }
 
+  /** Todo: Extract Controller */
+  @MessagePattern(ESlaveConfigTopic.TEMPERATURE, Transport.TCP)
+  async setTemperatureConfig(@Payload() temperatureConfigDto: SlaveConfigDto) {
+    console.log(`call set temperature config`, temperatureConfigDto);
+    /** Todo: Change Key */
+    const temperatureRangeKey = `master/${temperatureConfigDto.masterId}/slave/${temperatureConfigDto.slaveId}/${ESlaveConfigTopic.TEMPERATURE}`;
+    try {
+      /**
+       * Todo: 현재 redis에 캐싱되어있는 온도 범위와 비교
+       *       값이 다르다면 db에 저장 */
+      // const cachedTemperatureRange = await this.cacheManager.get<number[]>(
+      //   temperatureRangeKey,
+      // );
+      // console.log(`before cached range: `, cachedTemperatureRange);
+
+      const configUpdateResult =
+        await this.deviceTemperatureService.setTemperatureConfig(
+          temperatureConfigDto,
+        );
+
+      if (!configUpdateResult.affected) {
+        return {
+          status: HttpStatus.INTERNAL_SERVER_ERROR,
+          topic: ESlaveConfigTopic.TEMPERATURE,
+          message: 'temperature config not affected',
+          data: configUpdateResult,
+        };
+      }
+
+      const cachedResult = await this.cacheManager.set<number[]>(
+        temperatureRangeKey,
+        [
+          temperatureConfigDto.startTemperatureRange,
+          temperatureConfigDto.endTemperatureRange,
+        ],
+        { ttl: 3600 },
+      );
+
+      return {
+        status: HttpStatus.OK,
+        topic: ESlaveConfigTopic.TEMPERATURE,
+        message: 'success to save temperature config',
+        data: cachedResult,
+      };
+    } catch (e) {
+      console.log(`catch led config error`, e);
+      return e;
+    }
+  }
+
   /* Todo: Change topic */
   @MessagePattern('temperature/now', Transport.TCP)
   async getCurrentTemperature(

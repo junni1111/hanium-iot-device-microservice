@@ -13,4 +13,15 @@ export class MasterRepository extends Repository<Master> {
       console.log(e);
     }
   }
+
+  async deleteMaster(masterId: number) {
+    try {
+      const master = new Master();
+      master.id = masterId;
+
+      return this.delete(master);
+    } catch (e) {
+      console.log(e);
+    }
+  }
 }

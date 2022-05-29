@@ -16,6 +16,7 @@ import { SlaveConfigDto } from '../api/dto/slave/slave-config.dto';
 
 @Injectable()
 export class DeviceTemperatureService {
+  /** Todo: Redis로 걷어내면 제거 */
   public readonly currentTemperatures: DoubleKeysMap;
 
   constructor(
@@ -42,9 +43,6 @@ export class DeviceTemperatureService {
     }
   }
 
-  /**
-   * Todo: Redis로 대체해서
-   *       걷어내야함*/
   async getCurrentTemperature(
     masterId: number,
     slaveId: number,

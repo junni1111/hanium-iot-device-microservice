@@ -10,12 +10,12 @@ import { ApiWaterPumpService } from './api-water-pump.service';
 
 @Module({
   imports: [
-    DeviceModule,
     CacheModule.register({
       store: redisStore,
       host: REDIS_HOST,
       port: REDIS_PORT,
     }),
+    DeviceModule,
   ],
   controllers: [ApiMasterController, ApiSlaveController, ApiUtilityController],
   providers: [ApiLedService, ApiWaterPumpService],

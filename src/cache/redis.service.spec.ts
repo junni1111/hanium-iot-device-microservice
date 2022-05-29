@@ -1,22 +1,12 @@
 import { Test, TestingModule } from '@nestjs/testing';
 import { RedisController } from './redis.controller';
-import { CacheModule } from '@nestjs/common';
-import * as redisStore from 'cache-manager-ioredis';
-import { REDIS_HOST, REDIS_PORT } from '../config/redis.config';
-
+import { RedisModule } from './redis.module';
 describe('Redis 컨트롤러 테스트', () => {
   let controller: RedisController;
 
   beforeEach(async () => {
     const module: TestingModule = await Test.createTestingModule({
-      imports: [
-        CacheModule.register({
-          store: redisStore,
-          host: REDIS_HOST,
-          port: REDIS_PORT,
-        }),
-      ],
-      controllers: [RedisController],
+      imports: [RedisModule],
     }).compile();
 
     controller = module.get<RedisController>(RedisController);
@@ -27,6 +17,7 @@ describe('Redis 컨트롤러 테스트', () => {
     const TEST_VALUE = 10;
     await controller.setTestCache(TEST_KEY, TEST_VALUE);
     const cachedValue = await controller.getTestCache(TEST_KEY);
+    console.log(`(Key: ${TEST_KEY}, Value: ${cachedValue})`);
     expect(cachedValue).toEqual(10);
   });
 });
