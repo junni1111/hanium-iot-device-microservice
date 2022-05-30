@@ -3,11 +3,9 @@ import { MQTT_BROKER } from '../util/constants/constants';
 import { ClientProxy } from '@nestjs/microservices';
 import { DeviceService } from './device.service';
 import { Cache } from 'cache-manager';
-import { SlaveConfigDto } from '../api/dto/slave/slave-config.dto';
 import { FanPacketDto } from './dto/fan-packet.dto';
-import { LedTurnDto } from '../api/dto/led/led-turn.dto';
+import { FanTurnDto } from '../api/dto/fan/fan-turn.dto';
 import { EPowerState } from '../util/constants/api-topic';
-import { LedPacketDto } from './dto/led-packet.dto';
 
 @Injectable()
 export class DeviceFanService {
@@ -16,6 +14,33 @@ export class DeviceFanService {
     @Inject(CACHE_MANAGER) private readonly cacheManager: Cache,
     private readonly deviceService: DeviceService,
   ) {}
+
+  async turnFan({ masterId, slaveId, powerState }: FanTurnDto) {
+    /** Todo: Add Fan Topic Device Gateway
+     *        Change Topic temperature -> fan*/
+    const topic = `master/${masterId}/temperature`;
+    const fanState = powerState === EPowerState.ON ? 0xfb : 0x0f;
+
+    const message = new FanPacketDto(
+      0x23,
+      0x24,
+      slaveId,
+      0xd1,
+      0x01,
+      0x10, // Fan Memory Address start - 4120
+      0x19,
+      [fanState],
+    );
+
+    /** Todo: Refactoring */
+    await this.cacheManager.set<string>(
+      `fan/${masterId}/${slaveId}`,
+      powerState === EPowerState.ON ? EPowerState.ON : EPowerState.OFF,
+      { ttl: 60 }, // mock ttl
+    );
+
+    return this.deviceService.publishEvent(topic, JSON.stringify(message));
+  }
 
   async requestMockFan(masterId: number, slaveId: number) {
     const topic = `master/${masterId}/temperature`;

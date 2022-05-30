@@ -142,7 +142,7 @@ export class DeviceTemperatureService {
     const cachedRange = await this.cacheManager.get<number[]>(key);
 
     if (cachedRange) {
-      // Cache hit
+      console.log(`Cache Hit!`, cachedRange);
       return cachedRange;
     }
 

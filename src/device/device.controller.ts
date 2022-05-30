@@ -18,7 +18,7 @@ import { DevicePollingService } from './device-polling.service';
 import { DeviceTemperatureService } from './device-temperature.service';
 import { Cache } from 'cache-manager';
 import { Temperature } from './entities/temperature.entity';
-import { ESlaveConfigTopic } from '../util/constants/api-topic';
+import { EPowerState } from '../util/constants/api-topic';
 import { DeviceFanService } from './device-fan.service';
 
 @Controller()
@@ -70,6 +70,10 @@ export class DeviceController {
     const slaveId = parseInt(sId);
 
     try {
+      const prevFanState = await this.cacheManager.get(
+        `fan/${masterId}/${slaveId}`,
+      );
+      console.log(`prev fan state: `, prevFanState);
       /**
        * Todo: id로 캐싱된 온도 범위 가져옴
        *       캐싱된 범위 없으면 db 조회 */
@@ -79,14 +83,27 @@ export class DeviceController {
           slaveId,
         );
 
+      /** Todo: Refactoring */
       if (temperature < availableMin || temperature > availableMax) {
         /**
          * Todo: Something Trigger
          * */
         console.log(`설정한 온도 값 벗어남`);
-        // this.deviceTemperatureService.mockOverRangeTrigger(parseInt(masterId));
-        await this.deviceFanService.requestMockFan(masterId, slaveId);
+        await this.deviceFanService.turnFan({
+          masterId,
+          slaveId,
+          powerState: EPowerState.ON,
+        });
+      } else {
+        /**
+         * Todo: Refactoring */
+        await this.deviceFanService.turnFan({
+          masterId,
+          slaveId,
+          powerState: EPowerState.OFF,
+        });
       }
+
       await this.deviceTemperatureService.cacheTemperature(
         masterId,
         slaveId,
