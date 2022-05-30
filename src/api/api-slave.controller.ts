@@ -387,6 +387,7 @@ export class ApiSlaveController {
         };
       }
 
+      /** Todo: 범위 값 저장 방식 고민 */
       const cachedResult = await this.cacheManager.set<number[]>(
         temperatureRangeKey,
         [

@@ -21,6 +21,7 @@ import { DeviceWaterPumpService } from './device-water-pump.service';
 import { DeviceLedService } from './device-led.service';
 import * as redisStore from 'cache-manager-ioredis';
 import { REDIS_HOST, REDIS_PORT } from '../config/redis.config';
+import { DeviceFanService } from './device-fan.service';
 
 @Module({
   imports: [
@@ -58,6 +59,7 @@ import { REDIS_HOST, REDIS_PORT } from '../config/redis.config';
     DeviceTemperatureService,
     DeviceLedService,
     DeviceWaterPumpService,
+    DeviceFanService,
   ],
   exports: [
     DevicePollingService,
@@ -66,6 +68,7 @@ import { REDIS_HOST, REDIS_PORT } from '../config/redis.config';
     DeviceTemperatureService,
     DeviceLedService,
     DeviceWaterPumpService,
+    DeviceFanService,
   ],
 })
 export class DeviceModule {}

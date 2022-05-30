@@ -13,6 +13,7 @@ import { DoubleKeysMap } from '../util/double-keys-map';
 import { Cache } from 'cache-manager';
 import { LedPacketDto } from './dto/led-packet.dto';
 import { SlaveConfigDto } from '../api/dto/slave/slave-config.dto';
+import { ESlaveConfigTopic } from '../util/constants/api-topic';
 
 @Injectable()
 export class DeviceTemperatureService {
@@ -131,5 +132,25 @@ export class DeviceTemperatureService {
      * Todo: Extract Create Key Function */
     const key = `temperature/${masterId}/${slaveId}`;
     return this.cacheManager.set<number>(key, temperature, { ttl: 60 });
+  }
+
+  async getTemperatureRange(
+    masterId: number,
+    slaveId: number,
+  ): Promise<number[]> {
+    const key = `master/${masterId}/slave/${slaveId}/${ESlaveConfigTopic.TEMPERATURE}`;
+    const cachedRange = await this.cacheManager.get<number[]>(key);
+
+    if (cachedRange) {
+      // Cache hit
+      return cachedRange;
+    }
+
+    /**
+     * Todo: DB에서 온도 범위 조회 */
+    console.log(`Search DB`);
+    const configs = await this.slaveRepository.getConfigs(masterId, slaveId);
+
+    return [configs?.startTemperatureRange, configs?.endTemperatureRange];
   }
 }

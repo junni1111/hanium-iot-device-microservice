@@ -15,12 +15,11 @@ import {
 } from '../util/constants/mqtt-topic';
 import { EPollingState } from './interfaces/polling-status';
 import { DevicePollingService } from './device-polling.service';
-import { DeviceLedService } from './device-led.service';
 import { DeviceTemperatureService } from './device-temperature.service';
-import { DeviceWaterPumpService } from './device-water-pump.service';
 import { Cache } from 'cache-manager';
 import { Temperature } from './entities/temperature.entity';
-import { ESlaveState, ESlaveTurnPowerTopic } from '../util/constants/api-topic';
+import { ESlaveConfigTopic } from '../util/constants/api-topic';
+import { DeviceFanService } from './device-fan.service';
 
 @Controller()
 export class DeviceController {
@@ -28,9 +27,8 @@ export class DeviceController {
     @Inject(CACHE_MANAGER) private readonly cacheManager: Cache,
     private readonly deviceService: DeviceService,
     private readonly pollingService: DevicePollingService,
-    private readonly deviceLedService: DeviceLedService,
     private readonly deviceTemperatureService: DeviceTemperatureService,
-    private readonly waterPumpService: DeviceWaterPumpService,
+    private readonly deviceFanService: DeviceFanService,
   ) {}
 
   /**
@@ -62,33 +60,41 @@ export class DeviceController {
     @Payload() temperature: number,
     @Ctx() context: MqttContext,
   ) {
+    console.log(`Recv Temperature`, temperature);
     /**
      * Todo: 추후 사용자가 지정한 온도 범위값을
      *       감지할 수 있게 수정 */
-    const MIN_AVAILABLE_TEMPERATURE = 10;
-    const MAX_AVAILABLE_TEMPERATURE = 35;
-    const [, masterId, , slaveId] = context.getTopic().split('/');
+
+    const [, mId, , sId] = context.getTopic().split('/');
+    const masterId = parseInt(mId); // 🤔
+    const slaveId = parseInt(sId);
 
     try {
-      if (
-        temperature < MIN_AVAILABLE_TEMPERATURE ||
-        temperature > MAX_AVAILABLE_TEMPERATURE
-      ) {
+      /**
+       * Todo: id로 캐싱된 온도 범위 가져옴
+       *       캐싱된 범위 없으면 db 조회 */
+      const [availableMin, availableMax] =
+        await this.deviceTemperatureService.getTemperatureRange(
+          masterId,
+          slaveId,
+        );
+
+      if (temperature < availableMin || temperature > availableMax) {
         /**
          * Todo: Something Trigger
          * */
-        console.log(`정상 온도 값 벗어남`);
-        this.deviceTemperatureService.mockOverRangeTrigger(parseInt(masterId));
+        console.log(`설정한 온도 값 벗어남`);
+        // this.deviceTemperatureService.mockOverRangeTrigger(parseInt(masterId));
+        await this.deviceFanService.requestMockFan(masterId, slaveId);
       }
-
       await this.deviceTemperatureService.cacheTemperature(
-        parseInt(masterId),
-        parseInt(slaveId),
+        masterId,
+        slaveId,
         temperature,
       );
 
       const data = await this.deviceTemperatureService.saveTemperature(
-        new Temperature(parseInt(masterId), parseInt(slaveId), temperature),
+        new Temperature(masterId, slaveId, temperature),
       );
     } catch (e) {
       throw e;

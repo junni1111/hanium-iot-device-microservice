@@ -28,7 +28,6 @@ describe('온도 api 컨트롤러 테스트', () => {
       imports: [
         ApiModule,
         RedisModule,
-
         TypeOrmModule.forRoot(databaseService.getTypeOrmConfig()),
       ],
     }).compile();
