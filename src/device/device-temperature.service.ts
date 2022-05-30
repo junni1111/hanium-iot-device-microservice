@@ -13,9 +13,11 @@ import { DoubleKeysMap } from '../util/double-keys-map';
 import { Cache } from 'cache-manager';
 import { LedPacketDto } from './dto/led-packet.dto';
 import { SlaveConfigDto } from '../api/dto/slave/slave-config.dto';
+import { ESlaveConfigTopic } from '../util/constants/api-topic';
 
 @Injectable()
 export class DeviceTemperatureService {
+  /** Todo: Redis로 걷어내면 제거 */
   public readonly currentTemperatures: DoubleKeysMap;
 
   constructor(
@@ -42,17 +44,6 @@ export class DeviceTemperatureService {
     }
   }
 
-  setCurrentTemperature(
-    masterId: number,
-    slaveId: number,
-    temperature: number,
-  ) {
-    return this.currentTemperatures.set([masterId, slaveId], temperature);
-  }
-
-  /**
-   * Todo: Redis로 대체해서
-   *       걷어내야함*/
   async getCurrentTemperature(
     masterId: number,
     slaveId: number,
@@ -67,34 +58,6 @@ export class DeviceTemperatureService {
     }
     /* get cached temperature */
     // return this.currentTemperatures.get([masterId, slaveId]);
-  }
-
-  /*  TODO: Change Slave Count After Demo  */
-  @Interval(3000)
-  private requestTemperatureInterval() {
-    // this.requestTemperature(1, 0x11);
-    // for (let masterId = 0; masterId <= 5; masterId++) {
-    //   for (let slaveId = 0; slaveId <= 0x127; slaveId += 0x11) {
-    //     this.requestTemperature(masterId, slaveId);
-    //   }
-    // }
-  }
-
-  requestTemperature(masterId: number, slaveId: number) {
-    /*  TODO: Change Topic After Demo  */
-    const topic = `master/${masterId}/temperature`;
-    const message = new TemperaturePacketDto(
-      0x23,
-      0x21,
-      slaveId,
-      0xc1,
-      0x02,
-      0x07,
-      0xd0,
-      [],
-    );
-
-    return this.deviceService.publishEvent(topic, JSON.stringify(message));
   }
 
   async fetchTemperature(masterId: number, slaveId: number) {
@@ -129,8 +92,8 @@ export class DeviceTemperatureService {
     }
   }
 
-  async createTestData() {
-    return this.temperatureRepository.createTestData(1, 0x13);
+  async createTestData(masterId: number, slaveId: number) {
+    return this.temperatureRepository.createTestData(masterId, slaveId);
   }
 
   /**
@@ -169,5 +132,25 @@ export class DeviceTemperatureService {
      * Todo: Extract Create Key Function */
     const key = `temperature/${masterId}/${slaveId}`;
     return this.cacheManager.set<number>(key, temperature, { ttl: 60 });
+  }
+
+  async getTemperatureRange(
+    masterId: number,
+    slaveId: number,
+  ): Promise<number[]> {
+    const key = `master/${masterId}/slave/${slaveId}/${ESlaveConfigTopic.TEMPERATURE}`;
+    const cachedRange = await this.cacheManager.get<number[]>(key);
+
+    if (cachedRange) {
+      console.log(`Cache Hit!`, cachedRange);
+      return cachedRange;
+    }
+
+    /**
+     * Todo: DB에서 온도 범위 조회 */
+    console.log(`Search DB`);
+    const configs = await this.slaveRepository.getConfigs(masterId, slaveId);
+
+    return [configs?.startTemperatureRange, configs?.endTemperatureRange];
   }
 }

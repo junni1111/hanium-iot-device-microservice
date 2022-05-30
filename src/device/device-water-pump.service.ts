@@ -1,4 +1,4 @@
-import { Inject, Injectable } from '@nestjs/common';
+import { CACHE_MANAGER, Inject, Injectable } from '@nestjs/common';
 import { MQTT_BROKER } from '../util/constants/constants';
 import { ClientProxy } from '@nestjs/microservices';
 import { WaterPumpPacketDto } from './dto/water-pump-packet.dto';
@@ -7,13 +7,19 @@ import { DeviceService } from './device.service';
 import { IWaterPumpConfig } from './interfaces/slave-configs';
 import { SlaveRepository } from './repositories/slave.repository';
 import { WaterPumpTurnDto } from '../api/dto/water-pump/water-pump-turn.dto';
-import { EPowerState } from '../util/constants/api-topic';
+import {
+  EPowerState,
+  ESlaveState,
+  ESlaveTurnPowerTopic,
+} from '../util/constants/api-topic';
 import { LedTurnDto } from '../api/dto/led/led-turn.dto';
+import { Cache } from 'cache-manager';
 
 @Injectable()
 export class DeviceWaterPumpService {
   constructor(
     @Inject(MQTT_BROKER) private readonly mqttBroker: ClientProxy,
+    @Inject(CACHE_MANAGER) private readonly cacheManager: Cache,
     private readonly deviceService: DeviceService,
     private readonly slaveRepository: SlaveRepository,
   ) {}
@@ -84,6 +90,32 @@ export class DeviceWaterPumpService {
       [],
     );
     this.deviceService.publishEvent(topic, JSON.stringify(motorMessage));
+  }
+
+  /**
+   * Todo: Refactoring */
+  async cacheWaterPumpState(
+    masterId: number,
+    slaveId: number,
+    powerState: EPowerState,
+    runtime?: number,
+  ) {
+    const runningStateKey = `master/${masterId}/slave/${slaveId}/${ESlaveState.WATER_PUMP}`;
+    const powerStateKey = `master/${masterId}/slave/${slaveId}/${ESlaveTurnPowerTopic.WATER_PUMP}`;
+    const cacheRunningState = this.cacheManager.set<string>(
+      runningStateKey,
+      powerState,
+      {
+        ttl: runtime ? runtime * 60 : 0,
+      },
+    );
+    const cachePowerState = this.cacheManager.set<string>(
+      powerStateKey,
+      powerState,
+      { ttl: 0 },
+    );
+
+    Promise.allSettled([cacheRunningState, cachePowerState]);
   }
 
   async setWaterPumpConfig({

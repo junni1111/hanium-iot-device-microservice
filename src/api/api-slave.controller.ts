@@ -5,12 +5,12 @@ import { DevicePollingService } from '../device/device-polling.service';
 import { DeviceMasterService } from '../device/device-master.service';
 import { ResponseStatus } from '../device/interfaces/response-status';
 import {
+  EPowerState,
   ESlaveConfigTopic,
   ESlaveState,
   ESlaveTurnPowerTopic,
   TEMPERATURE_WEEK,
 } from '../util/constants/api-topic';
-import { TEMPERATURE } from '../util/constants/mqtt-topic';
 import { DeviceLedService } from '../device/device-led.service';
 import { DeviceWaterPumpService } from '../device/device-water-pump.service';
 import { DeviceTemperatureService } from '../device/device-temperature.service';
@@ -23,6 +23,7 @@ import { ApiLedService } from './api-led.service';
 import { ApiWaterPumpService } from './api-water-pump.service';
 import { SlaveStateDto } from './dto/slave/slave-state.dto';
 import { SlaveConfigDto } from './dto/slave/slave-config.dto';
+import { Slave } from '../device/entities/slave.entity';
 
 @Controller()
 export class ApiSlaveController {
@@ -48,20 +49,34 @@ export class ApiSlaveController {
       console.log(`call Slave State`, slaveStateDto);
       console.log(`mid, sid:`, slaveStateDto.masterId, slaveStateDto.slaveId);
 
-      const ledState = await this.apiLedService.getLedState(slaveStateDto);
-      const waterPumpState = await this.apiWaterPumpService.getWaterPumpState(
+      const ledRunningState = await this.apiLedService.getRunningState(
+        slaveStateDto,
+      );
+      const ledPowerState = await this.apiLedService.getPowerState(
         slaveStateDto,
       );
 
-      console.log(`led State: `, ledState);
+      const waterPumpRunningState =
+        await this.apiWaterPumpService.getRunningState(slaveStateDto);
+      const waterPumpPowerState = await this.apiWaterPumpService.getPowerState(
+        slaveStateDto,
+      );
+      console.log(`led power State: `, ledPowerState);
+      console.log(`led run State: `, ledRunningState);
 
-      console.log(`waterPumpState: `, waterPumpState);
+      console.log(`waterPump power State: `, waterPumpPowerState);
+      console.log(`waterPump run State: `, waterPumpRunningState);
 
       return {
         status: HttpStatus.OK,
         topic: ESlaveState.ALL,
         message: 'request check slave state success',
-        data: { ledState, waterPumpState },
+        data: {
+          ledPowerState,
+          ledRunningState,
+          waterPumpPowerState,
+          waterPumpRunningState,
+        },
       };
     } catch (e) {
       console.log(e);
@@ -75,7 +90,7 @@ export class ApiSlaveController {
     @Payload() waterPumpStateDto: WaterPumpStateDto,
   ): Promise<ResponseStatus> {
     try {
-      const state = await this.apiWaterPumpService.getWaterPumpState(
+      const state = await this.apiWaterPumpService.getRunningState(
         waterPumpStateDto,
       );
 
@@ -89,6 +104,7 @@ export class ApiSlaveController {
       console.log(e);
     }
   }
+
   /**
    * Todo: Extract Controller */
   @MessagePattern(ESlaveState.LED, Transport.TCP)
@@ -98,7 +114,7 @@ export class ApiSlaveController {
     try {
       console.log(`led dto: `, ledStateDto);
       console.log(`led mid ,sid : `, ledStateDto.masterId, ledStateDto.slaveId);
-      const state = await this.apiLedService.getLedState(ledStateDto);
+      const state = await this.apiLedService.getRunningState(ledStateDto);
 
       return {
         status: HttpStatus.OK,
@@ -115,23 +131,49 @@ export class ApiSlaveController {
    * Todo: LED, 모터 둘다 포함 가능하게 고민*/
   @MessagePattern(ESlaveTurnPowerTopic.WATER_PUMP, Transport.TCP)
   async turnWaterPump(@Payload() waterPumpTurnDto: WaterPumpTurnDto) {
+    let configs: Slave | undefined;
     try {
-      const requestResult = await this.deviceWaterPumpService.turnWaterPump(
-        waterPumpTurnDto,
+      console.log(`turn water dto: `, waterPumpTurnDto);
+
+      if (waterPumpTurnDto.powerState === EPowerState.ON) {
+        configs = await this.masterService.getConfigs(
+          waterPumpTurnDto.masterId,
+          waterPumpTurnDto.slaveId,
+        );
+        await this.deviceWaterPumpService.requestWaterPump({
+          masterId: waterPumpTurnDto.masterId,
+          slaveId: waterPumpTurnDto.slaveId,
+          ...configs,
+        });
+      } else {
+        /* Turn Off */
+        await this.deviceWaterPumpService.turnWaterPump(waterPumpTurnDto);
+      }
+
+      /**
+       * Todo: Extract to service */
+      const runningStateKey = `master/${waterPumpTurnDto.masterId}/slave/${waterPumpTurnDto.slaveId}/${ESlaveState.WATER_PUMP}`;
+      const powerStateKey = `master/${waterPumpTurnDto.masterId}/slave/${waterPumpTurnDto.slaveId}/${ESlaveTurnPowerTopic.WATER_PUMP}`;
+      const cacheRunningState = this.cacheManager.set<string>(
+        runningStateKey,
+        waterPumpTurnDto.powerState,
+        {
+          ttl: configs?.ledRuntime * 60 ?? 0,
+        },
       );
-      /** Todo: Extract Service */
-      const key = `master/${waterPumpTurnDto.masterId}/slave/${waterPumpTurnDto.slaveId}/${ESlaveState.WATER_PUMP}`;
-      const state = await this.cacheManager.set<string>(
-        key,
+      const cachePowerState = this.cacheManager.set<string>(
+        powerStateKey,
         waterPumpTurnDto.powerState,
         { ttl: 0 },
       );
 
+      Promise.allSettled([cacheRunningState, cachePowerState]);
+
       return {
         status: HttpStatus.OK,
-        topic: ESlaveTurnPowerTopic.WATER_PUMP,
-        message: 'send turn water pump packet to device',
-        data: requestResult,
+        topic: ESlaveTurnPowerTopic.LED,
+        message: 'send turn led packet to device',
+        data: waterPumpTurnDto.powerState,
       };
     } catch (e) {
       console.log(`catch led config error`, e);
@@ -141,25 +183,52 @@ export class ApiSlaveController {
 
   /**
    * Todo: LED, 모터 둘다 포함 가능하게 고민*/
+  /**
+   * Todo: Extract service
+   **/
   @MessagePattern(ESlaveTurnPowerTopic.LED, Transport.TCP)
   async turnLed(@Payload() ledTurnDto: LedTurnDto) {
+    const runningStateKey = `master/${ledTurnDto.masterId}/slave/${ledTurnDto.slaveId}/${ESlaveState.LED}`;
+    const powerStateKey = `master/${ledTurnDto.masterId}/slave/${ledTurnDto.slaveId}/${ESlaveTurnPowerTopic.LED}`;
+    let configs: Slave | undefined;
     try {
-      const requestResult = await this.deviceLedService.turnLed(ledTurnDto);
+      console.log(`turn led dto: `, ledTurnDto);
 
-      /** Todo: Extract Service */
-      const key = `master/${ledTurnDto.masterId}/slave/${ledTurnDto.slaveId}/${ESlaveState.LED}`;
+      if (ledTurnDto.powerState === EPowerState.ON) {
+        configs = await this.masterService.getConfigs(
+          ledTurnDto.masterId,
+          ledTurnDto.slaveId,
+        );
+        await this.deviceLedService.requestLed({
+          masterId: ledTurnDto.masterId,
+          slaveId: ledTurnDto.slaveId,
+          ...configs,
+        });
+      } else {
+        /* Turn Off */
+        await this.deviceLedService.turnLed(ledTurnDto);
+      }
 
-      const state = await this.cacheManager.set<string>(
-        key,
+      const cacheRunningState = this.cacheManager.set<string>(
+        runningStateKey,
+        ledTurnDto.powerState,
+        {
+          ttl: configs?.ledRuntime * 60 ?? 0,
+        },
+      );
+      const cachePowerState = this.cacheManager.set<string>(
+        powerStateKey,
         ledTurnDto.powerState,
         { ttl: 0 },
       );
+
+      Promise.allSettled([cacheRunningState, cachePowerState]);
 
       return {
         status: HttpStatus.OK,
         topic: ESlaveTurnPowerTopic.LED,
         message: 'send turn led packet to device',
-        data: requestResult,
+        data: ledTurnDto.powerState,
       };
     } catch (e) {
       console.log(`catch led config error`, e);
@@ -186,8 +255,10 @@ export class ApiSlaveController {
       const requestResult = this.deviceLedService.requestLed(ledConfigDto);
       /** Todo: Extract to service */
       if (ledConfigDto.ledRuntime > 0) {
-        const key = `master/${ledConfigDto.masterId}/slave/${ledConfigDto.slaveId}/${ESlaveState.LED}`;
-        await this.cacheManager.set<string>(key, 'on', {
+        const powerStateKey = `master/${ledConfigDto.masterId}/slave/${ledConfigDto.slaveId}/${ESlaveTurnPowerTopic.LED}`;
+        const runningStateKey = `master/${ledConfigDto.masterId}/slave/${ledConfigDto.slaveId}/${ESlaveState.LED}`;
+        await this.cacheManager.set<string>(powerStateKey, 'on', { ttl: 0 });
+        await this.cacheManager.set<string>(runningStateKey, 'on', {
           ttl: ledConfigDto.ledRuntime * 60,
         });
         console.log(`led runtime: `, ledConfigDto.ledRuntime);
@@ -218,39 +289,6 @@ export class ApiSlaveController {
     }
   }
 
-  @MessagePattern(ESlaveConfigTopic.TEMPERATURE, Transport.TCP)
-  async setTemperatureConfig(@Payload() temperatureConfigDto: SlaveConfigDto) {
-    const requestResult = this.deviceTemperatureService.requestTemperature(
-      temperatureConfigDto.masterId,
-      temperatureConfigDto.slaveId,
-    );
-
-    const configUpdateResult =
-      await this.deviceTemperatureService.setTemperatureConfig(
-        temperatureConfigDto,
-      );
-
-    if (!configUpdateResult.affected) {
-      return {
-        status: HttpStatus.BAD_REQUEST,
-        topic: ESlaveConfigTopic.TEMPERATURE,
-        message: 'temperature config not affected',
-        data: configUpdateResult,
-      };
-    }
-
-    return {
-      status: HttpStatus.OK,
-      topic: ESlaveConfigTopic.TEMPERATURE,
-      message: 'send temperature packet to device',
-      data: requestResult,
-    };
-  }
-  catch(e) {
-    console.log(e);
-    throw e;
-  }
-
   @MessagePattern(ESlaveConfigTopic.WATER_PUMP, Transport.TCP)
   async setWaterPumpConfig(
     @Payload() waterPumpConfigDto: SlaveConfigDto,
@@ -262,6 +300,9 @@ export class ApiSlaveController {
         await this.deviceWaterPumpService.requestWaterPump(waterPumpConfigDto);
 
       if (waterPumpConfigDto.waterPumpRuntime > 0) {
+        const powerStateKey = `master/${waterPumpConfigDto.masterId}/slave/${waterPumpConfigDto.slaveId}/${ESlaveTurnPowerTopic.WATER_PUMP}`;
+        await this.cacheManager.set<string>(powerStateKey, 'on', { ttl: 0 });
+
         const key = `master/${waterPumpConfigDto.masterId}/slave/${waterPumpConfigDto.slaveId}/${ESlaveState.WATER_PUMP}`;
         await this.cacheManager.set<string>(key, 'on', {
           ttl: waterPumpConfigDto.waterPumpRuntime * 60,
@@ -317,6 +358,57 @@ export class ApiSlaveController {
     }
   }
 
+  /** Todo: Extract Controller */
+  @MessagePattern(ESlaveConfigTopic.TEMPERATURE, Transport.TCP)
+  async setTemperatureConfig(@Payload() temperatureConfigDto: SlaveConfigDto) {
+    console.log(`call set temperature config`, temperatureConfigDto);
+    /** Todo: Change Key */
+    const temperatureRangeKey = `master/${temperatureConfigDto.masterId}/slave/${temperatureConfigDto.slaveId}/${ESlaveConfigTopic.TEMPERATURE}`;
+    try {
+      /**
+       * Todo: 현재 redis에 캐싱되어있는 온도 범위와 비교
+       *       값이 다르다면 db에 저장 */
+      // const cachedTemperatureRange = await this.cacheManager.get<number[]>(
+      //   temperatureRangeKey,
+      // );
+      // console.log(`before cached range: `, cachedTemperatureRange);
+
+      const configUpdateResult =
+        await this.deviceTemperatureService.setTemperatureConfig(
+          temperatureConfigDto,
+        );
+
+      if (!configUpdateResult.affected) {
+        return {
+          status: HttpStatus.INTERNAL_SERVER_ERROR,
+          topic: ESlaveConfigTopic.TEMPERATURE,
+          message: 'temperature config not affected',
+          data: configUpdateResult,
+        };
+      }
+
+      /** Todo: 범위 값 저장 방식 고민 */
+      const cachedResult = await this.cacheManager.set<number[]>(
+        temperatureRangeKey,
+        [
+          temperatureConfigDto.startTemperatureRange,
+          temperatureConfigDto.endTemperatureRange,
+        ],
+        { ttl: 3600 },
+      );
+
+      return {
+        status: HttpStatus.OK,
+        topic: ESlaveConfigTopic.TEMPERATURE,
+        message: 'success to save temperature config',
+        data: cachedResult,
+      };
+    } catch (e) {
+      console.log(`catch led config error`, e);
+      return e;
+    }
+  }
+
   /* Todo: Change topic */
   @MessagePattern('temperature/now', Transport.TCP)
   async getCurrentTemperature(
@@ -336,20 +428,5 @@ export class ApiSlaveController {
       message: 'success fetch current temperature',
       data,
     };
-  }
-
-  @MessagePattern(TEMPERATURE, Transport.TCP)
-  async publishTemperature(
-    @Payload() payload: string,
-  ): Promise<ResponseStatus> {
-    try {
-      const { master_id, slave_id } = JSON.parse(payload);
-      return this.deviceTemperatureService.requestTemperature(
-        parseInt(master_id),
-        parseInt(slave_id),
-      );
-    } catch (e) {
-      console.log(e);
-    }
   }
 }

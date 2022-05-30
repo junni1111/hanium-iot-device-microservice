@@ -35,4 +35,10 @@ export class RedisController {
   async getTestCache(key: string) {
     return this.cacheManager.get<number>(key);
   }
+  async setTestTemperatureRange(key: string, values: number[]) {
+    return this.cacheManager.set<number[]>(key, values, { ttl: 0 });
+  }
+  async getTestTemperatureRange(key: string) {
+    return this.cacheManager.get<number[]>(key);
+  }
 }

@@ -31,6 +31,15 @@ export class DeviceMasterService {
   }
 
   async getConfigs(masterId: number, slaveId: number) {
+    console.log(`get configs: `, masterId, slaveId);
     return this.slaveRepository.getConfigs(masterId, slaveId);
+  }
+
+  async deleteMaster(masterId: number) {
+    return this.masterRepository.deleteMaster(masterId);
+  }
+
+  async deleteSlave(masterId: number, slaveId: number) {
+    return this.slaveRepository.deleteSlave(masterId, slaveId);
   }
 }
