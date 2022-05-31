@@ -32,13 +32,13 @@ export class DeviceTemperatureService {
 
   async saveTemperature(temperature: Temperature) {
     try {
-      const data = await this.temperatureRepository.create(temperature);
+      const saveResult = await this.temperatureRepository.saveTemperature(
+        temperature,
+      );
 
-      return createQueryBuilder()
-        .insert()
-        .into(Temperature)
-        .values(data)
-        .execute();
+      await this.cacheTemperature(temperature);
+
+      return saveResult;
     } catch (e) {
       throw e;
     }
@@ -123,11 +123,7 @@ export class DeviceTemperatureService {
     );
   }
 
-  async cacheTemperature(
-    masterId: number,
-    slaveId: number,
-    temperature: number,
-  ) {
+  async cacheTemperature({ masterId, slaveId, temperature }: Temperature) {
     /**
      * Todo: Extract Create Key Function */
     const key = `temperature/${masterId}/${slaveId}`;

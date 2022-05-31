@@ -60,11 +60,6 @@ export class DeviceController {
     @Payload() temperature: number,
     @Ctx() context: MqttContext,
   ) {
-    console.log(`Recv Temperature`, temperature);
-    /**
-     * Todo: 추후 사용자가 지정한 온도 범위값을
-     *       감지할 수 있게 수정 */
-
     const [, mId, , sId] = context.getTopic().split('/');
     const masterId = parseInt(mId); // 🤔
     const slaveId = parseInt(sId);
@@ -83,34 +78,15 @@ export class DeviceController {
           slaveId,
         );
 
-      /** Todo: Refactoring */
-      if (temperature < availableMin || temperature > availableMax) {
-        /**
-         * Todo: Something Trigger
-         * */
-        console.log(`설정한 온도 값 벗어남`);
-        await this.deviceFanService.turnFan({
-          masterId,
-          slaveId,
-          powerState: EPowerState.ON,
-        });
-      } else {
-        /**
-         * Todo: Refactoring */
-        await this.deviceFanService.turnFan({
-          masterId,
-          slaveId,
-          powerState: EPowerState.OFF,
-        });
-      }
-
-      await this.deviceTemperatureService.cacheTemperature(
+      await this.deviceFanService.turnFan({
         masterId,
         slaveId,
         temperature,
-      );
+        availableMin,
+        availableMax,
+      });
 
-      const data = await this.deviceTemperatureService.saveTemperature(
+      const saveResult = await this.deviceTemperatureService.saveTemperature(
         new Temperature(masterId, slaveId, temperature),
       );
     } catch (e) {

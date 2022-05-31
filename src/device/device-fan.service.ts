@@ -6,6 +6,7 @@ import { Cache } from 'cache-manager';
 import { FanPacketDto } from './dto/fan-packet.dto';
 import { FanPowerDto } from '../api/dto/fan/fan-power.dto';
 import { EPowerState } from '../util/constants/api-topic';
+import { ECommand } from './interfaces/packet';
 
 @Injectable()
 export class DeviceFanService {
@@ -15,27 +16,40 @@ export class DeviceFanService {
     private readonly deviceService: DeviceService,
   ) {}
 
-  async turnFan({ masterId, slaveId, powerState }: FanPowerDto) {
-    /** Todo: Add Fan Topic Device Gateway
-     *        Change Topic temperature -> fan*/
-    const topic = `master/${masterId}/fan`;
-    const fanState = powerState === EPowerState.ON ? 0xfb : 0x0f;
+  async turnFan({
+    masterId,
+    slaveId,
+    temperature,
+    availableMin,
+    availableMax,
+  }: FanPowerDto) {
+    let powerCommand: number;
+    let powerState: EPowerState;
 
+    if (temperature < availableMin || temperature > availableMax) {
+      powerState = EPowerState.ON;
+      powerCommand = 0xfb; // Fan ON
+    } else {
+      powerState = EPowerState.OFF;
+      powerCommand = 0x0f; // Fan OFF
+    }
+
+    const topic = `master/${masterId}/fan`;
     const message = new FanPacketDto(
       0x23,
       0x24,
       slaveId,
-      0xd1,
+      ECommand.WRITE,
       0x01,
       0x10, // Fan Memory Address start - 4120
       0x19,
-      [fanState],
+      [powerCommand],
     );
 
     /** Todo: Refactoring */
     await this.cacheManager.set<string>(
       `fan/${masterId}/${slaveId}`,
-      powerState === EPowerState.ON ? EPowerState.ON : EPowerState.OFF,
+      powerState,
       { ttl: 60 }, // mock ttl
     );
 

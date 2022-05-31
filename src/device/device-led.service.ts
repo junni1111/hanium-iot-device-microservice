@@ -13,6 +13,7 @@ import {
   ESlaveTurnPowerTopic,
 } from '../util/constants/api-topic';
 import { Cache } from 'cache-manager';
+import { ECommand } from './interfaces/packet';
 
 @Injectable()
 export class DeviceLedService {
@@ -33,7 +34,7 @@ export class DeviceLedService {
       0x23,
       0x22,
       slaveId,
-      0xd1,
+      ECommand.WRITE,
       0x01,
       0x0f,
       0xdd,

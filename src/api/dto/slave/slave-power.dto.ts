@@ -1,7 +1,6 @@
 import { IsIn, IsNumber, IsString } from 'class-validator';
 
-/** Abstract OR Partial */
-export abstract class SlavePowerDto {
+export class SlavePowerDto {
   @IsNumber()
   readonly masterId: number;
 
