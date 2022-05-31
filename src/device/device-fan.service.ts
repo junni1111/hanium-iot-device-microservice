@@ -4,7 +4,7 @@ import { ClientProxy } from '@nestjs/microservices';
 import { DeviceService } from './device.service';
 import { Cache } from 'cache-manager';
 import { FanPacketDto } from './dto/fan-packet.dto';
-import { FanTurnDto } from '../api/dto/fan/fan-turn.dto';
+import { FanPowerDto } from '../api/dto/fan/fan-power.dto';
 import { EPowerState } from '../util/constants/api-topic';
 
 @Injectable()
@@ -15,7 +15,7 @@ export class DeviceFanService {
     private readonly deviceService: DeviceService,
   ) {}
 
-  async turnFan({ masterId, slaveId, powerState }: FanTurnDto) {
+  async turnFan({ masterId, slaveId, powerState }: FanPowerDto) {
     /** Todo: Add Fan Topic Device Gateway
      *        Change Topic temperature -> fan*/
     const topic = `master/${masterId}/temperature`;

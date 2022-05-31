@@ -77,7 +77,7 @@ export class DeviceController {
       /**
        * Todo: id로 캐싱된 온도 범위 가져옴
        *       캐싱된 범위 없으면 db 조회 */
-      const [availableMin, availableMax] =
+      const [availableMin, availableMax] = // 🤔
         await this.deviceTemperatureService.getTemperatureRange(
           masterId,
           slaveId,

@@ -6,13 +6,13 @@ import { SlaveConfigDto } from '../api/dto/slave/slave-config.dto';
 import { DeviceService } from './device.service';
 import { IWaterPumpConfig } from './interfaces/slave-configs';
 import { SlaveRepository } from './repositories/slave.repository';
-import { WaterPumpTurnDto } from '../api/dto/water-pump/water-pump-turn.dto';
+import { WaterPowerTurnDto } from '../api/dto/water-pump/water-power-turn.dto';
 import {
   EPowerState,
   ESlaveState,
   ESlaveTurnPowerTopic,
 } from '../util/constants/api-topic';
-import { LedTurnDto } from '../api/dto/led/led-turn.dto';
+import { LedPowerDto } from '../api/dto/led/led-power.dto';
 import { Cache } from 'cache-manager';
 
 @Injectable()
@@ -24,7 +24,7 @@ export class DeviceWaterPumpService {
     private readonly slaveRepository: SlaveRepository,
   ) {}
 
-  async turnWaterPump({ masterId, slaveId, powerState }: LedTurnDto) {
+  async turnWaterPump({ masterId, slaveId, powerState }: LedPowerDto) {
     const topic = `master/${masterId}/water`;
     const waterPumpState = powerState === EPowerState.ON ? 0xfb : 0x0f;
 
