@@ -18,7 +18,7 @@ export class DeviceFanService {
   async turnFan({ masterId, slaveId, powerState }: FanPowerDto) {
     /** Todo: Add Fan Topic Device Gateway
      *        Change Topic temperature -> fan*/
-    const topic = `master/${masterId}/temperature`;
+    const topic = `master/${masterId}/fan`;
     const fanState = powerState === EPowerState.ON ? 0xfb : 0x0f;
 
     const message = new FanPacketDto(
@@ -43,7 +43,7 @@ export class DeviceFanService {
   }
 
   async requestMockFan(masterId: number, slaveId: number) {
-    const topic = `master/${masterId}/temperature`;
+    const topic = `master/${masterId}/fan`;
     const message = new FanPacketDto(
       0x23,
       0x24,
