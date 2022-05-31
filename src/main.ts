@@ -2,7 +2,7 @@ import { NestFactory } from '@nestjs/core';
 import { AppModule } from './app.module';
 import { Transport } from '@nestjs/microservices';
 import { DEVICE_HOST, DEVICE_PORT, MQTT_BROKER_URL } from './config/config';
-import { ValidationPipe } from '@nestjs/common';
+import { Logger, ValidationPipe } from '@nestjs/common';
 import { REDIS_HOST, REDIS_PORT } from './config/redis.config';
 
 async function bootstrap() {

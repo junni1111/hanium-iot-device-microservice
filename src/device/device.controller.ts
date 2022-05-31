@@ -69,6 +69,7 @@ export class DeviceController {
         `fan/${masterId}/${slaveId}`,
       );
       console.log(`prev fan state: `, prevFanState);
+      console.log(`recv temperature : `, temperature);
       /**
        * Todo: id로 캐싱된 온도 범위 가져옴
        *       캐싱된 범위 없으면 db 조회 */

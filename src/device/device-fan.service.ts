@@ -37,7 +37,7 @@ export class DeviceFanService {
     const topic = `master/${masterId}/fan`;
     const message = new FanPacketDto(
       0x23,
-      0x24,
+      0x22,
       slaveId,
       ECommand.WRITE,
       0x01,
