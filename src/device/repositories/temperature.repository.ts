@@ -4,6 +4,15 @@ import { subDays, subMinutes } from 'date-fns';
 
 @EntityRepository(Temperature)
 export class TemperatureRepository extends Repository<Temperature> {
+  async saveTemperature(temperature: Temperature) {
+    const data = await this.create(temperature);
+    return createQueryBuilder()
+      .insert()
+      .into(Temperature)
+      .values(data)
+      .execute();
+  }
+
   async fetchTemperatureLastWeek(
     masterId: number,
     slaveId: number,

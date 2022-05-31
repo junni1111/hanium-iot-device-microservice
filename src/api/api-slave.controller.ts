@@ -14,8 +14,8 @@ import {
 import { DeviceLedService } from '../device/device-led.service';
 import { DeviceWaterPumpService } from '../device/device-water-pump.service';
 import { DeviceTemperatureService } from '../device/device-temperature.service';
-import { LedTurnDto } from './dto/led/led-turn.dto';
-import { WaterPumpTurnDto } from './dto/water-pump/water-pump-turn.dto';
+import { LedPowerDto } from './dto/led/led-power.dto';
+import { WaterPowerTurnDto } from './dto/water-pump/water-power-turn.dto';
 import { LedStateDto } from './dto/led/led-state.dto';
 import { Cache } from 'cache-manager';
 import { WaterPumpStateDto } from './dto/water-pump/water-pump-state.dto';
@@ -130,7 +130,7 @@ export class ApiSlaveController {
   /**
    * Todo: LED, 모터 둘다 포함 가능하게 고민*/
   @MessagePattern(ESlaveTurnPowerTopic.WATER_PUMP, Transport.TCP)
-  async turnWaterPump(@Payload() waterPumpTurnDto: WaterPumpTurnDto) {
+  async turnWaterPump(@Payload() waterPumpTurnDto: WaterPowerTurnDto) {
     let configs: Slave | undefined;
     try {
       console.log(`turn water dto: `, waterPumpTurnDto);
@@ -187,7 +187,7 @@ export class ApiSlaveController {
    * Todo: Extract service
    **/
   @MessagePattern(ESlaveTurnPowerTopic.LED, Transport.TCP)
-  async turnLed(@Payload() ledTurnDto: LedTurnDto) {
+  async turnLed(@Payload() ledTurnDto: LedPowerDto) {
     const runningStateKey = `master/${ledTurnDto.masterId}/slave/${ledTurnDto.slaveId}/${ESlaveState.LED}`;
     const powerStateKey = `master/${ledTurnDto.masterId}/slave/${ledTurnDto.slaveId}/${ESlaveTurnPowerTopic.LED}`;
     let configs: Slave | undefined;

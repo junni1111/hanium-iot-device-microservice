@@ -6,13 +6,14 @@ import { SlaveConfigDto } from '../api/dto/slave/slave-config.dto';
 import { DeviceService } from './device.service';
 import { ILedConfig } from './interfaces/slave-configs';
 import { SlaveRepository } from './repositories/slave.repository';
-import { LedTurnDto } from '../api/dto/led/led-turn.dto';
+import { LedPowerDto } from '../api/dto/led/led-power.dto';
 import {
   EPowerState,
   ESlaveState,
   ESlaveTurnPowerTopic,
 } from '../util/constants/api-topic';
 import { Cache } from 'cache-manager';
+import { ECommand } from './interfaces/packet';
 
 @Injectable()
 export class DeviceLedService {
@@ -25,7 +26,7 @@ export class DeviceLedService {
 
   /**
    * Todo: 더 좋은 방법 고민 */
-  async turnLed({ masterId, slaveId, powerState }: LedTurnDto) {
+  async turnLed({ masterId, slaveId, powerState }: LedPowerDto) {
     const ledState = powerState === EPowerState.ON ? 0xfb : 0x0f;
     const topic = `master/${masterId}/led`;
 
@@ -33,7 +34,7 @@ export class DeviceLedService {
       0x23,
       0x22,
       slaveId,
-      0xd1,
+      ECommand.WRITE,
       0x01,
       0x0f,
       0xdd,
