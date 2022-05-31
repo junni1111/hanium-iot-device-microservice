@@ -365,14 +365,6 @@ export class ApiSlaveController {
     /** Todo: Change Key */
     const temperatureRangeKey = `master/${temperatureConfigDto.masterId}/slave/${temperatureConfigDto.slaveId}/${ESlaveConfigTopic.TEMPERATURE}`;
     try {
-      /**
-       * Todo: 현재 redis에 캐싱되어있는 온도 범위와 비교
-       *       값이 다르다면 db에 저장 */
-      // const cachedTemperatureRange = await this.cacheManager.get<number[]>(
-      //   temperatureRangeKey,
-      // );
-      // console.log(`before cached range: `, cachedTemperatureRange);
-
       const configUpdateResult =
         await this.deviceTemperatureService.setTemperatureConfig(
           temperatureConfigDto,
@@ -421,7 +413,6 @@ export class ApiSlaveController {
       parseInt(slave_id),
     );
 
-    // console.log(`current temp:`, data);
     return {
       status: HttpStatus.OK,
       topic: 'temperature',

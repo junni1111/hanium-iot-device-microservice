@@ -7,6 +7,7 @@ import { FanPacketDto } from './dto/fan-packet.dto';
 import { FanPowerDto } from '../api/dto/fan/fan-power.dto';
 import { EPowerState } from '../util/constants/api-topic';
 import { ECommand } from './interfaces/packet';
+import { TemperatureRangeDto } from '../api/dto/temperature/temperature-range.dto';
 
 @Injectable()
 export class DeviceFanService {
@@ -16,17 +17,14 @@ export class DeviceFanService {
     private readonly deviceService: DeviceService,
   ) {}
 
-  async turnFan({
-    masterId,
-    slaveId,
-    temperature,
-    availableMin,
-    availableMax,
-  }: FanPowerDto) {
+  async turnFan(
+    { masterId, slaveId }: FanPowerDto,
+    range: TemperatureRangeDto,
+  ) {
     let powerCommand: number;
     let powerState: EPowerState;
 
-    if (temperature < availableMin || temperature > availableMax) {
+    if (!range.contains()) {
       powerState = EPowerState.ON;
       powerCommand = 0xfb; // Fan ON
     } else {

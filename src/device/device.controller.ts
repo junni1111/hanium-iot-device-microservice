@@ -20,6 +20,8 @@ import { Cache } from 'cache-manager';
 import { Temperature } from './entities/temperature.entity';
 import { EPowerState } from '../util/constants/api-topic';
 import { DeviceFanService } from './device-fan.service';
+import { TemperatureRangeDto } from '../api/dto/temperature/temperature-range.dto';
+import { FanPowerDto } from '../api/dto/fan/fan-power.dto';
 
 @Controller()
 export class DeviceController {
@@ -73,19 +75,16 @@ export class DeviceController {
       /**
        * Todo: id로 캐싱된 온도 범위 가져옴
        *       캐싱된 범위 없으면 db 조회 */
-      const [availableMin, availableMax] = // 🤔
+      const [rangeMin, rangeMax] = // 🤔
         await this.deviceTemperatureService.getTemperatureRange(
           masterId,
           slaveId,
         );
 
-      await this.deviceFanService.turnFan({
-        masterId,
-        slaveId,
-        temperature,
-        availableMin,
-        availableMax,
-      });
+      await this.deviceFanService.turnFan(
+        { masterId, slaveId }, // 🤔
+        new TemperatureRangeDto(temperature, rangeMin, rangeMax),
+      );
 
       const saveResult = await this.deviceTemperatureService.saveTemperature(
         new Temperature(masterId, slaveId, temperature),
