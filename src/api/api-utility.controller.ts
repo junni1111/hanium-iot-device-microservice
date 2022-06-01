@@ -1,6 +1,6 @@
 import { Controller, Get, HttpStatus, Res } from '@nestjs/common';
 import { MessagePattern, Payload, Transport } from '@nestjs/microservices';
-import { DeviceTemperatureService } from '../device/device-temperature.service';
+import { DeviceTemperatureService } from '../device/thermometer/device-temperature.service';
 import { SlaveStateDto } from './dto/slave/slave-state.dto';
 
 @Controller()

@@ -15,11 +15,11 @@ import {
 } from '../util/constants/mqtt-topic';
 import { EPollingState } from './interfaces/polling-status';
 import { DevicePollingService } from './device-polling.service';
-import { DeviceTemperatureService } from './device-temperature.service';
+import { DeviceTemperatureService } from './thermometer/device-temperature.service';
 import { Cache } from 'cache-manager';
 import { Temperature } from './entities/temperature.entity';
 import { EPowerState } from '../util/constants/api-topic';
-import { DeviceFanService } from './device-fan.service';
+import { DeviceFanService } from './fan/device-fan.service';
 import { TemperatureRangeDto } from '../api/dto/temperature/temperature-range.dto';
 import { FanPowerDto } from '../api/dto/fan/fan-power.dto';
 

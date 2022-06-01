@@ -8,7 +8,7 @@ import {
   ESlaveState,
   ESlaveTurnPowerTopic,
 } from '../../util/constants/api-topic';
-import { DeviceWaterPumpService } from '../../device/device-water-pump.service';
+import { DeviceWaterPumpService } from '../../device/water-pump/device-water-pump.service';
 import { WaterPowerTurnDto } from '../dto/water-pump/water-power-turn.dto';
 import { Cache } from 'cache-manager';
 import { WaterPumpStateDto } from '../dto/water-pump/water-pump-state.dto';
@@ -16,7 +16,7 @@ import { ApiWaterPumpService } from './api-water-pump.service';
 import { SlaveConfigDto } from '../dto/slave/slave-config.dto';
 import { Slave } from '../../device/entities/slave.entity';
 import { ApiSlaveService } from '../slave/api-slave.service';
-import { DeviceMasterService } from '../../device/device-master.service';
+import { DeviceMasterService } from '../../device/master/device-master.service';
 
 @Controller()
 export class ApiWaterPumpController {

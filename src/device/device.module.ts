@@ -7,7 +7,7 @@ import { MQTT_BROKER_URL } from '../config/config';
 import { TypeOrmModule } from '@nestjs/typeorm';
 import { Temperature } from './entities/temperature.entity';
 import { DevicePollingService } from './device-polling.service';
-import { DeviceMasterService } from './device-master.service';
+import { DeviceMasterService } from './master/device-master.service';
 import { Humidity } from './entities/humidity.entity';
 import { WaterPump } from './entities/water-pump.entity';
 import { Led } from './entities/led.entity';
@@ -16,12 +16,12 @@ import { Master } from './entities/master.entity';
 import { Slave } from './entities/slave.entity';
 import { MasterRepository } from './repositories/master.repository';
 import { SlaveRepository } from './repositories/slave.repository';
-import { DeviceTemperatureService } from './device-temperature.service';
-import { DeviceWaterPumpService } from './device-water-pump.service';
-import { DeviceLedService } from './device-led.service';
+import { DeviceTemperatureService } from './thermometer/device-temperature.service';
+import { DeviceWaterPumpService } from './water-pump/device-water-pump.service';
+import { DeviceLedService } from './led/device-led.service';
 import * as redisStore from 'cache-manager-ioredis';
 import { REDIS_HOST, REDIS_PORT } from '../config/redis.config';
-import { DeviceFanService } from './device-fan.service';
+import { DeviceFanService } from './fan/device-fan.service';
 
 @Module({
   imports: [

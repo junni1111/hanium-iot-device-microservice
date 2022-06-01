@@ -1,7 +1,7 @@
 import { CACHE_MANAGER, Controller, HttpStatus, Inject } from '@nestjs/common';
 import { MessagePattern, Payload, Transport } from '@nestjs/microservices';
 import { DeviceService } from '../../device/device.service';
-import { DeviceMasterService } from '../../device/device-master.service';
+import { DeviceMasterService } from '../../device/master/device-master.service';
 import { ResponseStatus } from '../../device/interfaces/response-status';
 import {
   EPowerState,
@@ -9,7 +9,7 @@ import {
   ESlaveState,
   ESlaveTurnPowerTopic,
 } from '../../util/constants/api-topic';
-import { DeviceLedService } from '../../device/device-led.service';
+import { DeviceLedService } from '../../device/led/device-led.service';
 import { LedPowerDto } from '../dto/led/led-power.dto';
 import { LedStateDto } from '../dto/led/led-state.dto';
 import { Cache } from 'cache-manager';

@@ -1,14 +1,14 @@
 import { CACHE_MANAGER, Inject, Injectable } from '@nestjs/common';
-import { MQTT_BROKER } from '../util/constants/constants';
+import { MQTT_BROKER } from '../../util/constants/constants';
 import { ClientProxy } from '@nestjs/microservices';
-import { Temperature } from './entities/temperature.entity';
-import { TemperatureRepository } from './repositories/temperature.repository';
-import { DeviceService } from './device.service';
-import { SlaveRepository } from './repositories/slave.repository';
-import { ITemperatureConfig } from './interfaces/slave-configs';
+import { Temperature } from '../entities/temperature.entity';
+import { TemperatureRepository } from '../repositories/temperature.repository';
+import { DeviceService } from '../device.service';
+import { SlaveRepository } from '../repositories/slave.repository';
+import { ITemperatureConfig } from '../interfaces/slave-configs';
 import { Cache } from 'cache-manager';
-import { SlaveConfigDto } from '../api/dto/slave/slave-config.dto';
-import { ESlaveConfigTopic } from '../util/constants/api-topic';
+import { SlaveConfigDto } from '../../api/dto/slave/slave-config.dto';
+import { ESlaveConfigTopic } from '../../util/constants/api-topic';
 
 @Injectable()
 export class DeviceTemperatureService {

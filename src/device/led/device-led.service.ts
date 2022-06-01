@@ -1,19 +1,19 @@
 import { CACHE_MANAGER, Inject, Injectable } from '@nestjs/common';
-import { MQTT_BROKER } from '../util/constants/constants';
+import { MQTT_BROKER } from '../../util/constants/constants';
 import { ClientProxy } from '@nestjs/microservices';
-import { LedPacketDto } from './dto/led-packet.dto';
-import { SlaveConfigDto } from '../api/dto/slave/slave-config.dto';
-import { DeviceService } from './device.service';
-import { ILedConfig } from './interfaces/slave-configs';
-import { SlaveRepository } from './repositories/slave.repository';
-import { LedPowerDto } from '../api/dto/led/led-power.dto';
+import { LedPacketDto } from '../dto/led-packet.dto';
+import { SlaveConfigDto } from '../../api/dto/slave/slave-config.dto';
+import { DeviceService } from '../device.service';
+import { ILedConfig } from '../interfaces/slave-configs';
+import { SlaveRepository } from '../repositories/slave.repository';
+import { LedPowerDto } from '../../api/dto/led/led-power.dto';
 import {
   EPowerState,
   ESlaveState,
   ESlaveTurnPowerTopic,
-} from '../util/constants/api-topic';
+} from '../../util/constants/api-topic';
 import { Cache } from 'cache-manager';
-import { ECommand } from './interfaces/packet';
+import { ECommand } from '../interfaces/packet';
 
 @Injectable()
 export class DeviceLedService {

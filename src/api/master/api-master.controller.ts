@@ -3,7 +3,7 @@ import { MessagePattern, Payload, Transport } from '@nestjs/microservices';
 
 import { DeviceService } from '../../device/device.service';
 import { DevicePollingService } from '../../device/device-polling.service';
-import { DeviceMasterService } from '../../device/device-master.service';
+import { DeviceMasterService } from '../../device/master/device-master.service';
 import { ResponseStatus } from '../../device/interfaces/response-status';
 import { POLLING } from '../../util/constants/mqtt-topic';
 import { EPollingState } from '../../device/interfaces/polling-status';

@@ -1,13 +1,13 @@
 import { CACHE_MANAGER, Inject, Injectable } from '@nestjs/common';
-import { MQTT_BROKER } from '../util/constants/constants';
+import { MQTT_BROKER } from '../../util/constants/constants';
 import { ClientProxy } from '@nestjs/microservices';
-import { DeviceService } from './device.service';
+import { DeviceService } from '../device.service';
 import { Cache } from 'cache-manager';
-import { FanPacketDto } from './dto/fan-packet.dto';
-import { FanPowerDto } from '../api/dto/fan/fan-power.dto';
-import { EPowerState } from '../util/constants/api-topic';
-import { ECommand } from './interfaces/packet';
-import { TemperatureRangeDto } from '../api/dto/temperature/temperature-range.dto';
+import { FanPacketDto } from '../dto/fan-packet.dto';
+import { FanPowerDto } from '../../api/dto/fan/fan-power.dto';
+import { EPowerState } from '../../util/constants/api-topic';
+import { ECommand } from '../interfaces/packet';
+import { TemperatureRangeDto } from '../../api/dto/temperature/temperature-range.dto';
 
 @Injectable()
 export class DeviceFanService {

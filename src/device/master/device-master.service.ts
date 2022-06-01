@@ -1,10 +1,10 @@
 import { Inject, Injectable } from '@nestjs/common';
-import { MQTT_BROKER } from '../util/constants/constants';
+import { MQTT_BROKER } from '../../util/constants/constants';
 import { ClientProxy } from '@nestjs/microservices';
-import { SlaveRepository } from './repositories/slave.repository';
-import { MasterRepository } from './repositories/master.repository';
-import { CreateMasterDto } from '../api/dto/master/create-master.dto';
-import { CreateSlaveDto } from '../api/dto/slave/create-slave.dto';
+import { SlaveRepository } from '../repositories/slave.repository';
+import { MasterRepository } from '../repositories/master.repository';
+import { CreateMasterDto } from '../../api/dto/master/create-master.dto';
+import { CreateSlaveDto } from '../../api/dto/slave/create-slave.dto';
 
 @Injectable()
 export class DeviceMasterService {

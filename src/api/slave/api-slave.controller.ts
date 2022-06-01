@@ -2,7 +2,7 @@ import { CACHE_MANAGER, Controller, HttpStatus, Inject } from '@nestjs/common';
 import { MessagePattern, Payload, Transport } from '@nestjs/microservices';
 import { DeviceService } from '../../device/device.service';
 import { DevicePollingService } from '../../device/device-polling.service';
-import { DeviceMasterService } from '../../device/device-master.service';
+import { DeviceMasterService } from '../../device/master/device-master.service';
 import { ResponseStatus } from '../../device/interfaces/response-status';
 import {
   EPowerState,
@@ -11,9 +11,9 @@ import {
   ESlaveTurnPowerTopic,
   TEMPERATURE_WEEK,
 } from '../../util/constants/api-topic';
-import { DeviceLedService } from '../../device/device-led.service';
-import { DeviceWaterPumpService } from '../../device/device-water-pump.service';
-import { DeviceTemperatureService } from '../../device/device-temperature.service';
+import { DeviceLedService } from '../../device/led/device-led.service';
+import { DeviceWaterPumpService } from '../../device/water-pump/device-water-pump.service';
+import { DeviceTemperatureService } from '../../device/thermometer/device-temperature.service';
 import { LedPowerDto } from '../dto/led/led-power.dto';
 import { WaterPowerTurnDto } from '../dto/water-pump/water-power-turn.dto';
 import { LedStateDto } from '../dto/led/led-state.dto';

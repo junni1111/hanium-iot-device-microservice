@@ -1,18 +1,18 @@
 import { CACHE_MANAGER, Inject, Injectable } from '@nestjs/common';
-import { MQTT_BROKER } from '../util/constants/constants';
+import { MQTT_BROKER } from '../../util/constants/constants';
 import { ClientProxy } from '@nestjs/microservices';
-import { WaterPumpPacketDto } from './dto/water-pump-packet.dto';
-import { SlaveConfigDto } from '../api/dto/slave/slave-config.dto';
-import { DeviceService } from './device.service';
-import { IWaterPumpConfig } from './interfaces/slave-configs';
-import { SlaveRepository } from './repositories/slave.repository';
-import { WaterPowerTurnDto } from '../api/dto/water-pump/water-power-turn.dto';
+import { WaterPumpPacketDto } from '../dto/water-pump-packet.dto';
+import { SlaveConfigDto } from '../../api/dto/slave/slave-config.dto';
+import { DeviceService } from '../device.service';
+import { IWaterPumpConfig } from '../interfaces/slave-configs';
+import { SlaveRepository } from '../repositories/slave.repository';
+import { WaterPowerTurnDto } from '../../api/dto/water-pump/water-power-turn.dto';
 import {
   EPowerState,
   ESlaveState,
   ESlaveTurnPowerTopic,
-} from '../util/constants/api-topic';
-import { LedPowerDto } from '../api/dto/led/led-power.dto';
+} from '../../util/constants/api-topic';
+import { LedPowerDto } from '../../api/dto/led/led-power.dto';
 import { Cache } from 'cache-manager';
 
 @Injectable()
