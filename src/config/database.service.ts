@@ -48,12 +48,12 @@ class DatabaseService {
       port: parseInt(this.getValue(DATABASE_PORT)),
 
       entities: [path.join(__dirname, '../**/*.entity{.ts,.js}')],
-      migrationsTableName: 'migration',
-      migrations: ['src/migration/*.ts'],
+      // migrationsTableName: 'migration',
+      // migrations: ['src/migration/*.ts'],
 
-      cli: {
-        migrationsDir: 'src/migration',
-      },
+      // cli: {
+      //   migrationsDir: 'src/migration',
+      // },
 
       /**
        * Todo: SSL key 추가 */
