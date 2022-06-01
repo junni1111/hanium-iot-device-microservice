@@ -8,6 +8,7 @@ export enum ESlaveConfigTopic {
 export enum ESlaveTurnPowerTopic {
   WATER_PUMP = 'power/water',
   LED = 'power/led',
+  FAN = 'power/fan',
 }
 
 export enum EPowerState {
@@ -25,6 +26,7 @@ export enum ESlaveState {
   TEMPERATURE = 'temperature/state',
   WATER_PUMP = 'water/state',
   LED = 'led/state',
+  FAN = 'fan/state',
 }
 
 export const TEMPERATURE_WEEK = 'temperature/week';

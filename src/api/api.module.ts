@@ -7,6 +7,7 @@ import * as redisStore from 'cache-manager-ioredis';
 import { REDIS_HOST, REDIS_PORT } from '../config/redis.config';
 import { ApiLedService } from './api-led.service';
 import { ApiWaterPumpService } from './api-water-pump.service';
+import { ApiSlaveService } from './api-slave.service';
 
 @Module({
   imports: [
@@ -18,6 +19,6 @@ import { ApiWaterPumpService } from './api-water-pump.service';
     DeviceModule,
   ],
   controllers: [ApiMasterController, ApiSlaveController, ApiUtilityController],
-  providers: [ApiLedService, ApiWaterPumpService],
+  providers: [ApiLedService, ApiWaterPumpService, ApiSlaveService],
 })
 export class ApiModule {}

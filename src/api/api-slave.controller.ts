@@ -24,6 +24,7 @@ import { ApiWaterPumpService } from './api-water-pump.service';
 import { SlaveStateDto } from './dto/slave/slave-state.dto';
 import { SlaveConfigDto } from './dto/slave/slave-config.dto';
 import { Slave } from '../device/entities/slave.entity';
+import { ApiSlaveService } from './api-slave.service';
 
 @Controller()
 export class ApiSlaveController {
@@ -31,6 +32,7 @@ export class ApiSlaveController {
     @Inject(CACHE_MANAGER) private readonly cacheManager: Cache,
     private readonly masterService: DeviceMasterService,
     private readonly pollingService: DevicePollingService,
+    private readonly apiSlaveService: ApiSlaveService,
     private readonly apiLedService: ApiLedService,
     private readonly apiWaterPumpService: ApiWaterPumpService,
     private readonly deviceService: DeviceService,
@@ -49,34 +51,15 @@ export class ApiSlaveController {
       console.log(`call Slave State`, slaveStateDto);
       console.log(`mid, sid:`, slaveStateDto.masterId, slaveStateDto.slaveId);
 
-      const ledRunningState = await this.apiLedService.getRunningState(
+      const sensorStates = await this.apiSlaveService.getSensorsState(
         slaveStateDto,
       );
-      const ledPowerState = await this.apiLedService.getPowerState(
-        slaveStateDto,
-      );
-
-      const waterPumpRunningState =
-        await this.apiWaterPumpService.getRunningState(slaveStateDto);
-      const waterPumpPowerState = await this.apiWaterPumpService.getPowerState(
-        slaveStateDto,
-      );
-      console.log(`led power State: `, ledPowerState);
-      console.log(`led run State: `, ledRunningState);
-
-      console.log(`waterPump power State: `, waterPumpPowerState);
-      console.log(`waterPump run State: `, waterPumpRunningState);
 
       return {
         status: HttpStatus.OK,
         topic: ESlaveState.ALL,
         message: 'request check slave state success',
-        data: {
-          ledPowerState,
-          ledRunningState,
-          waterPumpPowerState,
-          waterPumpRunningState,
-        },
+        data: sensorStates,
       };
     } catch (e) {
       console.log(e);
