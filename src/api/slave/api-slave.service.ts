@@ -7,7 +7,7 @@ import {
 } from '../../util/constants/api-topic';
 import { SlaveStateDto } from '../dto/slave/slave-state.dto';
 import { SensorStateDto } from '../dto/slave/sensor-state.dto';
-import { SensorPowerKey, SensorRunningKey } from '../../util/redis-keys';
+import { SensorPowerKey, SensorRunningKey } from '../../util/key-generator';
 
 export class ApiSlaveService {
   constructor(@Inject(CACHE_MANAGER) private readonly cacheManager: Cache) {}

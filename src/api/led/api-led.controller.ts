@@ -17,7 +17,7 @@ import { ApiLedService } from './api-led.service';
 import { SlaveConfigDto } from '../dto/slave/slave-config.dto';
 import { Slave } from '../../device/entities/slave.entity';
 import { ApiSlaveService } from '../slave/api-slave.service';
-import { SensorPowerKey, SensorRunningKey } from '../../util/redis-keys';
+import { SensorPowerKey, SensorRunningKey } from '../../util/key-generator';
 
 @Controller()
 export class ApiSlaveController {
