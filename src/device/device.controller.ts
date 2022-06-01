@@ -98,10 +98,10 @@ export class DeviceController {
     @Payload() runtimeMinutes: number,
     @Ctx() context: MqttContext,
   ) {
-    const [, mid, , sid, sensorName] = context.getTopic().split('/');
-    const masterId = parseInt(mid);
-    const slaveId = parseInt(sid);
-    const sensor = `state/${sensorName}`;
+    const [, mId, , sId, sensorName] = context.getTopic().split('/');
+    const masterId = parseInt(mId);
+    const slaveId = parseInt(sId);
+    const sensor = `state/${sensorName}`; // 🤔
     /**
      * Todo: Extract Service & cleanup */
     /**

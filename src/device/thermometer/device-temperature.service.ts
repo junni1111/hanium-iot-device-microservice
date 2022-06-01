@@ -116,7 +116,14 @@ export class DeviceTemperatureService {
      * Todo: DB에서 온도 범위 조회 */
     console.log(`Search DB`);
     const configs = await this.slaveRepository.getConfigs(masterId, slaveId);
+    /** Todo: Exception handling */
+    const range = [
+      configs?.startTemperatureRange,
+      configs?.endTemperatureRange,
+    ];
 
-    return [configs?.startTemperatureRange, configs?.endTemperatureRange];
+    await this.cacheManager.set<number[]>(key, range, { ttl: 3600 });
+    console.log(`cached Range: `, range);
+    return range;
   }
 }

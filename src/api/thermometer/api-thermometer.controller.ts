@@ -5,26 +5,18 @@ import { DevicePollingService } from '../../device/device-polling.service';
 import { DeviceMasterService } from '../../device/master/device-master.service';
 import { ResponseStatus } from '../../device/interfaces/response-status';
 import {
-  EPowerState,
   ESlaveConfigTopic,
-  ESlaveState,
-  ESlaveTurnPowerTopic,
   TEMPERATURE_WEEK,
 } from '../../util/constants/api-topic';
 import { DeviceLedService } from '../../device/led/device-led.service';
 import { DeviceWaterPumpService } from '../../device/water-pump/device-water-pump.service';
 import { DeviceTemperatureService } from '../../device/thermometer/device-temperature.service';
-import { LedPowerDto } from '../dto/led/led-power.dto';
-import { WaterPowerTurnDto } from '../dto/water-pump/water-power-turn.dto';
-import { LedStateDto } from '../dto/led/led-state.dto';
 import { Cache } from 'cache-manager';
-import { WaterPumpStateDto } from '../dto/water-pump/water-pump-state.dto';
 import { ApiLedService } from '../led/api-led.service';
 import { ApiWaterPumpService } from '../water-pump/api-water-pump.service';
-import { SlaveStateDto } from '../dto/slave/slave-state.dto';
 import { SlaveConfigDto } from '../dto/slave/slave-config.dto';
-import { Slave } from '../../device/entities/slave.entity';
 import { ApiSlaveService } from '../slave/api-slave.service';
+import { SensorConfigKey } from '../../util/key-generator';
 
 @Controller()
 export class ApiThermometerController {
@@ -64,12 +56,16 @@ export class ApiThermometerController {
     }
   }
 
-  /** Todo: Extract Controller */
+  /** Todo: Extract to service */
   @MessagePattern(ESlaveConfigTopic.TEMPERATURE, Transport.TCP)
   async setTemperatureConfig(@Payload() temperatureConfigDto: SlaveConfigDto) {
-    console.log(`call set temperature config`, temperatureConfigDto);
     /** Todo: Change Key */
-    const temperatureRangeKey = `master/${temperatureConfigDto.masterId}/slave/${temperatureConfigDto.slaveId}/${ESlaveConfigTopic.TEMPERATURE}`;
+    const key = SensorConfigKey({
+      sensor: ESlaveConfigTopic.TEMPERATURE,
+      masterId: temperatureConfigDto.masterId,
+      slaveId: temperatureConfigDto.slaveId,
+    });
+
     try {
       const configUpdateResult =
         await this.deviceTemperatureService.setTemperatureConfig(
@@ -87,7 +83,7 @@ export class ApiThermometerController {
 
       /** Todo: 범위 값 저장 방식 고민 */
       const cachedResult = await this.cacheManager.set<number[]>(
-        temperatureRangeKey,
+        key,
         [
           temperatureConfigDto.startTemperatureRange,
           temperatureConfigDto.endTemperatureRange,

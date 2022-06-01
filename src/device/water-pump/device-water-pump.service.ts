@@ -6,7 +6,6 @@ import { SlaveConfigDto } from '../../api/dto/slave/slave-config.dto';
 import { DeviceService } from '../device.service';
 import { IWaterPumpConfig } from '../interfaces/slave-configs';
 import { SlaveRepository } from '../repositories/slave.repository';
-import { WaterPowerTurnDto } from '../../api/dto/water-pump/water-power-turn.dto';
 import {
   EPowerState,
   ESlaveState,
@@ -14,6 +13,7 @@ import {
 } from '../../util/constants/api-topic';
 import { LedPowerDto } from '../../api/dto/led/led-power.dto';
 import { Cache } from 'cache-manager';
+import { SensorPowerKey, SensorStateKey } from '../../util/key-generator';
 
 @Injectable()
 export class DeviceWaterPumpService {
@@ -100,8 +100,17 @@ export class DeviceWaterPumpService {
     powerState: EPowerState,
     runtime?: number,
   ) {
-    const runningStateKey = `master/${masterId}/slave/${slaveId}/${ESlaveState.WATER_PUMP}`;
-    const powerStateKey = `master/${masterId}/slave/${slaveId}/${ESlaveTurnPowerTopic.WATER_PUMP}`;
+    const runningStateKey = SensorStateKey({
+      sensor: ESlaveState.WATER_PUMP,
+      masterId,
+      slaveId,
+    });
+    const powerStateKey = SensorPowerKey({
+      sensor: ESlaveTurnPowerTopic.WATER_PUMP,
+      masterId,
+      slaveId,
+    });
+
     const cacheRunningState = this.cacheManager.set<string>(
       runningStateKey,
       powerState,
