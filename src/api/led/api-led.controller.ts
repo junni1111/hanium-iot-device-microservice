@@ -20,7 +20,7 @@ import { ApiSlaveService } from '../slave/api-slave.service';
 import { SensorPowerKey, SensorStateKey } from '../../util/key-generator';
 
 @Controller()
-export class ApiSlaveController {
+export class ApiLedController {
   constructor(
     @Inject(CACHE_MANAGER) private readonly cacheManager: Cache,
     private readonly deviceMasterService: DeviceMasterService,

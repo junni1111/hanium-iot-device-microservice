@@ -8,6 +8,9 @@ import { REDIS_HOST, REDIS_PORT } from '../config/redis.config';
 import { ApiLedService } from './led/api-led.service';
 import { ApiWaterPumpService } from './water-pump/api-water-pump.service';
 import { ApiSlaveService } from './slave/api-slave.service';
+import { ApiWaterPumpController } from './water-pump/api-water-pump.controller';
+import { ApiLedController } from './led/api-led.controller';
+import { ApiThermometerController } from './thermometer/api-thermometer.controller';
 
 @Module({
   imports: [
@@ -18,7 +21,14 @@ import { ApiSlaveService } from './slave/api-slave.service';
     }),
     DeviceModule,
   ],
-  controllers: [ApiMasterController, ApiSlaveController, ApiUtilityController],
+  controllers: [
+    ApiMasterController,
+    ApiSlaveController,
+    ApiWaterPumpController,
+    ApiLedController,
+    ApiThermometerController,
+    ApiUtilityController,
+  ],
   providers: [ApiLedService, ApiWaterPumpService, ApiSlaveService],
 })
 export class ApiModule {}
