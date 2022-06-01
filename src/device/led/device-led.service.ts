@@ -7,11 +7,7 @@ import { DeviceService } from '../device.service';
 import { ILedConfig } from '../interfaces/slave-configs';
 import { SlaveRepository } from '../repositories/slave.repository';
 import { LedPowerDto } from '../../api/dto/led/led-power.dto';
-import {
-  EPowerState,
-  ESlaveState,
-  ESlaveTurnPowerTopic,
-} from '../../util/constants/api-topic';
+import { EPowerState } from '../../util/constants/api-topic';
 import { Cache } from 'cache-manager';
 import { ECommand } from '../interfaces/packet';
 
