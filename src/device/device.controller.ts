@@ -15,11 +15,12 @@ import {
 } from '../util/constants/mqtt-topic';
 import { EPollingState } from './interfaces/polling-status';
 import { DevicePollingService } from './device-polling.service';
-import { DeviceTemperatureService } from './thermometer/device-temperature.service';
 import { Cache } from 'cache-manager';
 import { Temperature } from './entities/temperature.entity';
 import { DeviceFanService } from './fan/device-fan.service';
 import { TemperatureRangeDto } from '../api/dto/temperature/temperature-range.dto';
+import { ESlaveState } from '../util/constants/api-topic';
+import { DeviceTemperatureService } from './thermometer/device-temperature.service';
 import { MasterPollingKey, SensorStateKey } from '../util/key-generator';
 
 @Controller()
@@ -64,11 +65,10 @@ export class DeviceController {
     const [, mId, , sId] = context.getTopic().split('/');
     const masterId = parseInt(mId); // 🤔
     const slaveId = parseInt(sId);
+    const key = SensorStateKey({ sensor: ESlaveState.FAN, masterId, slaveId });
 
     try {
-      const prevFanState = await this.cacheManager.get(
-        `fan/${masterId}/${slaveId}`,
-      );
+      const prevFanState = await this.cacheManager.get(key);
       console.log(`prev fan state: `, prevFanState);
       console.log(`recv temperature : `, temperature);
       /**
