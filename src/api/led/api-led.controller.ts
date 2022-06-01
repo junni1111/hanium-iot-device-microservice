@@ -17,7 +17,7 @@ import { ApiLedService } from './api-led.service';
 import { SlaveConfigDto } from '../dto/slave/slave-config.dto';
 import { Slave } from '../../device/entities/slave.entity';
 import { ApiSlaveService } from '../slave/api-slave.service';
-import { SensorPowerKey, SensorRunningKey } from '../../util/key-generator';
+import { SensorPowerKey, SensorStateKey } from '../../util/key-generator';
 
 @Controller()
 export class ApiSlaveController {
@@ -62,7 +62,7 @@ export class ApiSlaveController {
    **/
   @MessagePattern(ESlaveTurnPowerTopic.LED, Transport.TCP)
   async turnLed(@Payload() ledTurnDto: LedPowerDto) {
-    const runningStateKey = SensorRunningKey({
+    const runningStateKey = SensorStateKey({
       sensor: ESlaveState.LED,
       masterId: ledTurnDto.masterId,
       slaveId: ledTurnDto.slaveId,
@@ -132,7 +132,7 @@ export class ApiSlaveController {
           masterId: ledConfigDto.masterId,
           slaveId: ledConfigDto.slaveId,
         });
-        const runningStateKey = SensorRunningKey({
+        const runningStateKey = SensorStateKey({
           sensor: ESlaveState.LED,
           masterId: ledConfigDto.masterId,
           slaveId: ledConfigDto.slaveId,

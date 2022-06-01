@@ -8,7 +8,8 @@ import { SlaveRepository } from '../repositories/slave.repository';
 import { ITemperatureConfig } from '../interfaces/slave-configs';
 import { Cache } from 'cache-manager';
 import { SlaveConfigDto } from '../../api/dto/slave/slave-config.dto';
-import { ESlaveConfigTopic } from '../../util/constants/api-topic';
+import { ESlaveConfigTopic, ESlaveState } from '../../util/constants/api-topic';
+import { SensorConfigKey, SensorStateKey } from '../../util/key-generator';
 
 @Injectable()
 export class DeviceTemperatureService {
@@ -39,9 +40,11 @@ export class DeviceTemperatureService {
     slaveId: number,
   ): Promise<number> {
     try {
-      /**
-       * Todo: Extract create key function */
-      const key = `temperature/${masterId}/${slaveId}`;
+      const key = SensorStateKey({
+        sensor: ESlaveState.TEMPERATURE,
+        masterId,
+        slaveId,
+      });
       return this.cacheManager.get<number>(key);
     } catch (e) {
       throw e;
@@ -85,9 +88,11 @@ export class DeviceTemperatureService {
   }
 
   async cacheTemperature({ masterId, slaveId, temperature }: Temperature) {
-    /**
-     * Todo: Extract Create Key Function */
-    const key = `temperature/${masterId}/${slaveId}`;
+    const key = SensorStateKey({
+      sensor: ESlaveState.TEMPERATURE,
+      masterId,
+      slaveId,
+    });
     return this.cacheManager.set<number>(key, temperature, { ttl: 60 });
   }
 
@@ -95,7 +100,11 @@ export class DeviceTemperatureService {
     masterId: number,
     slaveId: number,
   ): Promise<number[]> {
-    const key = `master/${masterId}/slave/${slaveId}/${ESlaveConfigTopic.TEMPERATURE}`;
+    const key = SensorConfigKey({
+      sensor: ESlaveConfigTopic.TEMPERATURE,
+      masterId,
+      slaveId,
+    });
     const cachedRange = await this.cacheManager.get<number[]>(key);
 
     if (cachedRange) {

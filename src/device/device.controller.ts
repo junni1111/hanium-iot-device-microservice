@@ -18,10 +18,9 @@ import { DevicePollingService } from './device-polling.service';
 import { DeviceTemperatureService } from './thermometer/device-temperature.service';
 import { Cache } from 'cache-manager';
 import { Temperature } from './entities/temperature.entity';
-import { EPowerState } from '../util/constants/api-topic';
 import { DeviceFanService } from './fan/device-fan.service';
 import { TemperatureRangeDto } from '../api/dto/temperature/temperature-range.dto';
-import { FanPowerDto } from '../api/dto/fan/fan-power.dto';
+import { MasterPollingKey, SensorStateKey } from '../util/key-generator';
 
 @Controller()
 export class DeviceController {
@@ -40,7 +39,7 @@ export class DeviceController {
     @Ctx() context: MqttContext,
     @Payload() pollingStatus: EPollingState,
   ) {
-    const key = context.getTopic();
+    const key = MasterPollingKey(context.getTopic());
     // console.log(`이전 상태 값: `, await this.cacheManager.get<number>(key));
 
     if (pollingStatus !== EPollingState.OK) {
@@ -99,19 +98,22 @@ export class DeviceController {
     @Payload() runtimeMinutes: number,
     @Ctx() context: MqttContext,
   ) {
-    const [, masterId, , slaveId, sensorName] = context.getTopic().split('/');
+    const [, mid, , sid, sensorName] = context.getTopic().split('/');
+    const masterId = parseInt(mid);
+    const slaveId = parseInt(sid);
+    const sensor = `state/${sensorName}`;
     /**
      * Todo: Extract Service & cleanup */
     /**
      * Todo: Cache Power State oxd1 */
-    // if ()
-    console.log(`slave info: `, masterId, slaveId, sensorName);
+    console.log(`slave info: `, masterId, slaveId, sensor);
     console.log(`salve runtime: `, runtimeMinutes);
-    // const powerStateKey = `master/${masterId}/slave/${slaveId}/power/${sensorName}`;
-    // console.log(`key: `, powerStateKey);
-    // await this.cacheManager.set<string>(powerStateKey, 'on', {
-    //   ttl: 0,
-    // });
+
+    const key = SensorStateKey({
+      sensor,
+      masterId,
+      slaveId,
+    });
     if (runtimeMinutes > 0) {
       await this.cacheManager.set<string>(context.getTopic(), 'on', {
         ttl: runtimeMinutes * 60, // make minutes -> second

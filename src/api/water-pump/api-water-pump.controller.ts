@@ -17,6 +17,7 @@ import { SlaveConfigDto } from '../dto/slave/slave-config.dto';
 import { Slave } from '../../device/entities/slave.entity';
 import { ApiSlaveService } from '../slave/api-slave.service';
 import { DeviceMasterService } from '../../device/master/device-master.service';
+import { SensorPowerKey, SensorStateKey } from '../../util/key-generator';
 
 @Controller()
 export class ApiWaterPumpController {
@@ -76,8 +77,16 @@ export class ApiWaterPumpController {
         await this.deviceWaterPumpService.turnWaterPump(waterPumpTurnDto);
       }
 
-      const runningStateKey = `master/${waterPumpTurnDto.masterId}/slave/${waterPumpTurnDto.slaveId}/${ESlaveState.WATER_PUMP}`;
-      const powerStateKey = `master/${waterPumpTurnDto.masterId}/slave/${waterPumpTurnDto.slaveId}/${ESlaveTurnPowerTopic.WATER_PUMP}`;
+      const runningStateKey = SensorStateKey({
+        sensor: ESlaveState.WATER_PUMP,
+        masterId: waterPumpTurnDto.masterId,
+        slaveId: waterPumpTurnDto.slaveId,
+      });
+      const powerStateKey = SensorPowerKey({
+        sensor: ESlaveTurnPowerTopic.WATER_PUMP,
+        masterId: waterPumpTurnDto.masterId,
+        slaveId: waterPumpTurnDto.slaveId,
+      });
       const cacheRunningState = this.cacheManager.set<string>(
         runningStateKey,
         waterPumpTurnDto.powerState,
@@ -117,10 +126,18 @@ export class ApiWaterPumpController {
         await this.deviceWaterPumpService.requestWaterPump(waterPumpConfigDto);
 
       if (waterPumpConfigDto.waterPumpRuntime > 0) {
-        const powerStateKey = `master/${waterPumpConfigDto.masterId}/slave/${waterPumpConfigDto.slaveId}/${ESlaveTurnPowerTopic.WATER_PUMP}`;
+        const powerStateKey = SensorPowerKey({
+          sensor: ESlaveTurnPowerTopic.WATER_PUMP,
+          masterId: waterPumpConfigDto.masterId,
+          slaveId: waterPumpConfigDto.slaveId,
+        });
         await this.cacheManager.set<string>(powerStateKey, 'on', { ttl: 0 });
 
-        const key = `master/${waterPumpConfigDto.masterId}/slave/${waterPumpConfigDto.slaveId}/${ESlaveState.WATER_PUMP}`;
+        const key = SensorStateKey({
+          sensor: ESlaveState.WATER_PUMP,
+          masterId: waterPumpConfigDto.masterId,
+          slaveId: waterPumpConfigDto.slaveId,
+        });
         await this.cacheManager.set<string>(key, 'on', {
           ttl: waterPumpConfigDto.waterPumpRuntime * 60,
         });

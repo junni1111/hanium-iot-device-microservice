@@ -7,7 +7,7 @@ import {
 } from '../../util/constants/api-topic';
 import { SlaveStateDto } from '../dto/slave/slave-state.dto';
 import { SensorStateDto } from '../dto/slave/sensor-state.dto';
-import { SensorPowerKey, SensorRunningKey } from '../../util/key-generator';
+import { SensorPowerKey, SensorStateKey } from '../../util/key-generator';
 
 export class ApiSlaveService {
   constructor(@Inject(CACHE_MANAGER) private readonly cacheManager: Cache) {}
@@ -53,7 +53,7 @@ export class ApiSlaveService {
     { masterId, slaveId }: SlaveStateDto,
     sensor: ESlaveState,
   ) {
-    const key = SensorRunningKey(masterId, slaveId, sensor);
+    const key = SensorStateKey({ sensor, masterId, slaveId });
     return this.cacheManager.get<EPowerState>(key);
   }
 
@@ -61,7 +61,7 @@ export class ApiSlaveService {
     { masterId, slaveId }: SlaveStateDto,
     sensor: ESlaveTurnPowerTopic,
   ) {
-    const key = SensorPowerKey(masterId, slaveId, sensor);
+    const key = SensorPowerKey({ sensor, masterId, slaveId });
     return this.cacheManager.get<EPowerState>(key);
   }
 }
