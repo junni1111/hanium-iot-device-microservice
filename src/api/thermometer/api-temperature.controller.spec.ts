@@ -1,19 +1,19 @@
 import { Test, TestingModule } from '@nestjs/testing';
-import { ApiSlaveController } from './api-slave.controller';
-import { ApiModule } from './api.module';
+import { ApiSlaveController } from '../slave/api-slave.controller';
+import { ApiModule } from '../api.module';
 import { TypeOrmModule } from '@nestjs/typeorm';
-import { databaseService } from '../config/database.service';
-import { SlaveConfigDto } from './dto/slave/slave-config.dto';
-import { DeviceTemperatureService } from '../device/device-temperature.service';
-import { Master } from '../device/entities/master.entity';
-import { DeviceMasterService } from '../device/device-master.service';
-import { CreateMasterDto } from './dto/master/create-master.dto';
-import { CreateSlaveDto } from './dto/slave/create-slave.dto';
-import { RedisController } from '../cache/redis.controller';
-import { RedisModule } from '../cache/redis.module';
+import { databaseService } from '../../config/database.service';
+import { SlaveConfigDto } from '../dto/slave/slave-config.dto';
+import { DeviceTemperatureService } from '../../device/device-temperature.service';
+import { Master } from '../../device/entities/master.entity';
+import { DeviceMasterService } from '../../device/device-master.service';
+import { CreateMasterDto } from '../dto/master/create-master.dto';
+import { CreateSlaveDto } from '../dto/slave/create-slave.dto';
+import { RedisController } from '../../cache/redis.controller';
+import { RedisModule } from '../../cache/redis.module';
 import { CacheModule } from '@nestjs/common';
 import * as redisStore from 'cache-manager-ioredis';
-import { REDIS_HOST, REDIS_PORT } from '../config/redis.config';
+import { REDIS_HOST, REDIS_PORT } from '../../config/redis.config';
 
 describe('온도 api 컨트롤러 테스트', () => {
   const MOCK_MASTER_ID = 100;

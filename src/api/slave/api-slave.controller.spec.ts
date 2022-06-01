@@ -1,18 +1,18 @@
 import { Test, TestingModule } from '@nestjs/testing';
 import { ApiSlaveController } from './api-slave.controller';
-import { ApiModule } from './api.module';
+import { ApiModule } from '../api.module';
 import { TypeOrmModule } from '@nestjs/typeorm';
-import { databaseService } from '../config/database.service';
-import { SlaveConfigDto } from './dto/slave/slave-config.dto';
-import { DeviceTemperatureService } from '../device/device-temperature.service';
-import { DeviceMasterService } from '../device/device-master.service';
-import { CreateMasterDto } from './dto/master/create-master.dto';
-import { CreateSlaveDto } from './dto/slave/create-slave.dto';
-import { RedisController } from '../cache/redis.controller';
-import { RedisModule } from '../cache/redis.module';
+import { databaseService } from '../../config/database.service';
+import { SlaveConfigDto } from '../dto/slave/slave-config.dto';
+import { DeviceTemperatureService } from '../../device/device-temperature.service';
+import { DeviceMasterService } from '../../device/device-master.service';
+import { CreateMasterDto } from '../dto/master/create-master.dto';
+import { CreateSlaveDto } from '../dto/slave/create-slave.dto';
+import { RedisController } from '../../cache/redis.controller';
+import { RedisModule } from '../../cache/redis.module';
 import { ApiSlaveService } from './api-slave.service';
-import { SlaveStateDto } from './dto/slave/slave-state.dto';
-import { SensorStateDto } from './dto/slave/sensor-state.dto';
+import { SlaveStateDto } from '../dto/slave/slave-state.dto';
+import { SensorStateDto } from '../dto/slave/sensor-state.dto';
 
 describe('slave api 컨트롤러 테스트', () => {
   let slaveController: ApiSlaveController;

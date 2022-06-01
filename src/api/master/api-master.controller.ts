@@ -1,14 +1,14 @@
 import { Controller, HttpStatus } from '@nestjs/common';
 import { MessagePattern, Payload, Transport } from '@nestjs/microservices';
 
-import { DeviceService } from '../device/device.service';
-import { DevicePollingService } from '../device/device-polling.service';
-import { DeviceMasterService } from '../device/device-master.service';
-import { ResponseStatus } from '../device/interfaces/response-status';
-import { POLLING } from '../util/constants/mqtt-topic';
-import { EPollingState } from '../device/interfaces/polling-status';
-import { CreateMasterDto } from './dto/master/create-master.dto';
-import { CreateSlaveDto } from './dto/slave/create-slave.dto';
+import { DeviceService } from '../../device/device.service';
+import { DevicePollingService } from '../../device/device-polling.service';
+import { DeviceMasterService } from '../../device/device-master.service';
+import { ResponseStatus } from '../../device/interfaces/response-status';
+import { POLLING } from '../../util/constants/mqtt-topic';
+import { EPollingState } from '../../device/interfaces/polling-status';
+import { CreateMasterDto } from '../dto/master/create-master.dto';
+import { CreateSlaveDto } from '../dto/slave/create-slave.dto';
 
 @Controller()
 export class ApiMasterController {

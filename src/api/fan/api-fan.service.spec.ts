@@ -1,4 +1,4 @@
-import { FanPowerDto } from './dto/fan/fan-power.dto';
+import { FanPowerDto } from '../dto/fan/fan-power.dto';
 
 describe('Fan 서비스 테스트', () => {
   it('Fan power dto 테스트', async () => {

@@ -1,13 +1,13 @@
 import { CacheModule, Module } from '@nestjs/common';
 import { DeviceModule } from '../device/device.module';
-import { ApiSlaveController } from './api-slave.controller';
-import { ApiMasterController } from './api-master.controller';
+import { ApiSlaveController } from './slave/api-slave.controller';
+import { ApiMasterController } from './master/api-master.controller';
 import { ApiUtilityController } from './api-utility.controller';
 import * as redisStore from 'cache-manager-ioredis';
 import { REDIS_HOST, REDIS_PORT } from '../config/redis.config';
-import { ApiLedService } from './api-led.service';
-import { ApiWaterPumpService } from './api-water-pump.service';
-import { ApiSlaveService } from './api-slave.service';
+import { ApiLedService } from './led/api-led.service';
+import { ApiWaterPumpService } from './water-pump/api-water-pump.service';
+import { ApiSlaveService } from './slave/api-slave.service';
 
 @Module({
   imports: [

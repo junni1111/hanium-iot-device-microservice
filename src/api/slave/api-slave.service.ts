@@ -4,9 +4,9 @@ import {
   EPowerState,
   ESlaveState,
   ESlaveTurnPowerTopic,
-} from '../util/constants/api-topic';
-import { SlaveStateDto } from './dto/slave/slave-state.dto';
-import { SensorStateDto } from './dto/slave/sensor-state.dto';
+} from '../../util/constants/api-topic';
+import { SlaveStateDto } from '../dto/slave/slave-state.dto';
+import { SensorStateDto } from '../dto/slave/sensor-state.dto';
 
 export class ApiSlaveService {
   constructor(@Inject(CACHE_MANAGER) private readonly cacheManager: Cache) {}

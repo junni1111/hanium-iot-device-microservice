@@ -1,7 +1,7 @@
 import { CACHE_MANAGER, Inject } from '@nestjs/common';
 import { Cache } from 'cache-manager';
-import { LedStateDto } from './dto/led/led-state.dto';
-import { ESlaveState, ESlaveTurnPowerTopic } from '../util/constants/api-topic';
+import { LedStateDto } from '../dto/led/led-state.dto';
+import { ESlaveState, ESlaveTurnPowerTopic } from '../../util/constants/api-topic';
 
 export class ApiLedService {
   constructor(@Inject(CACHE_MANAGER) private readonly cacheManager: Cache) {}
