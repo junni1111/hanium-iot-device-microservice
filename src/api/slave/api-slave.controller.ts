@@ -1,29 +1,12 @@
 import { CACHE_MANAGER, Controller, HttpStatus, Inject } from '@nestjs/common';
 import { MessagePattern, Payload, Transport } from '@nestjs/microservices';
-import { DeviceService } from '../../device/device.service';
 import { DevicePollingService } from '../../device/device-polling.service';
 import { DeviceMasterService } from '../../device/master/device-master.service';
 import { ResponseStatus } from '../../device/interfaces/response-status';
-import {
-  EPowerState,
-  ESlaveConfigTopic,
-  ESlaveState,
-  ESlaveTurnPowerTopic,
-  TEMPERATURE_WEEK,
-} from '../../util/constants/api-topic';
-import { DeviceLedService } from '../../device/led/device-led.service';
-import { DeviceWaterPumpService } from '../../device/water-pump/device-water-pump.service';
-import { DeviceTemperatureService } from '../../device/thermometer/device-temperature.service';
-import { LedPowerDto } from '../dto/led/led-power.dto';
-import { WaterPowerTurnDto } from '../dto/water-pump/water-power-turn.dto';
-import { LedStateDto } from '../dto/led/led-state.dto';
+import { ESlaveConfigTopic, ESlaveState } from '../../util/constants/api-topic';
 import { Cache } from 'cache-manager';
-import { WaterPumpStateDto } from '../dto/water-pump/water-pump-state.dto';
-import { ApiLedService } from '../led/api-led.service';
-import { ApiWaterPumpService } from '../water-pump/api-water-pump.service';
 import { SlaveStateDto } from '../dto/slave/slave-state.dto';
 import { SlaveConfigDto } from '../dto/slave/slave-config.dto';
-import { Slave } from '../../device/entities/slave.entity';
 import { ApiSlaveService } from './api-slave.service';
 
 @Controller()
@@ -33,12 +16,6 @@ export class ApiSlaveController {
     private readonly masterService: DeviceMasterService,
     private readonly pollingService: DevicePollingService,
     private readonly apiSlaveService: ApiSlaveService,
-    private readonly apiLedService: ApiLedService,
-    private readonly apiWaterPumpService: ApiWaterPumpService,
-    private readonly deviceService: DeviceService,
-    private readonly deviceLedService: DeviceLedService,
-    private readonly deviceWaterPumpService: DeviceWaterPumpService,
-    private readonly deviceTemperatureService: DeviceTemperatureService,
   ) {}
 
   /** Todo: 센서들 상태 캐싱값 받아와서 돌려줌 */

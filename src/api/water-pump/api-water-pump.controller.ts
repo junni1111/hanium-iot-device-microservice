@@ -1,6 +1,5 @@
 import { CACHE_MANAGER, Controller, HttpStatus, Inject } from '@nestjs/common';
 import { MessagePattern, Payload, Transport } from '@nestjs/microservices';
-import { DeviceService } from '../../device/device.service';
 import { ResponseStatus } from '../../device/interfaces/response-status';
 import {
   EPowerState,
@@ -26,7 +25,6 @@ export class ApiWaterPumpController {
     private readonly apiSlaveService: ApiSlaveService,
     private readonly deviceMasterService: DeviceMasterService,
     private readonly apiWaterPumpService: ApiWaterPumpService,
-    private readonly deviceService: DeviceService,
     private readonly deviceWaterPumpService: DeviceWaterPumpService,
   ) {}
   /**

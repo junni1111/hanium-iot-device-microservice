@@ -1,7 +1,5 @@
 import { Controller, HttpStatus } from '@nestjs/common';
 import { MessagePattern, Payload, Transport } from '@nestjs/microservices';
-
-import { DeviceService } from '../../device/device.service';
 import { DevicePollingService } from '../../device/device-polling.service';
 import { DeviceMasterService } from '../../device/master/device-master.service';
 import { ResponseStatus } from '../../device/interfaces/response-status';

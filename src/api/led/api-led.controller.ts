@@ -26,7 +26,6 @@ export class ApiLedController {
     private readonly deviceMasterService: DeviceMasterService,
     private readonly apiSlaveService: ApiSlaveService,
     private readonly apiLedService: ApiLedService,
-    private readonly deviceService: DeviceService,
     private readonly deviceLedService: DeviceLedService,
   ) {}
 
