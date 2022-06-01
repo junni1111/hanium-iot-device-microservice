@@ -17,6 +17,7 @@ import { ApiLedService } from './api-led.service';
 import { SlaveConfigDto } from '../dto/slave/slave-config.dto';
 import { Slave } from '../../device/entities/slave.entity';
 import { ApiSlaveService } from '../slave/api-slave.service';
+import { SensorPowerKey, SensorRunningKey } from '../../util/redis-keys';
 
 @Controller()
 export class ApiSlaveController {
@@ -61,8 +62,17 @@ export class ApiSlaveController {
    **/
   @MessagePattern(ESlaveTurnPowerTopic.LED, Transport.TCP)
   async turnLed(@Payload() ledTurnDto: LedPowerDto) {
-    const runningStateKey = `master/${ledTurnDto.masterId}/slave/${ledTurnDto.slaveId}/${ESlaveState.LED}`;
-    const powerStateKey = `master/${ledTurnDto.masterId}/slave/${ledTurnDto.slaveId}/${ESlaveTurnPowerTopic.LED}`;
+    const runningStateKey = SensorRunningKey({
+      sensor: ESlaveState.LED,
+      masterId: ledTurnDto.masterId,
+      slaveId: ledTurnDto.slaveId,
+    });
+    const powerStateKey = SensorPowerKey({
+      sensor: ESlaveTurnPowerTopic.LED,
+      masterId: ledTurnDto.masterId,
+      slaveId: ledTurnDto.slaveId,
+    });
+
     let configs: Slave | undefined;
     try {
       console.log(`turn led dto: `, ledTurnDto);
@@ -117,8 +127,16 @@ export class ApiSlaveController {
       const requestResult = this.deviceLedService.requestLed(ledConfigDto);
       /** Todo: Extract to service */
       if (ledConfigDto.ledRuntime > 0) {
-        const powerStateKey = `master/${ledConfigDto.masterId}/slave/${ledConfigDto.slaveId}/${ESlaveTurnPowerTopic.LED}`;
-        const runningStateKey = `master/${ledConfigDto.masterId}/slave/${ledConfigDto.slaveId}/${ESlaveState.LED}`;
+        const powerStateKey = SensorPowerKey({
+          sensor: ESlaveTurnPowerTopic.LED,
+          masterId: ledConfigDto.masterId,
+          slaveId: ledConfigDto.slaveId,
+        });
+        const runningStateKey = SensorRunningKey({
+          sensor: ESlaveState.LED,
+          masterId: ledConfigDto.masterId,
+          slaveId: ledConfigDto.slaveId,
+        });
         await this.cacheManager.set<string>(powerStateKey, 'on', { ttl: 0 });
         await this.cacheManager.set<string>(runningStateKey, 'on', {
           ttl: ledConfigDto.ledRuntime * 60,

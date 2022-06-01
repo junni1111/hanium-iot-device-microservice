@@ -7,6 +7,7 @@ import {
 } from '../../util/constants/api-topic';
 import { SlaveStateDto } from '../dto/slave/slave-state.dto';
 import { SensorStateDto } from '../dto/slave/sensor-state.dto';
+import { SensorPowerKey, SensorRunningKey } from '../../util/redis-keys';
 
 export class ApiSlaveService {
   constructor(@Inject(CACHE_MANAGER) private readonly cacheManager: Cache) {}
@@ -52,11 +53,7 @@ export class ApiSlaveService {
     { masterId, slaveId }: SlaveStateDto,
     sensor: ESlaveState,
   ) {
-    /** Todo: Refactoring key */
-    // const key = `master/${masterId}/slave/${slaveId}/${ESlaveState.LED}`;
-    const key = `master/${masterId}/slave/${slaveId}/${sensor}`;
-    console.log(`led key: `, key);
-
+    const key = SensorRunningKey(masterId, slaveId, sensor);
     return this.cacheManager.get<EPowerState>(key);
   }
 
@@ -64,9 +61,7 @@ export class ApiSlaveService {
     { masterId, slaveId }: SlaveStateDto,
     sensor: ESlaveTurnPowerTopic,
   ) {
-    /** Todo: Refactoring key */
-    // const key = `master/${masterId}/slave/${slaveId}/${ESlaveTurnPowerTopic.LED}`;
-    const key = `master/${masterId}/slave/${slaveId}/${sensor}`;
+    const key = SensorPowerKey(masterId, slaveId, sensor);
     return this.cacheManager.get<EPowerState>(key);
   }
 }
