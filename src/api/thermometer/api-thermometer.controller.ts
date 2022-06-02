@@ -82,7 +82,7 @@ export class ApiThermometerController {
         data: cachedResult,
       };
     } catch (e) {
-      console.log(`catch led config error`, e);
+      console.log(`catch temperature config error`, e);
       return e;
     }
   }

@@ -25,8 +25,6 @@ export class ApiSlaveController {
   ): Promise<ResponseStatus> {
     try {
       /* TODO: Validate master id & slave id */
-      console.log(`call Slave State`, slaveStateDto);
-      console.log(`mid, sid:`, slaveStateDto.masterId, slaveStateDto.slaveId);
 
       const sensorStates = await this.apiSlaveService.getSensorsState(
         slaveStateDto,

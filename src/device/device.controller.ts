@@ -19,7 +19,6 @@ import { Cache } from 'cache-manager';
 import { Temperature } from './entities/temperature.entity';
 import { DeviceFanService } from './fan/device-fan.service';
 import { TemperatureRangeDto } from '../api/dto/temperature/temperature-range.dto';
-import { ESlaveState } from '../util/constants/api-topic';
 import { DeviceTemperatureService } from './thermometer/device-temperature.service';
 import { MasterPollingKey, SensorStateKey } from '../util/key-generator';
 
@@ -115,7 +114,7 @@ export class DeviceController {
         ttl: runtimeMinutes * 60, // make minutes -> second
       });
     }
-    console.log(`receive packet: `, context.getPacket());
+    console.log(`receive slave state packet: `, context.getPacket());
   }
 
   /**
@@ -162,10 +161,10 @@ export class DeviceController {
 
     console.log(
       `receive receiveMemoryWriteResponse packet: `,
-      context.getPacket(),
+      // context.getPacket(),
     );
-
-    console.log(`receive value `, data);
+    //
+    // console.log(`receive value `, data);
   }
 
   @EventPattern('master/+/assert/#', Transport.MQTT)

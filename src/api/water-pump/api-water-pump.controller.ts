@@ -89,7 +89,7 @@ export class ApiWaterPumpController {
         runningStateKey,
         waterPumpTurnDto.powerState,
         {
-          ttl: configs?.ledRuntime * 60 ?? 0,
+          ttl: configs?.waterPumpRuntime ? configs.waterPumpRuntime * 60 : 0,
         },
       );
       const cachePowerState = this.cacheManager.set<string>(
@@ -102,12 +102,12 @@ export class ApiWaterPumpController {
 
       return {
         status: HttpStatus.OK,
-        topic: ESlaveTurnPowerTopic.LED,
-        message: 'send turn led packet to device',
+        topic: ESlaveTurnPowerTopic.WATER_PUMP,
+        message: 'send turn water pump packet to device',
         data: waterPumpTurnDto.powerState,
       };
     } catch (e) {
-      console.log(`catch led config error`, e);
+      console.log(`catch water pump config error`, e);
       return e;
     }
   }

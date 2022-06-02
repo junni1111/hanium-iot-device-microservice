@@ -36,8 +36,6 @@ export class ApiLedController {
     @Payload() ledStateDto: LedStateDto,
   ): Promise<ResponseStatus> {
     try {
-      console.log(`led dto: `, ledStateDto);
-      console.log(`led mid ,sid : `, ledStateDto.masterId, ledStateDto.slaveId);
       const state = await this.apiSlaveService.getRunningState(
         ledStateDto,
         ESlaveState.LED,
@@ -95,7 +93,7 @@ export class ApiLedController {
         runningStateKey,
         ledTurnDto.powerState,
         {
-          ttl: configs?.ledRuntime * 60 ?? 0,
+          ttl: configs?.ledRuntime ? configs.ledRuntime * 60 : 0,
         },
       );
       const cachePowerState = this.cacheManager.set<string>(
