@@ -5,9 +5,10 @@ import { DeviceService } from '../device.service';
 import { Cache } from 'cache-manager';
 import { FanPacketDto } from '../dto/fan-packet.dto';
 import { FanPowerDto } from '../../api/dto/fan/fan-power.dto';
-import { EPowerState } from '../../util/constants/api-topic';
+import { EPowerState, ESlaveState } from '../../util/constants/api-topic';
 import { ECommand } from '../interfaces/packet';
 import { TemperatureRangeDto } from '../../api/dto/temperature/temperature-range.dto';
+import { SensorStateKey } from '../../util/key-generator';
 
 @Injectable()
 export class DeviceFanService {
@@ -44,12 +45,8 @@ export class DeviceFanService {
       [powerCommand],
     );
 
-    /** Todo: Refactoring */
-    await this.cacheManager.set<string>(
-      `fan/${masterId}/${slaveId}`,
-      powerState,
-      { ttl: 60 }, // mock ttl
-    );
+    const key = SensorStateKey({ sensor: ESlaveState.FAN, masterId, slaveId });
+    await this.cacheManager.set<string>(key, powerState, { ttl: 60 });
 
     return this.deviceService.publishEvent(topic, JSON.stringify(message));
   }

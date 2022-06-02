@@ -65,12 +65,8 @@ export class DeviceController {
     const [, mId, , sId] = context.getTopic().split('/');
     const masterId = parseInt(mId); // 🤔
     const slaveId = parseInt(sId);
-    const key = SensorStateKey({ sensor: ESlaveState.FAN, masterId, slaveId });
 
     try {
-      const prevFanState = await this.cacheManager.get(key);
-      console.log(`prev fan state: `, prevFanState);
-      console.log(`recv temperature : `, temperature);
       /**
        * Todo: id로 캐싱된 온도 범위 가져옴
        *       캐싱된 범위 없으면 db 조회 */
@@ -101,7 +97,7 @@ export class DeviceController {
     const [, mId, , sId, sensorName] = context.getTopic().split('/');
     const masterId = parseInt(mId);
     const slaveId = parseInt(sId);
-    const sensor = `state/${sensorName}`; // 🤔
+    const sensor = `${sensorName}/state`; // 🤔
     /**
      * Todo: Extract Service & cleanup */
     /**
@@ -115,7 +111,7 @@ export class DeviceController {
       slaveId,
     });
     if (runtimeMinutes > 0) {
-      await this.cacheManager.set<string>(context.getTopic(), 'on', {
+      await this.cacheManager.set<string>(key, 'on', {
         ttl: runtimeMinutes * 60, // make minutes -> second
       });
     }
