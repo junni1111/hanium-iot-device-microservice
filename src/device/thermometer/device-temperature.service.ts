@@ -112,9 +112,6 @@ export class DeviceTemperatureService {
       return cachedRange;
     }
 
-    /**
-     * Todo: DB에서 온도 범위 조회 */
-    console.log(`Search DB`);
     const configs = await this.slaveRepository.getConfigs(masterId, slaveId);
     /** Todo: Exception handling */
     const range = [

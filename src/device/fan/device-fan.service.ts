@@ -51,17 +51,20 @@ export class DeviceFanService {
     return this.deviceService.publishEvent(topic, JSON.stringify(message));
   }
 
-  async requestMockFan(masterId: number, slaveId: number) {
+  /** Todo: Refactor after changing protocol */
+  async mockTurnOff({ masterId, slaveId }: FanPowerDto) {
     const topic = `master/${masterId}/fan`;
+    const powerOff = 0x0f;
+
     const message = new FanPacketDto(
       0x23,
-      0x24,
+      0x22,
       slaveId,
-      0xd1,
-      0x05,
-      0x10, // Fan Memory Address start - 4120
+      ECommand.WRITE,
+      0x01,
+      0x10,
       0x19,
-      [0xaf, 0x00, 0x00, 0x00, 2], // 2분간 동작. 동작 완료후 이벤트 폴링 x
+      [powerOff],
     );
 
     return this.deviceService.publishEvent(topic, JSON.stringify(message));

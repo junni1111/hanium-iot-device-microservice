@@ -11,6 +11,7 @@ import { ApiSlaveService } from './slave/api-slave.service';
 import { ApiWaterPumpController } from './water-pump/api-water-pump.controller';
 import { ApiLedController } from './led/api-led.controller';
 import { ApiThermometerController } from './thermometer/api-thermometer.controller';
+import { ApiFanController } from './fan/api-fan.controller';
 
 @Module({
   imports: [
@@ -27,6 +28,7 @@ import { ApiThermometerController } from './thermometer/api-thermometer.controll
     ApiWaterPumpController,
     ApiLedController,
     ApiThermometerController,
+    ApiFanController,
     ApiUtilityController,
   ],
   providers: [ApiLedService, ApiWaterPumpService, ApiSlaveService],

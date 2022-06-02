@@ -20,7 +20,12 @@ import { Temperature } from './entities/temperature.entity';
 import { DeviceFanService } from './fan/device-fan.service';
 import { TemperatureRangeDto } from '../api/dto/temperature/temperature-range.dto';
 import { DeviceTemperatureService } from './thermometer/device-temperature.service';
-import { MasterPollingKey, SensorStateKey } from '../util/key-generator';
+import {
+  MasterPollingKey,
+  SensorPowerKey,
+  SensorStateKey,
+} from '../util/key-generator';
+import { EPowerState, ESlaveTurnPowerTopic } from '../util/constants/api-topic';
 
 @Controller()
 export class DeviceController {
@@ -75,10 +80,23 @@ export class DeviceController {
           slaveId,
         );
 
-      await this.deviceFanService.turnFan(
-        { masterId, slaveId }, // 🤔
-        new TemperatureRangeDto(temperature, rangeMin, rangeMax),
+      const fanPowerKey = SensorPowerKey({
+        sensor: ESlaveTurnPowerTopic.FAN,
+        masterId,
+        slaveId,
+      });
+
+      const fanPowerState = await this.cacheManager.get<EPowerState>(
+        fanPowerKey,
       );
+
+      /** Fan 자동운전 켜져있을때만 작동 */
+      if (fanPowerState === EPowerState.ON) {
+        await this.deviceFanService.turnFan(
+          { masterId, slaveId }, // 🤔
+          new TemperatureRangeDto(temperature, rangeMin, rangeMax),
+        );
+      }
 
       const saveResult = await this.deviceTemperatureService.saveTemperature(
         new Temperature(masterId, slaveId, temperature),

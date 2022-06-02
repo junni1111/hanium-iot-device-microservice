@@ -1,7 +1,4 @@
 import { SlavePowerDto } from '../slave/slave-power.dto';
-import { PickType } from '@nestjs/mapped-types';
+import { PartialType } from '@nestjs/mapped-types';
 
-export class FanPowerDto extends PickType(SlavePowerDto, [
-  'masterId',
-  'slaveId',
-]) {}
+export class FanPowerDto extends PartialType(SlavePowerDto) {}
