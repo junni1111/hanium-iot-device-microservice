@@ -3,11 +3,12 @@ import { MessagePattern, Payload, Transport } from '@nestjs/microservices';
 import { DeviceMasterService } from '../../device/master/device-master.service';
 import {
   EPowerState,
+  ESlaveState,
   ESlaveTurnPowerTopic,
 } from '../../util/constants/api-topic';
 import { Cache } from 'cache-manager';
 import { ApiSlaveService } from '../slave/api-slave.service';
-import { SensorPowerKey } from '../../util/key-generator';
+import { SensorPowerKey, SensorStateKey } from '../../util/key-generator';
 import { DeviceFanService } from '../../device/fan/device-fan.service';
 import { SlavePowerDto } from '../dto/slave/slave-power.dto';
 
@@ -20,6 +21,7 @@ export class ApiFanController {
     private readonly deviceFanService: DeviceFanService,
   ) {}
 
+  /** Todo: Extract to service */
   @MessagePattern(ESlaveTurnPowerTopic.FAN, Transport.TCP)
   async turnFan(@Payload() fanPowerDto: SlavePowerDto) {
     console.log(`@@@@@@ TURN FAN`, fanPowerDto);
@@ -35,6 +37,18 @@ export class ApiFanController {
           masterId: fanPowerDto.masterId,
           slaveId: fanPowerDto.slaveId,
         });
+
+        const runningStateKey = SensorStateKey({
+          sensor: ESlaveState.FAN,
+          masterId: fanPowerDto.masterId,
+          slaveId: fanPowerDto.slaveId,
+        });
+
+        await this.cacheManager.set<string>(
+          runningStateKey,
+          fanPowerDto.powerState,
+          { ttl: 0 },
+        );
       }
 
       await this.cacheManager.set<string>(
