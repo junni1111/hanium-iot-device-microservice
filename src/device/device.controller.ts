@@ -185,6 +185,8 @@ export class DeviceController {
     // console.log(`receive value `, data);
   }
 
+  /**
+   * Todo: Slave 펌웨어 수정 이후 제거 예정 */
   @EventPattern('master/+/assert/#', Transport.MQTT)
   async receiveMockAssert(
     @Payload() data: string,
