@@ -28,13 +28,6 @@ async function bootstrap() {
     },
   });
 
-  const microserviceMqtt = app.connectMicroservice({
-    transport: Transport.MQTT,
-    options: {
-      url: MQTT_BROKER_URL,
-    },
-  });
-
   await app.startAllMicroservices();
   await app.listen(8888, () => {
     console.log(

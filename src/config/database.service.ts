@@ -16,7 +16,6 @@ class DatabaseService {
 
   private getValue(key: string, throwOnMissing = true): string {
     const value = this.env[key];
-    console.log(`Get Database Key, value: `, key, value);
     if (!value && throwOnMissing) {
       throw new Error(`Config Error - Missing env.${key}`);
     }
