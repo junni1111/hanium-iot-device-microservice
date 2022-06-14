@@ -1,7 +1,12 @@
 import { NestFactory } from '@nestjs/core';
 import { AppModule } from './app.module';
 import { Transport } from '@nestjs/microservices';
-import { DEVICE_HOST, DEVICE_PORT, MQTT_BROKER_URL } from './config/config';
+import {
+  DEVICE_HEALTH_PORT,
+  DEVICE_HOST,
+  DEVICE_PORT,
+  MQTT_BROKER_URL,
+} from './config/config';
 import { ValidationPipe } from '@nestjs/common';
 import { REDIS_HOST, REDIS_PORT } from './config/redis.config';
 
@@ -36,7 +41,7 @@ async function bootstrap() {
   });
 
   await app.startAllMicroservices();
-  await app.listen(8888, () => {
+  await app.listen(DEVICE_HEALTH_PORT, () => {
     console.log(
       `Running Device Microservice. Listening HOST:${DEVICE_HOST} PORT:${DEVICE_PORT} MQTT URL:${MQTT_BROKER_URL}...
       Redis Host: ${REDIS_HOST} Redis Port: ${REDIS_PORT}`,

@@ -10,6 +10,7 @@ import { Cache } from 'cache-manager';
 import { SlaveConfigDto } from '../../api/dto/slave/slave-config.dto';
 import { ESlaveConfigTopic, ESlaveState } from '../../util/constants/api-topic';
 import { SensorConfigKey, SensorStateKey } from '../../util/key-generator';
+import { map } from 'rxjs';
 
 @Injectable()
 export class DeviceTemperatureService {
