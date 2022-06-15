@@ -29,7 +29,7 @@ async function bootstrap() {
   const microserviceTcp = app.connectMicroservice({
     transport: Transport.TCP,
     options: {
-      // host: DEVICE_HOST,
+      host: DEVICE_HOST,
       port: DEVICE_PORT,
     },
   });
