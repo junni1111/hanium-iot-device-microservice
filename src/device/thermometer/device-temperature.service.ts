@@ -11,6 +11,8 @@ import { SlaveConfigDto } from '../../api/dto/slave/slave-config.dto';
 import { ESlaveConfigTopic, ESlaveState } from '../../util/constants/api-topic';
 import { SensorConfigKey, SensorStateKey } from '../../util/key-generator';
 import { map } from 'rxjs';
+import { Between, createQueryBuilder } from 'typeorm';
+import { subDays, addDays } from 'date-fns';
 
 @Injectable()
 export class DeviceTemperatureService {
@@ -21,6 +23,17 @@ export class DeviceTemperatureService {
     private readonly deviceService: DeviceService,
     private readonly slaveRepository: SlaveRepository,
   ) {}
+
+  /** Todo: Custom Repository 제거하고
+   *        이 함수에 온도 저장 로직 설정 */
+  saveTemp(temp: Temperature) {
+    return this.temperatureRepository
+      .createQueryBuilder()
+      .insert()
+      .into(Temperature)
+      .values(temp)
+      .execute();
+  }
 
   async saveTemperature(temperature: Temperature) {
     try {
@@ -52,6 +65,28 @@ export class DeviceTemperatureService {
     }
   }
 
+  getTemperaturesBetweenDates(
+    masterId: number,
+    slaveId: number,
+    beginDate: Date,
+    endDate: Date,
+  ) {
+    return createQueryBuilder()
+      .select(['create_at AS x', 'temperature AS y'])
+      .where(`master_id = :masterId`, { masterId })
+      .andWhere(`slave_id = :slaveId`, { slaveId })
+      .andWhere(`create_at BETWEEN :begin AND :end`, {
+        begin: beginDate,
+        end: endDate,
+      })
+      .distinct(true)
+      .from(Temperature, 'temperatures')
+      .limit(100000) // Todo: 제한 고민
+      .orderBy('create_at', 'ASC')
+      .getRawMany();
+  }
+
+  /** Todo: Refactor fetch logic */
   async fetchTemperature(masterId: number, slaveId: number) {
     try {
       const result = await this.temperatureRepository.fetchTemperatureLastWeek(

@@ -3,12 +3,14 @@ import { MessagePattern, Payload, Transport } from '@nestjs/microservices';
 import { ResponseStatus } from '../../device/interfaces/response-status';
 import {
   ESlaveConfigTopic,
+  TEMPERATURE_BETWEEN,
   TEMPERATURE_WEEK,
 } from '../../util/constants/api-topic';
 import { DeviceTemperatureService } from '../../device/thermometer/device-temperature.service';
 import { Cache } from 'cache-manager';
 import { SlaveConfigDto } from '../dto/slave/slave-config.dto';
 import { SensorConfigKey } from '../../util/key-generator';
+import { TemperatureBetweenDto } from '../dto/temperature/temperature-between.dto';
 
 @Controller()
 export class ApiThermometerController {
@@ -16,6 +18,30 @@ export class ApiThermometerController {
     @Inject(CACHE_MANAGER) private readonly cacheManager: Cache,
     private readonly deviceTemperatureService: DeviceTemperatureService,
   ) {}
+
+  @MessagePattern(TEMPERATURE_BETWEEN, Transport.TCP)
+  async fetchTemperatures(
+    @Payload() temperatureBetweenDto: TemperatureBetweenDto,
+  ): Promise<ResponseStatus> {
+    try {
+      const temperatures =
+        await this.deviceTemperatureService.getTemperaturesBetweenDates(
+          temperatureBetweenDto.masterId,
+          temperatureBetweenDto.slaveId,
+          temperatureBetweenDto.begin,
+          temperatureBetweenDto.end,
+        );
+
+      return {
+        status: HttpStatus.OK,
+        topic: TEMPERATURE_BETWEEN,
+        message: 'success',
+        data: temperatures,
+      };
+    } catch (e) {
+      throw e;
+    }
+  }
 
   @MessagePattern(TEMPERATURE_WEEK, Transport.TCP)
   async fetchTemperatureOneWeek(

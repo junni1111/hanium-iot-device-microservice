@@ -18,7 +18,7 @@ export class ApiUtilityController {
   @MessagePattern('ping', Transport.TCP)
   async pingToDeviceMicroservice(@Payload() payload: string): Promise<string> {
     console.log(`Ping from api gateway`, payload);
-    return 'pong';
+    return 'device-pong';
   }
 
   @MessagePattern('test/temperature', Transport.TCP)
