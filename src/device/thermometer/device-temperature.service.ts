@@ -87,12 +87,14 @@ export class DeviceTemperatureService {
   }
 
   /** Todo: Refactor fetch logic */
-  async fetchTemperature(masterId: number, slaveId: number) {
+  async fetchTemperature(masterId: number, slaveId: number): Promise<string[]> {
     try {
-      const result = await this.temperatureRepository.fetchTemperatureLastWeek(
-        masterId,
-        slaveId,
-      );
+      // const result = await this.temperatureRepository.fetchTemperatureLastWeek(
+      //   masterId,
+      //   slaveId,
+      // );
+
+      const result: string[] = await this.cacheManager.store.keys('*');
 
       return result;
     } catch (e) {

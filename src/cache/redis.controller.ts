@@ -13,6 +13,11 @@ import { Response } from 'express';
 export class RedisController {
   constructor(@Inject(CACHE_MANAGER) private readonly cacheManager: Cache) {}
 
+  async getKeysCache(key: string): Promise<string[]> {
+    const result: string[] = await this.cacheManager.store.keys<string[]>(key);
+    return result;
+  }
+
   @Get('test/:key')
   async getCache(@Res() res: Response, @Param('key') key: string) {
     console.log(`call cache key: `, key);
@@ -35,9 +40,11 @@ export class RedisController {
   async getTestCache(key: string) {
     return this.cacheManager.get<number>(key);
   }
+
   async setTestTemperatureRange(key: string, values: number[]) {
     return this.cacheManager.set<number[]>(key, values, { ttl: 0 });
   }
+
   async getTestTemperatureRange(key: string) {
     return this.cacheManager.get<number[]>(key);
   }

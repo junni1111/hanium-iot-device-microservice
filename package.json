@@ -23,6 +23,7 @@
     "docker": "scripts/docker-build.sh"
   },
   "dependencies": {
+    "@nestjs-modules/ioredis": "^1.0.1",
     "@nestjs/common": "^8.0.0",
     "@nestjs/core": "^8.0.0",
     "@nestjs/mapped-types": "*",
@@ -35,6 +36,7 @@
     "class-transformer": "^0.5.1",
     "class-validator": "^0.13.2",
     "date-fns": "^2.28.0",
+    "ioredis": "^4.28.5",
     "mqtt": "^4.3.4",
     "pg": "^8.7.1",
     "reflect-metadata": "^0.1.13",
