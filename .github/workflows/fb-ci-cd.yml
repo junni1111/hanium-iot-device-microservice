@@ -4,7 +4,9 @@ on:
   push:
     branches:
       - fb
-
+  pull:
+    branches:
+      - fb
 env:
   AWS_REGION: ap-northeast-2
   ECR_REPOSITORY: device-microservice
