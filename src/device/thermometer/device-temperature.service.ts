@@ -81,6 +81,7 @@ export class DeviceTemperatureService {
       })
       .distinct(true)
       .from(Temperature, 'temperatures')
+      .limit(100000) // Todo: 제한 고민
       .orderBy('create_at', 'ASC')
       .getRawMany();
   }
