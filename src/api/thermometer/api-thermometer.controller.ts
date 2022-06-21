@@ -62,7 +62,8 @@ export class ApiThermometerController {
       // const data = await this.redisService.getKeysCache(
       //   `temperature/week/${master_id}/${slave_id}/*`,
       // );
-      const data = await this.redisService.getTemperatureValuesCache(`*`);
+      const data =
+        await this.deviceTemperatureService.getTemperatureValuesCache(`*`);
 
       return {
         status: HttpStatus.OK,

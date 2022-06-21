@@ -13,6 +13,7 @@ import { SensorConfigKey, SensorStateKey } from '../../util/key-generator';
 import { map } from 'rxjs';
 import { Between, createQueryBuilder } from 'typeorm';
 import { subDays, addDays } from 'date-fns';
+import { IGraphConfig } from '../interfaces/graph-config';
 
 @Injectable()
 export class DeviceTemperatureService {
@@ -160,5 +161,18 @@ export class DeviceTemperatureService {
     await this.cacheManager.set<number[]>(key, range, { ttl: 3600 });
     console.log(`cached Range: `, range);
     return range;
+  }
+
+  async getTemperatureValuesCache(key: string): Promise<IGraphConfig[]> {
+    const keys: string[] = await this.cacheManager.store.keys<string[]>(key);
+    const result: IGraphConfig[] = await Promise.all(
+      keys.map(async (key: string): Promise<IGraphConfig> => {
+        const value: string = await this.cacheManager.get(key);
+        const point: IGraphConfig = { x: key, y: value, etc: '' };
+        console.log(point);
+        return point;
+      }),
+    );
+    return result;
   }
 }
