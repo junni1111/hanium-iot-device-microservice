@@ -4,7 +4,7 @@ on:
   push:
     branches:
       - fb
-  pull:
+  pull_request:
     branches:
       - fb
 env:
