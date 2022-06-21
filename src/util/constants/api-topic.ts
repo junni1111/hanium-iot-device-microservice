@@ -30,3 +30,4 @@ export enum ESlaveState {
 }
 
 export const TEMPERATURE_WEEK = 'temperature/week';
+export const TEMPERATURE_BETWEEN = 'temperature/between';
