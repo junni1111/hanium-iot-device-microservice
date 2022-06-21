@@ -3,7 +3,7 @@ import { ApiModule } from '../api.module';
 import { TypeOrmModule } from '@nestjs/typeorm';
 import { databaseService } from '../../config/database.service';
 import { DeviceTemperatureService } from '../../device/thermometer/device-temperature.service';
-import { addDays, subDays } from 'date-fns';
+import { addDays } from 'date-fns';
 import { Temperature } from '../../device/entities/temperature.entity';
 import { TemperatureRepository } from '../../device/repositories/temperature.repository';
 
@@ -60,7 +60,7 @@ describe('온도 api 서비스 테스트', () => {
 
     const beginDate = new Date(new Date().toDateString());
     const endDate = addDays(beginDate, 1);
-    const temperatures = await deviceTemperatureService.fetchTemperatureOneDay(
+    const temperatures = await deviceTemperatureService.getTemperaturesBetweenDates(
       MOCK_MASTER_ID,
       MOCK_SLAVE_ID,
       beginDate,
@@ -71,7 +71,7 @@ describe('온도 api 서비스 테스트', () => {
     const futureBegin = addDays(beginDate, 7);
     const futureEnd = addDays(futureBegin, 1);
     const emptyTemperatures =
-      await deviceTemperatureService.fetchTemperatureOneDay(
+      await deviceTemperatureService.getTemperaturesBetweenDates(
         MOCK_MASTER_ID,
         MOCK_SLAVE_ID,
         futureBegin,

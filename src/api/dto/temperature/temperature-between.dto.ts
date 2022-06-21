@@ -1,4 +1,4 @@
-import { IsDate, IsNumber } from 'class-validator';
+import { IsDate, IsDateString, IsNumber } from 'class-validator';
 
 export class TemperatureBetweenDto {
   @IsNumber()
@@ -6,9 +6,10 @@ export class TemperatureBetweenDto {
 
   @IsNumber()
   slaveId: number;
-  @IsDate()
+
+  @IsDateString()
   begin: Date;
 
-  @IsDate()
+  @IsDateString()
   end: Date;
 }

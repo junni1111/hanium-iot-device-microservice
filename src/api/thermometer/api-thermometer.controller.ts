@@ -24,19 +24,19 @@ export class ApiThermometerController {
     @Payload() temperatureBetweenDto: TemperatureBetweenDto,
   ): Promise<ResponseStatus> {
     try {
-      const data = await this.deviceTemperatureService.fetchTemperatureOneDay(
-        temperatureBetweenDto.masterId,
-        temperatureBetweenDto.slaveId,
-        temperatureBetweenDto.begin,
-        temperatureBetweenDto.end,
-      );
-      console.log(`Fetch Controller: `, data);
+      const temperatures =
+        await this.deviceTemperatureService.getTemperaturesBetweenDates(
+          temperatureBetweenDto.masterId,
+          temperatureBetweenDto.slaveId,
+          temperatureBetweenDto.begin,
+          temperatureBetweenDto.end,
+        );
 
       return {
         status: HttpStatus.OK,
         topic: TEMPERATURE_BETWEEN,
         message: 'success',
-        data,
+        data: temperatures,
       };
     } catch (e) {
       throw e;

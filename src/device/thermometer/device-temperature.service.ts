@@ -65,7 +65,7 @@ export class DeviceTemperatureService {
     }
   }
 
-  fetchTemperatureOneDay(
+  getTemperaturesBetweenDates(
     masterId: number,
     slaveId: number,
     beginDate: Date,
@@ -85,6 +85,7 @@ export class DeviceTemperatureService {
       .getRawMany();
   }
 
+  /** Todo: Refactor fetch logic */
   async fetchTemperature(masterId: number, slaveId: number) {
     try {
       const result = await this.temperatureRepository.fetchTemperatureLastWeek(
