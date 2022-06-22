@@ -68,6 +68,33 @@ export class DeviceTemperatureController {
       const saveResult = await this.deviceTemperatureService.saveTemperature(
         new Temperature(masterId, slaveId, temperature),
       );
+
+      const now: Date = new Date();
+      const dayAverageTemperatureKey = `temperature/week/${masterId}/${slaveId}/${now.getFullYear()}/${
+        now.getMonth() + 1
+      }/${now.getDate()}`;
+      const dayAverageTemperature = await this.cacheManager.get(
+        dayAverageTemperatureKey,
+      );
+
+      if (dayAverageTemperature) {
+        const averageTemperature = dayAverageTemperature[0];
+        const averageCount = dayAverageTemperature[1];
+        const averageFilter =
+          averageTemperature * (averageCount / (averageCount + 1)) +
+          temperature / (averageCount + 1);
+        await this.cacheManager.set(
+          dayAverageTemperatureKey,
+          [averageFilter, averageCount + 1],
+          { ttl: 604800 }, // 1주일 -> 초
+        );
+      } else {
+        await this.cacheManager.set(
+          dayAverageTemperatureKey,
+          [temperature, 1],
+          { ttl: 604800 }, // 1주일 -> 초
+        );
+      }
     } catch (e) {
       throw e;
     }

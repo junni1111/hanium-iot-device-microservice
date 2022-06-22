@@ -54,16 +54,10 @@ export class ApiThermometerController {
     try {
       /* Todo: Change to DTO */
       const { master_id, slave_id } = JSON.parse(payload);
-      // const data = await this.deviceTemperatureService.fetchTemperature(
-      //   master_id,
-      //   slave_id,
-      // );
 
-      // const data = await this.redisService.getKeysCache(
-      //   `temperature/week/${master_id}/${slave_id}/*`,
-      // );
-      const data =
-        await this.deviceTemperatureService.getTemperatureValuesCache(`*`);
+      const data = await this.deviceTemperatureService.getWeekTemperatureCache(
+        `temperature/week/${master_id}/${slave_id}/*`,
+      );
 
       return {
         status: HttpStatus.OK,
