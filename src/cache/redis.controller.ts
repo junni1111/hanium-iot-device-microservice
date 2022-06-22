@@ -16,6 +16,7 @@ export class RedisController {
   @Get('test/:key')
   async getCache(@Res() res: Response, @Param('key') key: string) {
     console.log(`call cache key: `, key);
+
     const cachedValue = await this.cacheManager.get<string>(key);
     if (cachedValue) {
       console.log(`cache hit!`, cachedValue);

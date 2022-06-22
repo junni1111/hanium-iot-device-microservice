@@ -60,12 +60,13 @@ describe('온도 api 서비스 테스트', () => {
 
     const beginDate = new Date(new Date().toDateString());
     const endDate = addDays(beginDate, 1);
-    const temperatures = await deviceTemperatureService.getTemperaturesBetweenDates(
-      MOCK_MASTER_ID,
-      MOCK_SLAVE_ID,
-      beginDate,
-      endDate,
-    );
+    const temperatures =
+      await deviceTemperatureService.getTemperaturesBetweenDates(
+        MOCK_MASTER_ID,
+        MOCK_SLAVE_ID,
+        beginDate,
+        endDate,
+      );
     expect(temperatures[0]['y']).toEqual(22);
 
     const futureBegin = addDays(beginDate, 7);
