@@ -1,5 +1,5 @@
 export interface IGraphConfig {
   x: string;
-  y: string;
+  y: number;
   etc: string;
 }
