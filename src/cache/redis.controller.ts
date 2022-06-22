@@ -13,6 +13,11 @@ import { Response } from 'express';
 export class RedisController {
   constructor(@Inject(CACHE_MANAGER) private readonly cacheManager: Cache) {}
 
+  async getKeysCache(key: string): Promise<string[]> {
+    const result: string[] = await this.cacheManager.store.keys<string[]>(key);
+    return result;
+  }
+
   @Get('test/:key')
   async getCache(@Res() res: Response, @Param('key') key: string) {
     console.log(`call cache key: `, key);

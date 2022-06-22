@@ -1,6 +1,7 @@
 import { CacheModule, Module } from '@nestjs/common';
 import { DeviceService } from './device.service';
 import { DeviceController } from './device.controller';
+import { DeviceTemperatureController } from './thermometer/device-temperature.controller';
 import { ClientsModule, Transport } from '@nestjs/microservices';
 import { MQTT_BROKER } from '../util/constants/constants';
 import { MQTT_BROKER_URL } from '../config/config';
@@ -22,6 +23,7 @@ import { DeviceLedService } from './led/device-led.service';
 import * as redisStore from 'cache-manager-ioredis';
 import { REDIS_HOST, REDIS_PORT } from '../config/redis.config';
 import { DeviceFanService } from './fan/device-fan.service';
+import { RedisModule } from 'src/cache/redis.module';
 
 @Module({
   imports: [
@@ -50,8 +52,9 @@ import { DeviceFanService } from './fan/device-fan.service';
       host: REDIS_HOST,
       port: REDIS_PORT,
     }),
+    RedisModule,
   ],
-  controllers: [DeviceController],
+  controllers: [DeviceController, DeviceTemperatureController],
   providers: [
     DevicePollingService,
     DeviceMasterService,

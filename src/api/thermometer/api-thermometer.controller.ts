@@ -11,12 +11,16 @@ import { Cache } from 'cache-manager';
 import { SlaveConfigDto } from '../dto/slave/slave-config.dto';
 import { SensorConfigKey } from '../../util/key-generator';
 import { TemperatureBetweenDto } from '../dto/temperature/temperature-between.dto';
+import { DeviceFanService } from 'src/device/fan/device-fan.service';
+import { RedisService } from 'src/cache/redis.service';
 
 @Controller()
 export class ApiThermometerController {
   constructor(
     @Inject(CACHE_MANAGER) private readonly cacheManager: Cache,
     private readonly deviceTemperatureService: DeviceTemperatureService,
+    private readonly deviceFanService: DeviceFanService,
+    private readonly redisService: RedisService,
   ) {}
 
   @MessagePattern(TEMPERATURE_BETWEEN, Transport.TCP)
@@ -50,9 +54,9 @@ export class ApiThermometerController {
     try {
       /* Todo: Change to DTO */
       const { master_id, slave_id } = JSON.parse(payload);
-      const data = await this.deviceTemperatureService.fetchTemperature(
-        master_id,
-        slave_id,
+
+      const data = await this.deviceTemperatureService.getWeekTemperatureCache(
+        `temperature/week/${master_id}/${slave_id}/*`,
       );
 
       return {

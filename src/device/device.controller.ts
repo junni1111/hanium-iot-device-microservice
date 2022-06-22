@@ -16,25 +16,13 @@ import {
 import { EPollingState } from './interfaces/polling-status';
 import { DevicePollingService } from './device-polling.service';
 import { Cache } from 'cache-manager';
-import { Temperature } from './entities/temperature.entity';
-import { DeviceFanService } from './fan/device-fan.service';
-import { TemperatureRangeDto } from '../api/dto/temperature/temperature-range.dto';
-import { DeviceTemperatureService } from './thermometer/device-temperature.service';
-import {
-  MasterPollingKey,
-  SensorPowerKey,
-  SensorStateKey,
-} from '../util/key-generator';
-import { EPowerState, ESlaveTurnPowerTopic } from '../util/constants/api-topic';
+import { MasterPollingKey, SensorStateKey } from '../util/key-generator';
 
 @Controller()
 export class DeviceController {
   constructor(
     @Inject(CACHE_MANAGER) private readonly cacheManager: Cache,
-    private readonly deviceService: DeviceService,
     private readonly pollingService: DevicePollingService,
-    private readonly deviceTemperatureService: DeviceTemperatureService,
-    private readonly deviceFanService: DeviceFanService,
   ) {}
 
   /**
@@ -59,51 +47,6 @@ export class DeviceController {
      * Todo: Cache Status To Redis */
     await this.cacheManager.set<number>(key, pollingStatus, { ttl: 60 });
     // console.log(`캐싱 값: `, key, pollingStatus);
-  }
-
-  @EventPattern(TEMPERATURE, Transport.MQTT)
-  async receiveTemperature(
-    @Payload() temperature: number,
-    @Ctx() context: MqttContext,
-  ) {
-    const [, mId, , sId] = context.getTopic().split('/');
-    const masterId = parseInt(mId); // 🤔
-    const slaveId = parseInt(sId);
-
-    try {
-      /**
-       * Todo: id로 캐싱된 온도 범위 가져옴
-       *       캐싱된 범위 없으면 db 조회 */
-      const [rangeMin, rangeMax] = // 🤔
-        await this.deviceTemperatureService.getTemperatureRange(
-          masterId,
-          slaveId,
-        );
-
-      const fanPowerKey = SensorPowerKey({
-        sensor: ESlaveTurnPowerTopic.FAN,
-        masterId,
-        slaveId,
-      });
-
-      const fanPowerState = await this.cacheManager.get<EPowerState>(
-        fanPowerKey,
-      );
-
-      /** Fan 자동운전 켜져있을때만 작동 */
-      if (fanPowerState === EPowerState.ON) {
-        await this.deviceFanService.turnFan(
-          { masterId, slaveId }, // 🤔
-          new TemperatureRangeDto(temperature, rangeMin, rangeMax),
-        );
-      }
-
-      const saveResult = await this.deviceTemperatureService.saveTemperature(
-        new Temperature(masterId, slaveId, temperature),
-      );
-    } catch (e) {
-      throw e;
-    }
   }
 
   @EventPattern(SLAVE_STATE, Transport.MQTT)

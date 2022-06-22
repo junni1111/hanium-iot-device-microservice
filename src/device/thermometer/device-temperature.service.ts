@@ -13,6 +13,7 @@ import { SensorConfigKey, SensorStateKey } from '../../util/key-generator';
 import { map } from 'rxjs';
 import { Between, createQueryBuilder } from 'typeorm';
 import { subDays, addDays } from 'date-fns';
+import { IGraphConfig } from '../interfaces/graph-config';
 
 @Injectable()
 export class DeviceTemperatureService {
@@ -158,5 +159,49 @@ export class DeviceTemperatureService {
     await this.cacheManager.set<number[]>(key, range, { ttl: 3600 });
     console.log(`cached Range: `, range);
     return range;
+  }
+
+  async getWeekTemperatureCache(key: string): Promise<IGraphConfig[]> {
+    const startDate: Date = new Date(); // 일주일 전
+    const endDate: Date = new Date(); // 오늘
+    startDate.setDate(endDate.getDate() - 6);
+
+    const [, , master_id, slave_id] = key.split('/');
+    const configTemperature = await this.cacheManager.get(
+      `config/temperature/${master_id}/${slave_id}`,
+    );
+    const keys: string[] = await this.cacheManager.store.keys<string[]>(key);
+    const result: IGraphConfig[] = [];
+    await Promise.all(
+      keys.map(async (key: string): Promise<IGraphConfig> => {
+        const value = await this.cacheManager.get(key);
+        const [, , , , year, month, day] = key.split('/');
+        const point: IGraphConfig = {
+          x: `${year}/${month}/${day}`,
+          y: value[0],
+          etc:
+            value[0] >= configTemperature[0] && value[0] <= configTemperature[1]
+              ? 'stable'
+              : 'unstable',
+        };
+        console.log(point, value);
+        if (
+          Number(year) >= startDate.getFullYear() &&
+          Number(year) <= endDate.getFullYear() &&
+          Number(month) >= startDate.getMonth() + 1 &&
+          Number(month) <= endDate.getMonth() + 1 &&
+          Number(day) >= startDate.getDate() &&
+          Number(day) <= endDate.getDate()
+        ) {
+          result.push(point);
+        } else {
+          this.cacheManager.store.del(key);
+        }
+        return point;
+      }),
+    );
+    return result.sort((a: IGraphConfig, b: IGraphConfig): number => {
+      return a.x < b.x ? -1 : 1;
+    });
   }
 }
