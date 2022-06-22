@@ -3,6 +3,7 @@ import {
   ESlaveState,
   ESlaveTurnPowerTopic,
 } from './constants/api-topic';
+import { addMinutes, format } from 'date-fns';
 
 interface IRunningKey {
   sensor: ESlaveState | string;
@@ -33,3 +34,26 @@ export const SensorConfigKey = ({ sensor, masterId, slaveId }: IConfigKey) =>
 
 /** Todo: Make Policy After ... */
 export const MasterPollingKey = (key: string) => key;
+
+export const GenerateTemperatureKeys = (
+  masterId: number,
+  slaveId: number,
+  beginDate: Date,
+  endDate: Date,
+  termMinutes: number,
+) => {
+  const generateKey = (masterId: number, slaveId: number, date: string) =>
+    `temperature/week/${masterId}/${slaveId}/${date}`;
+  const keys: string[] = [];
+
+  /** Todo: 더 좋은 방법 고민 */
+  for (
+    let date = beginDate;
+    date < endDate;
+    date = addMinutes(date, termMinutes)
+  ) {
+    keys.push(generateKey(masterId, slaveId, format(date, `yyyyMMddHHmm`)));
+  }
+
+  return keys;
+};
