@@ -55,6 +55,11 @@ export class ApiThermometerController {
       /* Todo: Change to DTO */
       const { master_id, slave_id } = JSON.parse(payload);
 
+      /*Todo : redis에 평균온도가
+       *  캐싱 되어 있지 않다면
+       * DB에서 온도를 가져와서
+       * redis에 캐싱. */
+
       const data = await this.deviceTemperatureService.getWeekTemperatureCache(
         `temperature/week/${master_id}/${slave_id}/*`,
       );
