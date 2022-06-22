@@ -76,6 +76,7 @@ export class DeviceTemperatureController {
       const dayAverageTemperature = await this.cacheManager.get(
         dayAverageTemperatureKey,
       );
+      // ssh test
 
       if (dayAverageTemperature) {
         const averageTemperature = dayAverageTemperature[0];
