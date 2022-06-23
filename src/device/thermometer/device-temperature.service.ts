@@ -11,11 +11,13 @@ import { SlaveConfigDto } from '../../api/dto/slave/slave-config.dto';
 import { ESlaveConfigTopic, ESlaveState } from '../../util/constants/api-topic';
 import {
   GenerateDayAverageKey,
+  GenerateTemperatureKeys,
   SensorConfigKey,
   SensorStateKey,
 } from '../../util/key-generator';
 import { createQueryBuilder } from 'typeorm';
 import { IGraphConfig } from '../interfaces/graph-config';
+import { addDays } from 'date-fns';
 
 @Injectable()
 export class DeviceTemperatureService {
@@ -29,12 +31,12 @@ export class DeviceTemperatureService {
 
   /** Todo: Custom Repository 제거하고
    *        이 함수에 온도 저장 로직 설정 */
-  insertTemperature(temp: Temperature) {
+  insertTemperature(temperature: Temperature) {
     return this.temperatureRepository
       .createQueryBuilder()
       .insert()
       .into(Temperature)
-      .values(temp)
+      .values(temperature)
       .execute();
   }
 
@@ -42,8 +44,8 @@ export class DeviceTemperatureService {
     try {
       return Promise.allSettled([
         this.insertTemperature(temperature),
-        this.cacheDayAverage(temperature, date),
         this.cacheTemperature(temperature),
+        this.cacheDayAverage(temperature, date),
       ]);
     } catch (e) {
       throw e;
@@ -54,7 +56,6 @@ export class DeviceTemperatureService {
     { masterId, slaveId, temperature }: Temperature,
     date: Date,
   ) {
-    /** Todo: Extract Key Generator */
     const dayAverageKey = GenerateDayAverageKey(masterId, slaveId, date);
     const averageInfo = await this.cacheManager.get<number[]>(dayAverageKey);
 
@@ -113,20 +114,6 @@ export class DeviceTemperatureService {
       .getRawMany();
   }
 
-  /** Todo: Refactor fetch logic */
-  async fetchTemperature(masterId: number, slaveId: number) {
-    try {
-      const result = await this.temperatureRepository.fetchTemperatureLastWeek(
-        masterId,
-        slaveId,
-      );
-
-      return result;
-    } catch (e) {
-      console.log(e);
-    }
-  }
-
   async setTemperatureConfig({
     masterId,
     slaveId,
@@ -171,7 +158,6 @@ export class DeviceTemperatureService {
     const cachedRange = await this.cacheManager.get<number[]>(key);
 
     if (cachedRange) {
-      console.log(`Cache Hit!`, cachedRange);
       return cachedRange;
     }
 
@@ -183,8 +169,26 @@ export class DeviceTemperatureService {
     ];
 
     await this.cacheManager.set<number[]>(key, range, { ttl: 3600 });
-    console.log(`cached Range: `, range);
     return range;
+  }
+
+  async getCachedTemperatures(
+    masterId: number,
+    slaveId: number,
+    beginDate: Date,
+    endDate: Date,
+  ) {
+    const keys = GenerateTemperatureKeys(
+      masterId,
+      slaveId,
+      beginDate,
+      endDate,
+      addDays,
+      1,
+    );
+
+    /**
+     * Todo 연준: 생성된 키들 가지고 getWeekTemperatureCache 리팩토링 해보기*/
   }
 
   async getWeekTemperatureCache(key: string): Promise<IGraphConfig[]> {
