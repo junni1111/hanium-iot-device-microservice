@@ -5,15 +5,11 @@ import { TypeOrmModule } from '@nestjs/typeorm';
 import { databaseService } from '../../config/database.service';
 import { SlaveConfigDto } from '../dto/slave/slave-config.dto';
 import { DeviceTemperatureService } from '../../device/thermometer/device-temperature.service';
-import { Master } from '../../device/entities/master.entity';
 import { DeviceMasterService } from '../../device/master/device-master.service';
 import { CreateMasterDto } from '../dto/master/create-master.dto';
 import { CreateSlaveDto } from '../dto/slave/create-slave.dto';
 import { RedisController } from '../../cache/redis.controller';
 import { RedisModule } from '../../cache/redis.module';
-import { CacheModule } from '@nestjs/common';
-import * as redisStore from 'cache-manager-ioredis';
-import { REDIS_HOST, REDIS_PORT } from '../../config/redis.config';
 
 describe('온도 api 컨트롤러 테스트', () => {
   const MOCK_MASTER_ID = 100;

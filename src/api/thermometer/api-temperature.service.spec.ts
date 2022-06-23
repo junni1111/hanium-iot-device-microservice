@@ -40,7 +40,9 @@ describe('온도 api 서비스 테스트', () => {
 
   it('온도를 저장하고, 삭제한다', async () => {
     const temperature = new Temperature(MOCK_MASTER_ID, MOCK_SLAVE_ID, 22);
-    const saveResult = await deviceTemperatureService.saveTemp(temperature);
+    const saveResult = await deviceTemperatureService.insertTemperature(
+      temperature,
+    );
     expect(saveResult.raw.length).toEqual(1);
 
     const deleteResult = await temperatureRepo
@@ -55,7 +57,9 @@ describe('온도 api 서비스 테스트', () => {
 
   it('기간 내의 저장된 온도들을 반환한다 ', async () => {
     const temperature = new Temperature(MOCK_MASTER_ID, MOCK_SLAVE_ID, 22);
-    const saveResult = await deviceTemperatureService.saveTemp(temperature);
+    const saveResult = await deviceTemperatureService.insertTemperature(
+      temperature,
+    );
     expect(saveResult.raw.length).toEqual(1);
 
     const beginDate = new Date(new Date().toDateString());
