@@ -7,11 +7,6 @@ import {
   Transport,
 } from '@nestjs/microservices';
 import { Cache } from 'cache-manager';
-import {
-  EPowerState,
-  ESlaveTurnPowerTopic,
-} from '../../util/constants/api-topic';
-import { SensorPowerKey } from '../../util/key-generator';
 import { RedisService } from '../../cache/redis.service';
 import { Temperature } from '../entities/temperature.entity';
 import { DeviceFanService } from '../fan/device-fan.service';

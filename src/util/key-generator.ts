@@ -3,7 +3,7 @@ import {
   ESlaveState,
   ESlaveTurnPowerTopic,
 } from './constants/api-topic';
-import { addDays, addMinutes, format } from 'date-fns';
+import { format } from 'date-fns';
 
 interface IRunningKey {
   sensor: ESlaveState | string;
@@ -35,15 +35,12 @@ export const SensorConfigKey = ({ sensor, masterId, slaveId }: IConfigKey) =>
 /** Todo: Make Policy After ... */
 export const MasterPollingKey = (key: string) => key;
 
-/** key 문자열성 week가 맞는지 검토 필요 week 인지 day 인지 */
+/** key 문자열에서 week가 맞는지 검토 필요 week 인지 day 인지 */
 export const GenerateDayAverageKey = (
   masterId: number,
   slaveId: number,
   date: Date,
-) =>
-  `temperature/week/${masterId}/${slaveId}/${date.getFullYear()}/${
-    date.getMonth() + 1
-  }/${date.getDate()}`;
+) => `temperature/week/${masterId}/${slaveId}/${format(date, `yyyyMMdd`)}`;
 
 export const GenerateTemperatureKeys = (
   masterId: number,
