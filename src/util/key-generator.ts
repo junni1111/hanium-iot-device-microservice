@@ -35,6 +35,16 @@ export const SensorConfigKey = ({ sensor, masterId, slaveId }: IConfigKey) =>
 /** Todo: Make Policy After ... */
 export const MasterPollingKey = (key: string) => key;
 
+export const GenerateDayAverageKey = (
+  masterId: number,
+  slaveId: number,
+  date: Date,
+) =>
+  `temperature/week/${masterId}/${slaveId}/${date.getFullYear()}/${
+    date.getMonth() + 1
+  }/${date.getDate()}`;
+
+/** Todo: Rename*/
 export const GenerateTemperatureKeys = (
   masterId: number,
   slaveId: number,
