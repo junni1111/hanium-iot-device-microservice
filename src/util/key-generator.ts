@@ -40,26 +40,30 @@ export const GenerateDayAverageKey = (
   masterId: number,
   slaveId: number,
   date: Date,
-) => `temperature/week/${masterId}/${slaveId}/${format(date, `yyyyMMdd`)}`;
+) => `temperature/week/${masterId}/${slaveId}/${format(date, `yyyy/MM/dd`)}`;
 
-export const GenerateTemperatureKeys = (
+export const GenerateAverageKeys = (
   masterId: number,
   slaveId: number,
   beginDate: Date,
   endDate: Date,
-  addFunction: (date: number | Date, amount: number) => Date,
+  addFunction: (date: Date | number, amount: number) => Date,
   timeAmount: number,
 ) => {
   const generateKey = (masterId: number, slaveId: number, date: string) =>
     `temperature/week/${masterId}/${slaveId}/${date}`;
   const keys: string[] = [];
 
+  console.log(beginDate, endDate);
+
   for (
     let date = beginDate;
     date < endDate;
     date = addFunction(date, timeAmount)
   ) {
-    keys.push(generateKey(masterId, slaveId, format(date, `yyyyMMdd`)));
+    console.log(`loop: `, date, typeof date);
+    console.log(`Formatted: `, format(date, `yyyy/MM/dd`));
+    keys.push(generateKey(masterId, slaveId, format(date, `yyyy/MM/dd`)));
   }
 
   return keys;
