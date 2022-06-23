@@ -9,10 +9,12 @@ import { ITemperatureConfig } from '../interfaces/slave-configs';
 import { Cache } from 'cache-manager';
 import { SlaveConfigDto } from '../../api/dto/slave/slave-config.dto';
 import { ESlaveConfigTopic, ESlaveState } from '../../util/constants/api-topic';
-import { SensorConfigKey, SensorStateKey } from '../../util/key-generator';
-import { map } from 'rxjs';
-import { Between, createQueryBuilder } from 'typeorm';
-import { subDays, addDays } from 'date-fns';
+import {
+  GenerateDayAverageKey,
+  SensorConfigKey,
+  SensorStateKey,
+} from '../../util/key-generator';
+import { createQueryBuilder } from 'typeorm';
 import { IGraphConfig } from '../interfaces/graph-config';
 
 @Injectable()
@@ -27,7 +29,7 @@ export class DeviceTemperatureService {
 
   /** Todo: Custom Repository 제거하고
    *        이 함수에 온도 저장 로직 설정 */
-  saveTemp(temp: Temperature) {
+  insertTemperature(temp: Temperature) {
     return this.temperatureRepository
       .createQueryBuilder()
       .insert()
@@ -36,18 +38,42 @@ export class DeviceTemperatureService {
       .execute();
   }
 
-  async saveTemperature(temperature: Temperature) {
+  async saveTemperature(temperature: Temperature, date: Date) {
     try {
-      const saveResult = await this.temperatureRepository.saveTemperature(
-        temperature,
-      );
-
-      await this.cacheTemperature(temperature);
-
-      return saveResult;
+      return Promise.allSettled([
+        this.insertTemperature(temperature),
+        this.cacheDayAverage(temperature, date),
+        this.cacheTemperature(temperature),
+      ]);
     } catch (e) {
       throw e;
     }
+  }
+
+  private async cacheDayAverage(
+    { masterId, slaveId, temperature }: Temperature,
+    date: Date,
+  ) {
+    /** Todo: Extract Key Generator */
+    const dayAverageKey = GenerateDayAverageKey(masterId, slaveId, date);
+    const averageInfo = await this.cacheManager.get<number[]>(dayAverageKey);
+
+    if (!averageInfo) {
+      return this.cacheManager.set(
+        dayAverageKey,
+        [temperature, 1],
+        { ttl: 604800 }, // 1주일 -> 초
+      );
+    }
+
+    const [prevAverage, averageCount] = averageInfo;
+    const average = this.getAverage(temperature, prevAverage, averageCount);
+
+    return this.cacheManager.set(
+      dayAverageKey,
+      [average, averageCount + 1],
+      { ttl: 604800 }, // 1주일 -> 초
+    );
   }
 
   async getCurrentTemperature(
@@ -203,5 +229,16 @@ export class DeviceTemperatureService {
     return result.sort((a: IGraphConfig, b: IGraphConfig): number => {
       return a.x < b.x ? -1 : 1;
     });
+  }
+
+  private getAverage(
+    target: number,
+    prevAverage: number,
+    averageCount: number,
+  ) {
+    return (
+      prevAverage * (averageCount / (averageCount + 1)) +
+      target / (averageCount + 1)
+    );
   }
 }

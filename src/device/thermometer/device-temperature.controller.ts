@@ -1,4 +1,4 @@
-import { CACHE_MANAGER, Controller, Inject } from '@nestjs/common';
+import { CACHE_MANAGER, Controller, Inject, Logger } from '@nestjs/common';
 import {
   Ctx,
   EventPattern,
@@ -7,17 +7,17 @@ import {
   Transport,
 } from '@nestjs/microservices';
 import { Cache } from 'cache-manager';
-import { TemperatureRangeDto } from 'src/api/dto/temperature/temperature-range.dto';
 import {
   EPowerState,
   ESlaveTurnPowerTopic,
-} from 'src/util/constants/api-topic';
-import { TEMPERATURE } from 'src/util/constants/mqtt-topic';
-import { SensorPowerKey } from 'src/util/key-generator';
+} from '../../util/constants/api-topic';
+import { SensorPowerKey } from '../../util/key-generator';
 import { RedisService } from '../../cache/redis.service';
 import { Temperature } from '../entities/temperature.entity';
 import { DeviceFanService } from '../fan/device-fan.service';
 import { DeviceTemperatureService } from './device-temperature.service';
+import { TemperatureRangeDto } from '../../api/dto/temperature/temperature-range.dto';
+import { TEMPERATURE } from '../../util/constants/mqtt-topic';
 
 @Controller()
 export class DeviceTemperatureController {
@@ -65,37 +65,11 @@ export class DeviceTemperatureController {
         );
       }
 
-      const saveResult = await this.deviceTemperatureService.saveTemperature(
+      const saveResults = await this.deviceTemperatureService.saveTemperature(
         new Temperature(masterId, slaveId, temperature),
+        new Date(), // now
       );
-
-      const now: Date = new Date();
-      const dayAverageTemperatureKey = `temperature/week/${masterId}/${slaveId}/${now.getFullYear()}/${
-        now.getMonth() + 1
-      }/${now.getDate()}`;
-      const dayAverageTemperature = await this.cacheManager.get(
-        dayAverageTemperatureKey,
-      );
-      // ssh test
-
-      if (dayAverageTemperature) {
-        const averageTemperature = dayAverageTemperature[0];
-        const averageCount = dayAverageTemperature[1];
-        const averageFilter =
-          averageTemperature * (averageCount / (averageCount + 1)) +
-          temperature / (averageCount + 1);
-        await this.cacheManager.set(
-          dayAverageTemperatureKey,
-          [averageFilter, averageCount + 1],
-          { ttl: 604800 }, // 1주일 -> 초
-        );
-      } else {
-        await this.cacheManager.set(
-          dayAverageTemperatureKey,
-          [temperature, 1],
-          { ttl: 604800 }, // 1주일 -> 초
-        );
-      }
+      Logger.debug(saveResults);
     } catch (e) {
       throw e;
     }
