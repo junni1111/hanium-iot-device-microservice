@@ -68,7 +68,7 @@ export class DeviceTemperatureService {
     }
 
     const [prevAverage, averageCount] = averageInfo;
-    const average = this.getAverage(temperature, prevAverage, averageCount);
+    const average = this.updateAverage(temperature, prevAverage, averageCount);
 
     return this.cacheManager.set(
       dayAverageKey,
@@ -235,14 +235,14 @@ export class DeviceTemperatureService {
     });
   }
 
-  private getAverage(
-    target: number,
+  private updateAverage(
+    temperature: number,
     prevAverage: number,
     averageCount: number,
   ) {
     return (
       prevAverage * (averageCount / (averageCount + 1)) +
-      target / (averageCount + 1)
+      temperature / (averageCount + 1)
     );
   }
 }
