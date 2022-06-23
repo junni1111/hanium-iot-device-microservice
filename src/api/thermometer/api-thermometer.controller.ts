@@ -129,7 +129,7 @@ export class ApiThermometerController {
   ): Promise<ResponseStatus> {
     /* Todo: Change to DTO */
     const { master_id, slave_id } = JSON.parse(payload);
-    const data = await this.deviceTemperatureService.getCurrentTemperature(
+    const data = await this.deviceTemperatureService.getCachedTemperature(
       parseInt(master_id),
       parseInt(slave_id),
     );

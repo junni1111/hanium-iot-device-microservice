@@ -77,16 +77,14 @@ export class DeviceTemperatureService {
     );
   }
 
-  async getCurrentTemperature(
-    masterId: number,
-    slaveId: number,
-  ): Promise<number> {
+  getCachedTemperature(masterId: number, slaveId: number): Promise<number> {
     try {
       const key = SensorStateKey({
         sensor: ESlaveState.TEMPERATURE,
         masterId,
         slaveId,
       });
+
       return this.cacheManager.get<number>(key);
     } catch (e) {
       throw e;
