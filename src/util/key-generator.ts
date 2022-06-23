@@ -3,7 +3,7 @@ import {
   ESlaveState,
   ESlaveTurnPowerTopic,
 } from './constants/api-topic';
-import { addMinutes, format } from 'date-fns';
+import { addDays, addMinutes, format } from 'date-fns';
 
 interface IRunningKey {
   sensor: ESlaveState | string;
@@ -45,25 +45,24 @@ export const GenerateDayAverageKey = (
     date.getMonth() + 1
   }/${date.getDate()}`;
 
-/** Todo: Rename*/
 export const GenerateTemperatureKeys = (
   masterId: number,
   slaveId: number,
   beginDate: Date,
   endDate: Date,
-  termMinutes: number,
+  addFunction: (date: number | Date, amount: number) => Date,
+  timeAmount: number,
 ) => {
   const generateKey = (masterId: number, slaveId: number, date: string) =>
     `temperature/week/${masterId}/${slaveId}/${date}`;
   const keys: string[] = [];
 
-  /** Todo: 더 좋은 방법 고민 */
   for (
     let date = beginDate;
     date < endDate;
-    date = addMinutes(date, termMinutes)
+    date = addFunction(date, timeAmount)
   ) {
-    keys.push(generateKey(masterId, slaveId, format(date, `yyyyMMddHHmm`)));
+    keys.push(generateKey(masterId, slaveId, format(date, `yyyyMMdd`)));
   }
 
   return keys;
