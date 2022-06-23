@@ -12,7 +12,7 @@ import { ApiWaterPumpController } from './water-pump/api-water-pump.controller';
 import { ApiLedController } from './led/api-led.controller';
 import { ApiThermometerController } from './thermometer/api-thermometer.controller';
 import { ApiFanController } from './fan/api-fan.controller';
-import { RedisModule } from 'src/cache/redis.module';
+import { RedisModule } from '../cache/redis.module';
 
 @Module({
   imports: [

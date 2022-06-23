@@ -23,7 +23,7 @@ import { DeviceLedService } from './led/device-led.service';
 import * as redisStore from 'cache-manager-ioredis';
 import { REDIS_HOST, REDIS_PORT } from '../config/redis.config';
 import { DeviceFanService } from './fan/device-fan.service';
-import { RedisModule } from 'src/cache/redis.module';
+import { RedisModule } from '../cache/redis.module';
 
 @Module({
   imports: [
