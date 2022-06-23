@@ -46,24 +46,14 @@ export class DeviceTemperatureController {
           masterId,
           slaveId,
         );
+      const range = new TemperatureRangeDto(temperature, rangeMin, rangeMax);
 
-      const fanPowerKey = SensorPowerKey({
-        sensor: ESlaveTurnPowerTopic.FAN,
+      const turnResult = this.deviceFanService.turnFan(
         masterId,
         slaveId,
-      });
-
-      const fanPowerState = await this.cacheManager.get<EPowerState>(
-        fanPowerKey,
+        range,
       );
-
-      /** Fan 자동운전 켜져있을때만 작동 */
-      if (fanPowerState === EPowerState.ON) {
-        await this.deviceFanService.turnFan(
-          { masterId, slaveId }, // 🤔
-          new TemperatureRangeDto(temperature, rangeMin, rangeMax),
-        );
-      }
+      Logger.debug(turnResult);
 
       const saveResults = await this.deviceTemperatureService.saveTemperature(
         new Temperature(masterId, slaveId, temperature),

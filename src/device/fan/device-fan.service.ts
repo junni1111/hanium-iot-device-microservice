@@ -1,14 +1,18 @@
-import { CACHE_MANAGER, Inject, Injectable } from '@nestjs/common';
+import { CACHE_MANAGER, Inject, Injectable, Logger } from '@nestjs/common';
 import { MQTT_BROKER } from '../../util/constants/constants';
 import { ClientProxy } from '@nestjs/microservices';
 import { DeviceService } from '../device.service';
 import { Cache } from 'cache-manager';
 import { FanPacketDto } from '../dto/fan-packet.dto';
 import { FanPowerDto } from '../../api/dto/fan/fan-power.dto';
-import { EPowerState, ESlaveState } from '../../util/constants/api-topic';
+import {
+  EPowerState,
+  ESlaveState,
+  ESlaveTurnPowerTopic,
+} from '../../util/constants/api-topic';
 import { ECommand } from '../interfaces/packet';
 import { TemperatureRangeDto } from '../../api/dto/temperature/temperature-range.dto';
-import { SensorStateKey } from '../../util/key-generator';
+import { SensorPowerKey, SensorStateKey } from '../../util/key-generator';
 
 @Injectable()
 export class DeviceFanService {
@@ -19,20 +23,30 @@ export class DeviceFanService {
   ) {}
 
   async turnFan(
-    { masterId, slaveId }: FanPowerDto,
-    range: TemperatureRangeDto,
+    masterId: number,
+    slaveId: number,
+    temperatureRangeDto: TemperatureRangeDto,
   ) {
-    let powerCommand: number;
-    let powerState: EPowerState;
+    const fanPowerKey = SensorPowerKey({
+      sensor: ESlaveTurnPowerTopic.FAN,
+      masterId,
+      slaveId,
+    });
 
-    if (!range.contains()) {
-      powerState = EPowerState.ON;
-      powerCommand = 0xfb; // Fan ON
-    } else {
-      powerState = EPowerState.OFF;
-      powerCommand = 0x0f; // Fan OFF
+    const fanPowerState = await this.cacheManager.get<EPowerState>(fanPowerKey);
+    if (fanPowerState === EPowerState.OFF) {
+      Logger.debug(`현재 FAN 전원이 꺼져있음`);
+      return;
     }
 
+    const willRunningState = this.getWillState(temperatureRangeDto);
+    const powerCommand = willRunningState === EPowerState.OFF ? 0x0f : 0xfb;
+
+    this.sendTurnPacket(masterId, slaveId, powerCommand);
+    return this.cacheFanState(masterId, slaveId, willRunningState);
+  }
+
+  sendTurnPacket(masterId: number, slaveId: number, powerCommand: number) {
     const topic = `master/${masterId}/fan`;
     const message = new FanPacketDto(
       0x23,
@@ -45,10 +59,23 @@ export class DeviceFanService {
       [powerCommand],
     );
 
-    const key = SensorStateKey({ sensor: ESlaveState.FAN, masterId, slaveId });
-    await this.cacheManager.set<string>(key, powerState, { ttl: 60 });
+    this.deviceService.publishEvent(topic, JSON.stringify(message));
+  }
 
-    return this.deviceService.publishEvent(topic, JSON.stringify(message));
+  /** 설정한 온도 범위 초과: 팬 작동
+   *  정상 온도 범위: 팬 멈춤
+   * */
+  private getWillState(range: TemperatureRangeDto) {
+    return range.contains() ? EPowerState.OFF : EPowerState.ON;
+  }
+
+  private cacheFanState(
+    masterId: number,
+    slaveId: number,
+    willPowerState: EPowerState,
+  ) {
+    const key = SensorStateKey({ sensor: ESlaveState.FAN, masterId, slaveId });
+    return this.cacheManager.set<string>(key, willPowerState, { ttl: 60 });
   }
 
   /** Todo: Refactor after changing protocol */
