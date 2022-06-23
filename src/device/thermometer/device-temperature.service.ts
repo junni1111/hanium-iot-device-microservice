@@ -1,4 +1,4 @@
-import { CACHE_MANAGER, Inject, Injectable } from '@nestjs/common';
+import { CACHE_MANAGER, Inject, Injectable, Logger } from '@nestjs/common';
 import { MQTT_BROKER } from '../../util/constants/constants';
 import { ClientProxy } from '@nestjs/microservices';
 import { Temperature } from '../entities/temperature.entity';
@@ -11,13 +11,12 @@ import { SlaveConfigDto } from '../../api/dto/slave/slave-config.dto';
 import { ESlaveConfigTopic, ESlaveState } from '../../util/constants/api-topic';
 import {
   GenerateDayAverageKey,
-  GenerateTemperatureKeys,
+  GenerateAverageKeys,
   SensorConfigKey,
   SensorStateKey,
 } from '../../util/key-generator';
 import { createQueryBuilder } from 'typeorm';
-import { IGraphConfig } from '../interfaces/graph-config';
-import { addDays } from 'date-fns';
+import { GraphPoint } from '../interfaces/graph-config';
 
 @Injectable()
 export class DeviceTemperatureService {
@@ -38,6 +37,19 @@ export class DeviceTemperatureService {
       .into(Temperature)
       .values(temperature)
       .execute();
+  }
+
+  getAverage(masterId: number, slaveId: number, begin: Date, end: Date) {
+    return this.temperatureRepository
+      .createQueryBuilder('temperatures')
+      .select('AVG(temperatures.temperature)', 'average')
+      .where(`master_id = :masterId`, { masterId })
+      .andWhere(`slave_id = :slaveId`, { slaveId })
+      .andWhere(`create_at BETWEEN :begin AND :end`, {
+        begin,
+        end,
+      })
+      .getRawOne();
   }
 
   async saveTemperature(temperature: Temperature, date: Date) {
@@ -62,6 +74,7 @@ export class DeviceTemperatureService {
     if (!averageInfo) {
       return this.cacheManager.set(
         dayAverageKey,
+
         [temperature, 1],
         { ttl: 604800 }, // 1주일 -> 초
       );
@@ -153,8 +166,8 @@ export class DeviceTemperatureService {
       masterId,
       slaveId,
     });
-    const cachedRange = await this.cacheManager.get<number[]>(key);
 
+    const cachedRange = await this.cacheManager.get<number[]>(key);
     if (cachedRange) {
       return cachedRange;
     }
@@ -170,67 +183,58 @@ export class DeviceTemperatureService {
     return range;
   }
 
-  async getCachedTemperatures(
+  async getAveragePoints(
     masterId: number,
     slaveId: number,
     beginDate: Date,
     endDate: Date,
+    addFunction: (date: Date | number, amount: number) => Date,
+    timeAmount: number,
   ) {
-    const keys = GenerateTemperatureKeys(
+    const keys = GenerateAverageKeys(
       masterId,
       slaveId,
       beginDate,
       endDate,
-      addDays,
-      1,
+      addFunction,
+      timeAmount,
     );
+    const [min, max] = await this.getTemperatureRange(masterId, slaveId);
+    const points: GraphPoint[] = [];
 
-    /**
-     * Todo 연준: 생성된 키들 가지고 getWeekTemperatureCache 리팩토링 해보기*/
-  }
-
-  async getWeekTemperatureCache(key: string): Promise<IGraphConfig[]> {
-    const startDate: Date = new Date(); // 일주일 전
-    const endDate: Date = new Date(); // 오늘
-    startDate.setDate(endDate.getDate() - 6);
-
-    const [, , master_id, slave_id] = key.split('/');
-    const configTemperature = await this.cacheManager.get(
-      `config/temperature/${master_id}/${slave_id}`,
-    );
-    const keys: string[] = await this.cacheManager.store.keys<string[]>(key);
-    const result: IGraphConfig[] = [];
     await Promise.all(
-      keys.map(async (key: string): Promise<IGraphConfig> => {
-        const value = await this.cacheManager.get(key);
+      keys.map(async (key: string) => {
+        const cached = await this.cacheManager.get<number[]>(key);
         const [, , , , year, month, day] = key.split('/');
-        const point: IGraphConfig = {
-          x: `${year}/${month}/${day}`,
-          y: value[0],
-          etc:
-            value[0] >= configTemperature[0] && value[0] <= configTemperature[1]
-              ? 'stable'
-              : 'unstable',
-        };
-        console.log(point, value);
-        if (
-          Number(year) >= startDate.getFullYear() &&
-          Number(year) <= endDate.getFullYear() &&
-          Number(month) >= startDate.getMonth() + 1 &&
-          Number(month) <= endDate.getMonth() + 1 &&
-          Number(day) >= startDate.getDate() &&
-          Number(day) <= endDate.getDate()
-        ) {
-          result.push(point);
-        } else {
-          this.cacheManager.store.del(key);
+        const dateString = `${year}/${month}/${day}`;
+
+        if (!cached) {
+          const begin = new Date(dateString);
+          const end = addFunction(begin, timeAmount);
+          const { average } = await this.getAverage(
+            masterId,
+            slaveId,
+            begin,
+            end,
+          );
+
+          if (!average) {
+            return;
+          }
+
+          await this.cacheManager.set<number[]>(key, [average, 1], {
+            ttl: 604800, // 1주일 -> 초
+          });
+          return points.push(new GraphPoint(dateString, average, min, max));
         }
-        return point;
+
+        const [cachedAverage] = cached;
+        return points.push(new GraphPoint(dateString, cachedAverage, min, max));
       }),
     );
-    return result.sort((a: IGraphConfig, b: IGraphConfig): number => {
-      return a.x < b.x ? -1 : 1;
-    });
+
+    // 월 화 수 목 금 토 일
+    return points.sort((a, b): number => (a.x < b.x ? -1 : 1));
   }
 
   private updateAverage(
