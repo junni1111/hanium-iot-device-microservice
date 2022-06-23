@@ -35,7 +35,7 @@ export const SensorConfigKey = ({ sensor, masterId, slaveId }: IConfigKey) =>
 /** Todo: Make Policy After ... */
 export const MasterPollingKey = (key: string) => key;
 
-/** key 문자열 week가 맞는지 검토 필요 week 인지 day 인지 */
+/** key 문자열성 week가 맞는지 검토 필요 week 인지 day 인지 */
 export const GenerateDayAverageKey = (
   masterId: number,
   slaveId: number,
