@@ -71,6 +71,7 @@ describe('온도 api 서비스 테스트', () => {
         beginDate,
         endDate,
       );
+    console.log(temperatures);
     expect(temperatures[0]['y']).toEqual(22);
 
     const futureBegin = addDays(beginDate, 7);
