@@ -4,24 +4,13 @@ import { CreateMasterDto } from '../../api/dto/master/create-master.dto';
 
 @EntityRepository(Master)
 export class MasterRepository extends Repository<Master> {
-  async createMaster({ masterId, address }: CreateMasterDto) {
-    try {
-      const master = this.create(Master.createMaster(masterId, address));
+  createMaster(createMasterDto: CreateMasterDto): Promise<Master> {
+    const { masterId, address } = createMasterDto;
+    const master = this.create({
+      id: masterId,
+      address: address,
+    });
 
-      return this.save(master);
-    } catch (e) {
-      console.log(e);
-    }
-  }
-
-  async deleteMaster(masterId: number) {
-    try {
-      const master = new Master();
-      master.id = masterId;
-
-      return this.delete(master);
-    } catch (e) {
-      console.log(e);
-    }
+    return this.save(master);
   }
 }
