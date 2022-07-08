@@ -15,16 +15,17 @@ import {
   SensorConfigKey,
   SensorStateKey,
 } from '../../util/key-generator';
-import { createQueryBuilder } from 'typeorm';
+import { createQueryBuilder, Repository } from 'typeorm';
 import { GraphPoint } from '../interfaces/graph-config';
+import { TemperatureBetweenDto } from '../../api/dto/temperature/temperature-between.dto';
 
 @Injectable()
 export class DeviceTemperatureService {
   constructor(
     @Inject(MQTT_BROKER) private readonly mqttBroker: ClientProxy,
     @Inject(CACHE_MANAGER) private readonly cacheManager: Cache,
-    private readonly temperatureRepository: TemperatureRepository,
     private readonly deviceService: DeviceService,
+    private readonly temperatureRepository: TemperatureRepository,
     private readonly slaveRepository: SlaveRepository,
   ) {}
 
@@ -144,8 +145,8 @@ export class DeviceTemperatureService {
     }
   }
 
-  async createTestData(masterId: number, slaveId: number) {
-    return this.temperatureRepository.createTestData(masterId, slaveId);
+  async createTestData(temperatureBetweenDto: TemperatureBetweenDto) {
+    return this.temperatureRepository.createTestData(temperatureBetweenDto);
   }
 
   async cacheTemperature({ masterId, slaveId, temperature }: Temperature) {
