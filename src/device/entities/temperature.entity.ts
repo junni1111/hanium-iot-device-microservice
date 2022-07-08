@@ -37,16 +37,18 @@ export class Temperature {
   constructor(
     masterId: number,
     slaveId: number,
-    configs: ITemperatureConfig,
+    configs?: ITemperatureConfig,
     createDate?: Date,
   ) {
     const slave = new Slave();
     slave.slaveId = slaveId;
     this.slave = slave;
 
-    this.rangeBegin = configs.startTemperatureRange;
-    this.rangeEnd = configs.endTemperatureRange;
-    this.updateCycle = configs.temperatureUpdateCycle;
+    if (configs) {
+      this.rangeBegin = configs.startTemperatureRange;
+      this.rangeEnd = configs.endTemperatureRange;
+      this.updateCycle = configs.temperatureUpdateCycle;
+    }
 
     if (createDate) {
       this.createAt = createDate;

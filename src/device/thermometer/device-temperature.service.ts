@@ -1,8 +1,8 @@
-import { CACHE_MANAGER, Inject, Injectable, Logger } from '@nestjs/common';
+import { CACHE_MANAGER, Inject, Injectable } from '@nestjs/common';
 import { MQTT_BROKER } from '../../util/constants/constants';
 import { ClientProxy } from '@nestjs/microservices';
 import { Temperature } from '../entities/temperature.entity';
-import { TemperatureRepository } from '../repositories/temperature.repository';
+// import { TemperatureRepository } from '../repositories/temperature.repository';
 import { DeviceService } from '../device.service';
 import { SlaveRepository } from '../repositories/slave.repository';
 import { ITemperatureConfig } from '../interfaces/slave-configs';
@@ -15,27 +15,46 @@ import {
   SensorConfigKey,
   SensorStateKey,
 } from '../../util/key-generator';
-import { createQueryBuilder } from 'typeorm';
+import { createQueryBuilder, Repository } from 'typeorm';
 import { GraphPoint } from '../interfaces/graph-config';
+import { InjectRepository } from '@nestjs/typeorm';
+import { TemperatureLog } from '../entities/temperature-log.entity';
 
 @Injectable()
 export class DeviceTemperatureService {
   constructor(
     @Inject(MQTT_BROKER) private readonly mqttBroker: ClientProxy,
     @Inject(CACHE_MANAGER) private readonly cacheManager: Cache,
-    private readonly temperatureRepository: TemperatureRepository,
+    // private readonly temperatureRepository: TemperatureRepository,
+    @InjectRepository(Temperature)
+    private readonly temperatureRepository: Repository<Temperature>,
+    @InjectRepository(TemperatureLog)
+    private readonly temperatureLogRepository: Repository<TemperatureLog>,
     private readonly deviceService: DeviceService,
     private readonly slaveRepository: SlaveRepository,
   ) {}
 
   /** Todo: Custom Repository 제거하고
    *        이 함수에 온도 저장 로직 설정 */
-  insertTemperature(temperature: Temperature) {
-    return this.temperatureRepository
+  // insertTemperature(temperature: Temperature) {
+  //   return this.temperatureRepository
+  //     .createQueryBuilder()
+  //     .insert()
+  //     .into(Temperature)
+  //     .values(temperature)
+  //     .execute();
+  // }
+
+  insertTemperatureLog(sensor: Temperature, temperature: number) {
+    const log = this.temperatureLogRepository.create(
+      new TemperatureLog(sensor, temperature),
+    );
+
+    return this.temperatureLogRepository
       .createQueryBuilder()
       .insert()
-      .into(Temperature)
-      .values(temperature)
+      .into(TemperatureLog)
+      .values(log)
       .execute();
   }
 
@@ -52,17 +71,27 @@ export class DeviceTemperatureService {
       .getRawOne();
   }
 
-  async saveTemperature(temperature: Temperature, date: Date) {
+  saveTemperature(masterId: number, slaveId: number, temperature) {
     try {
-      return Promise.allSettled([
-        this.insertTemperature(temperature),
-        this.cacheTemperature(temperature),
-        this.cacheDayAverage(temperature, date),
-      ]);
+      const sensor = new Temperature(masterId, slaveId);
+      const inserResult = this.insertTemperatureLog(sensor, temperature);
+      const cachedResult = this.cacheTemperature();
     } catch (e) {
       throw e;
     }
   }
+
+  // async saveTemperature(temperature: Temperature, date: Date) {
+  //   try {
+  //     return Promise.allSettled([
+  //       this.insertTemperature(temperature),
+  //       this.cacheTemperature(temperature),
+  //       this.cacheDayAverage(temperature, date),
+  //     ]);
+  //   } catch (e) {
+  //     throw e;
+  //   }
+  // }
 
   private async cacheDayAverage(
     { masterId, slaveId, temperature }: Temperature,
@@ -156,6 +185,15 @@ export class DeviceTemperatureService {
     });
     return this.cacheManager.set<number>(key, temperature, { ttl: 60 });
   }
+  //
+  // async cacheTemperature({ masterId, slaveId, temperature }: Temperature) {
+  //   const key = SensorStateKey({
+  //     sensor: ESlaveState.TEMPERATURE,
+  //     masterId,
+  //     slaveId,
+  //   });
+  //   return this.cacheManager.set<number>(key, temperature, { ttl: 60 });
+  // }
 
   async getTemperatureRange(
     masterId: number,

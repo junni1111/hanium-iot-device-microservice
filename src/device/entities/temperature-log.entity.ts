@@ -21,8 +21,9 @@ export class TemperatureLog {
   @CreateDateColumn({ type: 'timestamptz', name: 'create_at' })
   createAt: Date;
 
-  constructor(sensor: Temperature, createDate?: Date) {
+  constructor(sensor: Temperature, temperature: number, createDate?: Date) {
     this.sensor = sensor;
+    this.temperature = temperature;
 
     if (createDate) {
       this.createAt = createDate;

@@ -45,12 +45,14 @@ export class DeviceTemperatureController {
         slaveId,
         range,
       );
+
       Logger.log(turnResult);
       // Todo: Refactor
-      // // const saveResults = await this.deviceTemperatureService.saveTemperature(
-      // //   new Temperature(masterId, slaveId, temperature),
-      // //   new Date(), // now
-      // // );
+      const saveResults = await this.deviceTemperatureService.saveTemperature(
+        // new Temperature(masterId, slaveId, temperature),
+        // new Date(), // now
+          masterId, slaveId
+      );
       // Logger.debug(saveResults);
     } catch (e) {
       throw e;
