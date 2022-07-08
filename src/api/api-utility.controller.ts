@@ -21,13 +21,13 @@ export class ApiUtilityController {
     return 'device-pong';
   }
 
-  @MessagePattern('test/temperature', Transport.TCP)
-  async createTestTemperatureData(@Payload() slaveStateDto: SlaveStateDto) {
-    console.log(`create test data...`, slaveStateDto);
-
-    return await this.deviceTemperatureService.createTestData(
-      slaveStateDto.masterId,
-      slaveStateDto.slaveId,
-    );
-  }
+  // @MessagePattern('test/temperature', Transport.TCP)
+  // async createTestTemperatureData(@Payload() slaveStateDto: SlaveStateDto) {
+  //   console.log(`create test data...`, slaveStateDto);
+  //
+  //   return await this.deviceTemperatureService.createTestData(
+  //     slaveStateDto.masterId,
+  //     slaveStateDto.slaveId,
+  //   );
+  // }
 }

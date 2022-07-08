@@ -24,6 +24,7 @@ import { REDIS_HOST, REDIS_PORT } from '../config/redis.config';
 import { DeviceFanService } from './fan/device-fan.service';
 import { RedisModule } from '../cache/redis.module';
 import { DeviceTemperatureController } from './thermometer/device-temperature.controller';
+import { TemperatureLog } from './entities/temperature-log.entity';
 
 @Module({
   imports: [
@@ -32,11 +33,10 @@ import { DeviceTemperatureController } from './thermometer/device-temperature.co
       Humidity,
       WaterPump,
       Led,
-      Master,
       Slave,
-      // TemperatureRepository,
       MasterRepository,
       SlaveRepository,
+      TemperatureLog,
     ]),
     ClientsModule.register([
       {

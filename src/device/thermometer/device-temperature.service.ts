@@ -45,11 +45,20 @@ export class DeviceTemperatureService {
   //     .execute();
   // }
 
-  insertTemperatureLog(sensor: Temperature, temperature: number) {
-    const log = this.temperatureLogRepository.create(
-      new TemperatureLog(sensor, temperature),
+  insertTemperatureLog(masterId, slaveId, temperature) {
+    // const sensor = Temperature.createSensor(masterId, slaveId);
+    const sensor = this.temperatureRepository.create(
+      Temperature.createSensor(masterId, slaveId),
     );
 
+    console.log(`Sensor ID: `, sensor);
+
+    const log = this.temperatureLogRepository.create({
+      sensor,
+      temperature,
+    });
+
+    console.log(`insert result: `, log);
     return this.temperatureLogRepository
       .createQueryBuilder()
       .insert()
@@ -71,11 +80,13 @@ export class DeviceTemperatureService {
       .getRawOne();
   }
 
-  saveTemperature(masterId: number, slaveId: number, temperature) {
+  saveTemperature(masterId: number, slaveId: number, temperature, date: Date) {
     try {
-      const sensor = new Temperature(masterId, slaveId);
-      const inserResult = this.insertTemperatureLog(sensor, temperature);
-      const cachedResult = this.cacheTemperature();
+      return Promise.allSettled([
+        this.insertTemperatureLog(masterId, slaveId, temperature),
+        this.cacheTemperature(masterId, slaveId, temperature),
+        this.cacheDayAverage(masterId, slaveId, temperature, date),
+      ]);
     } catch (e) {
       throw e;
     }
@@ -93,8 +104,36 @@ export class DeviceTemperatureService {
   //   }
   // }
 
+  // private async cacheDayAverage(
+  //   { masterId, slaveId, temperature }: Temperature,
+  //   date: Date,
+  // ) {
+  //   const dayAverageKey = GenerateDayAverageKey(masterId, slaveId, date);
+  //   const averageInfo = await this.cacheManager.get<number[]>(dayAverageKey);
+  //
+  //   if (!averageInfo) {
+  //     return this.cacheManager.set(
+  //       dayAverageKey,
+  //
+  //       [temperature, 1],
+  //       { ttl: 604800 }, // 1주일 -> 초
+  //     );
+  //   }
+  //
+  //   const [prevAverage, averageCount] = averageInfo;
+  //   const average = this.updateAverage(temperature, prevAverage, averageCount);
+  //
+  //   return this.cacheManager.set(
+  //     dayAverageKey,
+  //     [average, averageCount + 1],
+  //     { ttl: 604800 }, // 1주일 -> 초
+  //   );
+  // }
+
   private async cacheDayAverage(
-    { masterId, slaveId, temperature }: Temperature,
+    masterId: number,
+    slaveId: number,
+    temperature: number,
     date: Date,
   ) {
     const dayAverageKey = GenerateDayAverageKey(masterId, slaveId, date);
@@ -112,6 +151,7 @@ export class DeviceTemperatureService {
     const [prevAverage, averageCount] = averageInfo;
     const average = this.updateAverage(temperature, prevAverage, averageCount);
 
+    console.log(`average: `, average);
     return this.cacheManager.set(
       dayAverageKey,
       [average, averageCount + 1],
@@ -172,20 +212,25 @@ export class DeviceTemperatureService {
       console.log(e);
     }
   }
+  //
+  // async createTestData(masterId: number, slaveId: number) {
+  //   return this.temperatureRepository.createTestData(masterId, slaveId);
+  // }
 
-  async createTestData(masterId: number, slaveId: number) {
-    return this.temperatureRepository.createTestData(masterId, slaveId);
-  }
-
-  async cacheTemperature({ masterId, slaveId, temperature }: Temperature) {
+  async cacheTemperature(masterId: number, slaveId: number, temperature) {
     const key = SensorStateKey({
       sensor: ESlaveState.TEMPERATURE,
       masterId,
       slaveId,
     });
-    return this.cacheManager.set<number>(key, temperature, { ttl: 60 });
+
+    const cachedResult = await this.cacheManager.set<number>(key, temperature, {
+      ttl: 60,
+    });
+    console.log(`cached Result: `, cachedResult);
+    return cachedResult;
   }
-  //
+
   // async cacheTemperature({ masterId, slaveId, temperature }: Temperature) {
   //   const key = SensorStateKey({
   //     sensor: ESlaveState.TEMPERATURE,

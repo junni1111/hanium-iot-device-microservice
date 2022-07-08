@@ -8,7 +8,6 @@ import {
 } from '@nestjs/microservices';
 import { Cache } from 'cache-manager';
 import { RedisService } from '../../cache/redis.service';
-import { Temperature } from '../entities/temperature.entity';
 import { DeviceFanService } from '../fan/device-fan.service';
 import { DeviceTemperatureService } from './device-temperature.service';
 import { TemperatureRangeDto } from '../../api/dto/temperature/temperature-range.dto';
@@ -49,11 +48,13 @@ export class DeviceTemperatureController {
       Logger.log(turnResult);
       // Todo: Refactor
       const saveResults = await this.deviceTemperatureService.saveTemperature(
-        // new Temperature(masterId, slaveId, temperature),
-        // new Date(), // now
-          masterId, slaveId
+        masterId,
+        slaveId,
+        temperature,
+        new Date(),
       );
-      // Logger.debug(saveResults);
+      Logger.debug(saveResults);
+      console.log(`saveResults: `, saveResults);
     } catch (e) {
       throw e;
     }

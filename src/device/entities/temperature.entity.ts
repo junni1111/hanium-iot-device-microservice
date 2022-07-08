@@ -24,8 +24,8 @@ export class Temperature {
   @Column({ type: 'integer' })
   updateCycle: number;
 
-  @OneToOne((type) => Slave, (slave) => slave.temperatureSensor)
-  slave: Slave;
+  // @OneToOne((type) => Slave, (slave) => slave.temperatureSensor)
+  // slave: Slave;
 
   @OneToMany((type) => TemperatureLog, (log) => log.sensor)
   logs: TemperatureLog[];
@@ -33,25 +33,43 @@ export class Temperature {
   @CreateDateColumn({ type: 'timestamptz', name: 'create_at' })
   createAt: Date;
 
-  /** Todo: Refactor Interface */
-  constructor(
+  static createSensor(
     masterId: number,
     slaveId: number,
     configs?: ITemperatureConfig,
     createDate?: Date,
   ) {
-    const slave = new Slave();
-    slave.slaveId = slaveId;
-    this.slave = slave;
+    const sensor = new Temperature();
+    const slave = Slave.createSlave(masterId, slaveId, configs);
 
+    // sensor.slave = slave;
     if (configs) {
-      this.rangeBegin = configs.startTemperatureRange;
-      this.rangeEnd = configs.endTemperatureRange;
-      this.updateCycle = configs.temperatureUpdateCycle;
+      sensor.rangeBegin = configs.startTemperatureRange;
+      sensor.rangeEnd = configs.endTemperatureRange;
+      sensor.updateCycle = configs.temperatureUpdateCycle;
     }
 
-    if (createDate) {
-      this.createAt = createDate;
-    }
+    return sensor;
   }
+
+  /** Todo: Refactor Interface */
+  // constructor(masterId: number, slaveId: number, createDate?: Date) {
+  //   // const slave = new Slave();
+  //   // slave.slaveId = slaveId;
+  //   // this.slave = slave;
+  //   //
+  //   const slave = new Slave();
+  //
+  //   // this.slave = Slave.createSlave(masterId, slaveId, configs);
+  //
+  //   if (configs) {
+  //     this.rangeBegin = configs.startTemperatureRange;
+  //     this.rangeEnd = configs.endTemperatureRange;
+  //     this.updateCycle = configs.temperatureUpdateCycle;
+  //   }
+  //
+  //   if (createDate) {
+  //     this.createAt = createDate;
+  //   }
+  // }
 }

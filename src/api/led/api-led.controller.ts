@@ -75,15 +75,15 @@ export class ApiLedController {
       console.log(`turn led dto: `, ledTurnDto);
 
       if (ledTurnDto.powerState === EPowerState.ON) {
-        configs = await this.deviceMasterService.getConfigs(
-          ledTurnDto.masterId,
-          ledTurnDto.slaveId,
-        );
-        await this.deviceLedService.requestLed({
-          masterId: ledTurnDto.masterId,
-          slaveId: ledTurnDto.slaveId,
-          ...configs,
-        });
+        // configs = await this.deviceMasterService.getConfigs(
+        //   ledTurnDto.masterId,
+        //   ledTurnDto.slaveId,
+        // );
+        // await this.deviceLedService.requestLed({
+        //   masterId: ledTurnDto.masterId,
+        //   slaveId: ledTurnDto.slaveId,
+        //   ...configs,
+        // });
       } else {
         /* Turn Off */
         await this.deviceLedService.turnLed(ledTurnDto);
