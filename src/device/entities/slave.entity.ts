@@ -3,12 +3,11 @@ import {
   CreateDateColumn,
   Entity,
   ManyToOne,
-  OneToOne,
   PrimaryGeneratedColumn,
 } from 'typeorm';
 import { Master } from './master.entity';
+import { JoinColumn } from 'typeorm/browser';
 import { ISlaveConfigs } from '../interfaces/slave-configs';
-import { Temperature } from './temperature.entity';
 
 @Entity()
 export class Slave {
@@ -46,9 +45,6 @@ export class Slave {
     onDelete: 'CASCADE',
   })
   master: Master;
-
-  @OneToOne((type) => Temperature, (sensor) => sensor.slave)
-  temperatureSensor: Temperature;
 
   static createSlave(
     masterId: number,

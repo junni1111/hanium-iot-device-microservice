@@ -1,52 +1,29 @@
-import {
-  Column,
-  CreateDateColumn,
-  Entity,
-  OneToMany,
-  OneToOne,
-  PrimaryGeneratedColumn,
-} from 'typeorm';
-import { Slave } from './slave.entity';
-import { TemperatureLog } from './temperature-log.entity';
-import { ITemperatureConfig } from '../interfaces/slave-configs';
+import { Column, CreateDateColumn, Entity, PrimaryColumn } from 'typeorm';
 
-@Entity('temperature_sensors')
+@Entity('temperatures')
 export class Temperature {
-  @PrimaryGeneratedColumn()
-  id: number;
+  @PrimaryColumn({ type: 'integer', name: 'master_id' })
+  masterId: number;
 
-  @Column({ type: 'integer' })
-  rangeBegin: number;
+  @PrimaryColumn({ type: 'integer', name: 'slave_id' })
+  slaveId: number;
 
-  @Column({ type: 'integer' })
-  rangeEnd: number;
+  @Column({ type: 'float' })
+  temperature: number;
 
-  @Column({ type: 'integer' })
-  updateCycle: number;
-
-  @OneToOne((type) => Slave, (slave) => slave.temperatureSensor)
-  slave: Slave;
-
-  @OneToMany((type) => TemperatureLog, (log) => log.sensor)
-  logs: TemperatureLog[];
-
-  @CreateDateColumn({ type: 'timestamptz', name: 'create_at' })
+  // @PrimaryColumn({type: 'timestamptz', name: 'create_at', })
+  @CreateDateColumn({ type: 'timestamptz', name: 'create_at', primary: true })
   createAt: Date;
 
-  /** Todo: Refactor Interface */
   constructor(
     masterId: number,
     slaveId: number,
-    configs: ITemperatureConfig,
+    temperature: number,
     createDate?: Date,
   ) {
-    const slave = new Slave();
-    slave.slaveId = slaveId;
-    this.slave = slave;
-
-    this.rangeBegin = configs.startTemperatureRange;
-    this.rangeEnd = configs.endTemperatureRange;
-    this.updateCycle = configs.temperatureUpdateCycle;
+    this.masterId = masterId;
+    this.slaveId = slaveId;
+    this.temperature = temperature;
 
     if (createDate) {
       this.createAt = createDate;
