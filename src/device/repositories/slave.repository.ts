@@ -2,14 +2,26 @@ import { EntityRepository, Repository } from 'typeorm';
 import { Slave } from '../entities/slave.entity';
 import { defaultSlaveConfig, ISlaveConfigs } from '../interfaces/slave-configs';
 import { CreateSlaveDto } from '../../api/dto/slave/create-slave.dto';
+import { Master } from '../entities/master.entity';
 
 @EntityRepository(Slave)
 export class SlaveRepository extends Repository<Slave> {
-  async createSlave({ masterId, slaveId }: CreateSlaveDto) {
+  createSlave(createSlaveDto: CreateSlaveDto) {
+    const { masterId, slaveId } = createSlaveDto;
+
     try {
-      const slave = this.create(
-        Slave.createSlave(masterId, slaveId, defaultSlaveConfig),
-      );
+      // const master = new Master();
+      // master.id = masterId;
+      const slave = this.create({
+        slaveId,
+        masterId,
+        // master: { id: masterId },
+        ...defaultSlaveConfig,
+      });
+
+      // const slave = this.create(
+      //   Slave.createSlave(masterId, slaveId, defaultSlaveConfig),
+      // );
 
       return this.save(slave);
     } catch (e) {
