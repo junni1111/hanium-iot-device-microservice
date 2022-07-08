@@ -14,7 +14,6 @@ import { TemperatureBetweenDto } from '../dto/temperature/temperature-between.dt
 import { DeviceFanService } from '../../device/fan/device-fan.service';
 import { RedisService } from '../../cache/redis.service';
 import { addDays } from 'date-fns';
-import { GraphPoint } from '../../device/interfaces/graph-config';
 
 @Controller()
 export class ApiThermometerController {
