@@ -30,10 +30,10 @@ export class Slave {
   })
   master: Master;
 
-  // @OneToOne((type) => ThermometerConfig, (thermometer) => thermometer.slave, {
-  //   cascade: ['insert', 'update'],
-  // })
-  // thermometerConfig: ThermometerConfig;
+  @OneToOne((type) => ThermometerConfig, (thermometer) => thermometer.slave, {
+    cascade: ['insert', 'update'],
+  })
+  thermometerConfig: ThermometerConfig;
 
   @OneToMany((type) => Temperature, (temperature) => temperature.slave)
   temperatures: Temperature[];

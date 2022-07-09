@@ -2,6 +2,7 @@ import { Module } from '@nestjs/common';
 import { ClientsModule, Transport } from '@nestjs/microservices';
 import { MQTT_BROKER } from '../util/constants/constants';
 import { MQTT_BROKER_URL } from '../config/config';
+import { MqttBrokerService } from './mqtt-broker.service';
 
 @Module({
   imports: [
@@ -15,6 +16,7 @@ import { MQTT_BROKER_URL } from '../config/config';
       },
     ]),
   ],
-  exports: [ClientsModule],
+  providers: [MqttBrokerService],
+  exports: [ClientsModule, MqttBrokerService],
 })
 export class MqttBrokerModule {}

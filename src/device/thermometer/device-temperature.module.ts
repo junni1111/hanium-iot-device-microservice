@@ -10,6 +10,7 @@ import { DeviceTemperatureService } from './device-temperature.service';
 import { DeviceThermometerService } from './device-thermometer.service';
 import { RedisModule } from '../../cache/redis.module';
 import { MqttBrokerModule } from '../mqtt-broker.module';
+import { DeviceFanService } from '../fan/device-fan.service';
 
 @Module({
   imports: [
@@ -24,7 +25,11 @@ import { MqttBrokerModule } from '../mqtt-broker.module';
     ]),
   ],
   controllers: [DeviceTemperatureController],
-  providers: [DeviceThermometerService, DeviceTemperatureService],
+  providers: [
+    DeviceThermometerService,
+    DeviceTemperatureService,
+    DeviceFanService,
+  ],
   exports: [TypeOrmModule, DeviceThermometerService],
 })
 export class DeviceTemperatureModule {}

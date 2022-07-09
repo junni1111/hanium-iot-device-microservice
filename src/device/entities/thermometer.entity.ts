@@ -22,14 +22,10 @@ export class ThermometerConfig {
   @Column({ type: 'integer' })
   updateCycle: number;
 
-  @Column()
-  slaveId: number;
-
-  // @JoinColumn({ name: 'slaveId' })
-  // @OneToOne((type) => Slave, (slave) => slave.thermometerConfig, {
-  //   cascade: true,
-  // })
-  // slave: Slave;
+  @OneToOne((type) => Slave, (slave) => slave.thermometerConfig, {
+    cascade: true,
+  })
+  slave: Slave;
 
   @CreateDateColumn({ type: 'timestamptz', name: 'create_at' })
   createAt: Date;

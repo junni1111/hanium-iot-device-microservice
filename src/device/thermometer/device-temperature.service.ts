@@ -25,11 +25,12 @@ import { ThermometerRepository } from '../repositories/thermometer.repository';
 @Injectable()
 export class DeviceTemperatureService {
   constructor(
-    @Inject(MQTT_BROKER) private readonly mqttBroker: ClientProxy,
-    @Inject(CACHE_MANAGER) private readonly cacheManager: Cache,
+    @Inject(MQTT_BROKER) private mqttBroker: ClientProxy,
+    @Inject(CACHE_MANAGER) private cacheManager: Cache,
     // private readonly temperatureRepository: TemperatureRepository,
-    private readonly thermometerRepository: ThermometerRepository,
-    private readonly temperatureRepository: TemperatureRepository, // private readonly deviceService: DeviceService, // private readonly slaveRepository: SlaveRepository,
+    private slaveRepository: SlaveRepository,
+    private thermometerRepository: ThermometerRepository,
+    private temperatureRepository: TemperatureRepository, // private readonly deviceService: DeviceService, // private readonly slaveRepository: SlaveRepository,
   ) {}
 
   /** Todo: Custom Repository 제거하고
@@ -238,32 +239,33 @@ export class DeviceTemperatureService {
   // //   return this.cacheManager.set<number>(key, temperature, { ttl: 60 });
   // // }
   //
-  // async getTemperatureRange(
-  //   masterId: number,
-  //   slaveId: number,
-  // ): Promise<number[]> {
-  //   const key = SensorConfigKey({
-  //     sensor: ESlaveConfigTopic.TEMPERATURE,
-  //     masterId,
-  //     slaveId,
-  //   });
-  //
-  //   const cachedRange = await this.cacheManager.get<number[]>(key);
-  //   if (cachedRange) {
-  //     return cachedRange;
-  //   }
-  //
-  //   const configs = await this.slaveRepository.getConfigs(masterId, slaveId);
-  //   /** Todo: Exception handling */
-  //   const range = [
-  //     configs?.startTemperatureRange,
-  //     configs?.endTemperatureRange,
-  //   ];
-  //
-  //   await this.cacheManager.set<number[]>(key, range, { ttl: 3600 });
-  //   return range;
-  // }
-  //
+  async getTemperatureRange(
+    masterId: number,
+    slaveId: number,
+  ): Promise<number[]> {
+    const key = SensorConfigKey({
+      sensor: ESlaveConfigTopic.TEMPERATURE,
+      masterId,
+      slaveId,
+    });
+
+    const cachedRange = await this.cacheManager.get<number[]>(key);
+    if (cachedRange) {
+      return cachedRange;
+    }
+
+    /** Todo: Refactor to thermometer repo */
+    const configs = await this.slaveRepository.getConfigs(masterId, slaveId);
+    /** Todo: Exception handling */
+    const range = [
+      // configs?.startTemperatureRange,
+      // configs?.endTemperatureRange,
+    ];
+
+    await this.cacheManager.set<number[]>(key, range, { ttl: 3600 });
+    return range;
+  }
+
   // async getAveragePoints(
   //   masterId: number,
   //   slaveId: number,

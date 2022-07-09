@@ -18,10 +18,8 @@ export class DeviceTemperatureController {
   constructor(
     @Inject(CACHE_MANAGER) private readonly cacheManager: Cache,
     private readonly deviceTemperatureService: DeviceTemperatureService,
-  ) // private readonly deviceFanService: DeviceFanService,
-  // private readonly redisService: RedisService,
-  {}
-  /*
+    private readonly deviceFanService: DeviceFanService,
+  ) {}
 
   @EventPattern(TEMPERATURE, Transport.MQTT)
   async receiveTemperature(
@@ -48,17 +46,16 @@ export class DeviceTemperatureController {
 
       Logger.log(turnResult);
       // Todo: Refactor
-      const saveResults = await this.deviceTemperatureService.saveTemperature(
-        masterId,
-        slaveId,
-        temperature,
-        new Date(),
-      );
-      Logger.debug(saveResults);
-      console.log(`saveResults: `, saveResults);
+      // const saveResults = await this.deviceTemperatureService.saveTemperature(
+      //   masterId,
+      //   slaveId,
+      //   temperature,
+      //   new Date(),
+      // );
+      // Logger.debug(saveResults);
+      // console.log(`saveResults: `, saveResults);
     } catch (e) {
       throw e;
     }
-*/
-  // }
+  }
 }
