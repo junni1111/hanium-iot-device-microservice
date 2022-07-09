@@ -6,8 +6,17 @@ import { ThermometerConfig } from '../entities/thermometer.entity';
 
 @EntityRepository(Temperature)
 export class TemperatureRepository extends Repository<Temperature> {
-  insertLog(masterId: number, slaveId: number, temperature: number) {
-    const log = this.create({ slave: { masterId, slaveId }, temperature });
+  createLog(
+    masterId: number,
+    slaveId: number,
+    temperature: number,
+    createAt?: Date,
+  ) {
+    const log = this.create({
+      slave: { masterId, slaveId },
+      temperature,
+      createAt,
+    });
     return this.createQueryBuilder()
       .insert()
       .into(Temperature)

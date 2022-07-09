@@ -60,7 +60,7 @@ describe('DeviceThermometerService', () => {
       rangeEnd: 22,
       updateCycle: 33,
     };
-    const result = await thermometerRepository.createThermometer(
+    const result = await thermometerRepository.setConfigs(
       MASTER_ID,
       SLAVE_ID,
       mockConfigs,

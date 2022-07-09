@@ -64,7 +64,6 @@ export class DeviceFanService {
       [powerCommand],
     );
 
-    // this.deviceService.publishEvent(topic, JSON.stringify(message));
     return this.brokerService.publish(topic, JSON.stringify(message));
   }
 

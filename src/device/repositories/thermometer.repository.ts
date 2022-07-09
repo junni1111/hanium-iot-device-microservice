@@ -7,7 +7,7 @@ import {
 
 @EntityRepository(ThermometerConfig)
 export class ThermometerRepository extends Repository<ThermometerConfig> {
-  createThermometer(
+  setConfigs(
     masterId: number,
     slaveId: number,
     configs: ITemperatureConfig = { ...defaultSlaveConfig },
@@ -16,9 +16,21 @@ export class ThermometerRepository extends Repository<ThermometerConfig> {
     return this.save(sensor);
   }
 
+  // setConfigs(masterId: number, slaveId: number, configs: ITemperatureConfig) {
+  //   return (
+  //     this.createQueryBuilder('t')
+  //       // .leftJoinAndSelect('t.slave', 'slave')
+  //       .update(ThermometerConfig)
+  //       .set({ ...configs })
+  //       .where('t.slave.masterId = :masterId', { masterId })
+  //       .andWhere('t.slave.slaveId = :slaveId', { slaveId })
+  //       .execute()
+  //   );
+  // }
+
   // getConfigs(masterId: number, slaveId: number) {}
 
-  findBySlave(masterId: number, slaveId: number) {
+  findBySlave(masterId: number, slaveId: number): Promise<ThermometerConfig> {
     return this.createQueryBuilder('t')
       .leftJoinAndSelect('t.slave', 'slave')
       .where(`slave.masterId = :masterId`, { masterId })

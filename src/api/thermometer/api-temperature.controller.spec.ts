@@ -57,21 +57,21 @@ describe('온도 api 컨트롤러 테스트', () => {
       const mockDto: Partial<SlaveConfigDto> = dto;
       mockDto.masterId = MOCK_MASTER_ID;
       mockDto.slaveId = MOCK_SLAVE_ID;
-      mockDto.startTemperatureRange = 10;
-      mockDto.endTemperatureRange = 20;
-      mockDto.temperatureUpdateCycle = 100;
+      mockDto.rangeBegin = 10;
+      mockDto.rangeEnd = 20;
+      mockDto.updateCycle = 100;
       return mockDto;
     };
 
     const dto = setMockDto(new SlaveConfigDto());
     const temperatureConfigResult =
-      await deviceTemperatureService.setTemperatureConfig(dto);
+      await deviceTemperatureService.setConfigs(dto);
     expect(temperatureConfigResult.affected > 0).toEqual(true);
 
     const temperatureRangeKey = `test/temperature/key`;
     await redisController.setTestTemperatureRange(temperatureRangeKey, [
-      dto.startTemperatureRange,
-      dto.endTemperatureRange,
+      dto.rangeBegin,
+      dto.rangeEnd,
     ]);
     const cachedValue = await redisController.getTestTemperatureRange(
       temperatureRangeKey,

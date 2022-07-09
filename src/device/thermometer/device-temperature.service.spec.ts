@@ -61,7 +61,7 @@ describe('DeviceTemperatureService', () => {
   });
 
   it('db에 온도 센서를 생성하고, 현재 온도를 저장한다', async () => {
-    const result = await temperatureRepository.insertLog(
+    const result = await temperatureRepository.createLog(
       MASTER_ID,
       SLAVE_ID,
       123,
