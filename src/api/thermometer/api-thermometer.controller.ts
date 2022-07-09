@@ -11,8 +11,6 @@ import { Cache } from 'cache-manager';
 import { SlaveConfigDto } from '../dto/slave/slave-config.dto';
 import { SensorConfigKey } from '../../util/key-generator';
 import { TemperatureBetweenDto } from '../dto/temperature/temperature-between.dto';
-import { DeviceFanService } from '../../device/fan/device-fan.service';
-import { RedisService } from '../../cache/redis.service';
 import { addDays } from 'date-fns';
 
 @Controller()

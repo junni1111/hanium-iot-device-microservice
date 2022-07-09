@@ -141,12 +141,11 @@ export class ApiWaterPumpController {
         });
       }
 
-      const configUpdateResult =
-        await this.deviceWaterPumpService.setWaterPumpConfig(
-          waterPumpConfigDto,
-        );
+      const configUpdateResult = await this.deviceWaterPumpService.setConfigs(
+        waterPumpConfigDto,
+      );
 
-      if (!configUpdateResult.affected) {
+      if (!configUpdateResult) {
         return {
           status: HttpStatus.BAD_REQUEST,
           topic: ESlaveConfigTopic.WATER_PUMP,

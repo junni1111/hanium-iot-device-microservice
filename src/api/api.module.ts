@@ -13,15 +13,17 @@ import { ApiLedController } from './led/api-led.controller';
 import { ApiThermometerController } from './thermometer/api-thermometer.controller';
 import { ApiFanController } from './fan/api-fan.controller';
 import { RedisModule } from '../cache/redis.module';
+import { DeviceTemperatureModule } from '../device/thermometer/device-temperature.module';
 
 @Module({
   imports: [
-    CacheModule.register({
-      store: redisStore,
-      host: REDIS_HOST,
-      port: REDIS_PORT,
-    }),
-    DeviceModule,
+    // CacheModule.register({
+    //   store: redisStore,
+    //   host: REDIS_HOST,
+    //   port: REDIS_PORT,
+    // }),
+    DeviceTemperatureModule,
+    // DeviceModule,
     RedisModule,
   ],
   controllers: [

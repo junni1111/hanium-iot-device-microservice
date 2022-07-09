@@ -12,6 +12,7 @@ import {
 import { Master } from './master.entity';
 import { ThermometerConfig } from './thermometer.entity';
 import { Temperature } from './temperature-log.entity';
+import { WaterPumpConfig } from './water-pump.entity';
 
 @Entity('slaves')
 export class Slave {
@@ -29,6 +30,12 @@ export class Slave {
     // eager: true,
   })
   master: Master;
+
+  @JoinColumn()
+  @OneToOne((type) => WaterPumpConfig, (waterPump) => waterPump.slave, {
+    cascade: ['insert', 'update'],
+  })
+  waterConfig: WaterPumpConfig;
 
   @JoinColumn()
   @OneToOne((type) => ThermometerConfig, (thermometer) => thermometer.slave, {

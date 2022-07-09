@@ -9,7 +9,7 @@ import { ThermometerConfig } from './entities/thermometer.entity';
 import { DevicePollingService } from './device-polling.service';
 import { DeviceMasterService } from './master/device-master.service';
 import { Humidity } from './entities/humidity.entity';
-import { WaterPump } from './entities/water-pump.entity';
+import { WaterPump, WaterPumpConfig } from './entities/water-pump.entity';
 import { Led } from './entities/led.entity';
 import { Slave } from './entities/slave.entity';
 import { MasterRepository } from './repositories/master.repository';
@@ -24,6 +24,7 @@ import { RedisModule } from '../cache/redis.module';
 import { DeviceTemperatureController } from './thermometer/device-temperature.controller';
 import { Temperature } from './entities/temperature-log.entity';
 import { DeviceTemperatureModule } from './thermometer/device-temperature.module';
+import { WaterPumpRepository } from './repositories/water-pump.repository';
 
 @Module({
   imports: [
@@ -36,6 +37,8 @@ import { DeviceTemperatureModule } from './thermometer/device-temperature.module
       MasterRepository,
       SlaveRepository,
       Temperature,
+      WaterPumpConfig,
+      WaterPumpRepository,
     ]),
     ClientsModule.register([
       {

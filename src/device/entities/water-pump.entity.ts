@@ -1,23 +1,28 @@
-import { Column, CreateDateColumn, Entity, PrimaryColumn } from 'typeorm';
+import {
+  Column,
+  CreateDateColumn,
+  Entity,
+  OneToOne,
+  PrimaryGeneratedColumn,
+} from 'typeorm';
+import { Slave } from './slave.entity';
 
-@Entity()
-export class WaterPump {
-  @PrimaryColumn({ type: 'integer', name: 'master_id' })
-  masterId: number;
+@Entity('water_configs')
+export class WaterPumpConfig {
+  @PrimaryGeneratedColumn()
+  id: number;
 
-  @PrimaryColumn({ type: 'integer', name: 'slave_id' })
-  slaveId: number;
+  @Column({ type: 'integer' })
+  waterPumpCycle: number;
 
-  @Column({ type: 'integer', name: 'run_time' })
-  runTime: number;
+  @Column({ type: 'integer' })
+  waterPumpRuntime: number;
+
+  @OneToOne((type) => Slave, (slave) => slave.waterConfig, {
+    cascade: true,
+  })
+  slave: Slave;
 
   @CreateDateColumn({ type: 'timestamptz', name: 'create_at' })
   createAt: Date;
-
-  constructor(masterId: number, slaveId: number, runTime: number) {
-    this.runTime = runTime;
-    this.masterId = masterId;
-    this.slaveId = slaveId;
-    this.createAt = new Date();
-  }
 }

@@ -41,25 +41,25 @@ export class SlaveRepository extends Repository<Slave> {
   //   }
   // }
   //
-  async getConfigs(masterId: number, slaveId: number) {
-    try {
-      return [];
-      // return this.findOne({
-      //   select: [
-      //     'startTemperatureRange',
-      //     'endTemperatureRange',
-      //     'temperatureUpdateCycle',
-      //     'waterPumpCycle',
-      //     'waterPumpRuntime',
-      //     'ledCycle',
-      //     'ledRuntime',
-      //   ],
-      //   where: { master: { id: masterId }, slaveId },
-      // });
-    } catch (e) {
-      console.log(`DB Exception: `, e);
-    }
-  }
+  // async getConfigs(masterId: number, slaveId: number) {
+  //   try {
+  //     return [];
+  //     // return this.findOne({
+  //     //   select: [
+  //     //     'startTemperatureRange',
+  //     //     'endTemperatureRange',
+  //     //     'temperatureUpdateCycle',
+  //     //     'waterPumpCycle',
+  //     //     'waterPumpRuntime',
+  //     //     'ledCycle',
+  //     //     'ledRuntime',
+  //     //   ],
+  //     //   where: { master: { id: masterId }, slaveId },
+  //     // });
+  //   } catch (e) {
+  //     console.log(`DB Exception: `, e);
+  //   }
+  // }
   //
   // async setOptimizeConfigs(masterId: number, slaveId: number) {
   //   try {
