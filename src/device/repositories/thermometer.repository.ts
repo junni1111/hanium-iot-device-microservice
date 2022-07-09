@@ -1,23 +1,37 @@
 import { EntityRepository, Repository } from 'typeorm';
 import { ThermometerConfig } from '../entities/thermometer.entity';
-import { subDays, subMinutes } from 'date-fns';
-import { Master } from '../entities/master.entity';
-import { Slave } from '../entities/slave.entity';
-import { ITemperatureConfig } from '../interfaces/slave-configs';
+import {
+  defaultSlaveConfig,
+  ITemperatureConfig,
+} from '../interfaces/slave-configs';
 
 @EntityRepository(ThermometerConfig)
 export class ThermometerRepository extends Repository<ThermometerConfig> {
-  insertThermometer(
+  createThermometer(
     masterId: number,
     slaveId: number,
-    configs: ITemperatureConfig,
+    configs: ITemperatureConfig = { ...defaultSlaveConfig },
   ) {
-    const master = new Master();
-    master.id = masterId;
-    const slave = new Slave();
-    slave.slaveId = slaveId;
-    slave.master = master;
-    const sensor = this.create({});
-    return;
+    const sensor = this.create({ slave: { masterId, slaveId }, ...configs });
+    return this.save(sensor);
+  }
+
+  // getConfigs(masterId: number, slaveId: number) {}
+
+  findBySlave(masterId: number, slaveId: number) {
+    return this.createQueryBuilder('t')
+      .leftJoinAndSelect('t.slave', 'slave')
+      .where(`slave.masterId = :masterId`, { masterId })
+      .andWhere(`slave.slaveId = :slaveId`, { slaveId })
+      .select(['t.rangeBegin', 't.rangeEnd'])
+      .getOne();
+    // .select(['rangeBegin', 'rangeEnd'])
+    // .from(ThermometerConfig);
+
+    //   return this.findOne({
+    //     select: ['id', 'rangeBegin', 'rangeEnd'],
+    //     relations: ['slave'],
+    //     where: { slave: { masterId, slaveId } },
+    //   });
   }
 }

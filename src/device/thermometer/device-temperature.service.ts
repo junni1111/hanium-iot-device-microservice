@@ -255,7 +255,11 @@ export class DeviceTemperatureService {
     }
 
     /** Todo: Refactor to thermometer repo */
-    const configs = await this.slaveRepository.getConfigs(masterId, slaveId);
+    // const configs = await this.slaveRepository.getConfigs(masterId, slaveId);
+    const configs = await this.thermometerRepository.findBySlave(
+      masterId,
+      slaveId,
+    );
     /** Todo: Exception handling */
     const range = [
       // configs?.startTemperatureRange,

@@ -1,7 +1,7 @@
 export interface ISlaveConfigs {
-  startTemperatureRange: number;
-  endTemperatureRange: number;
-  temperatureUpdateCycle: number;
+  rangeBegin: number;
+  rangeEnd: number;
+  updateCycle: number;
   waterPumpCycle: number;
   waterPumpRuntime: number;
   ledCycle: number;
@@ -9,9 +9,9 @@ export interface ISlaveConfigs {
 }
 
 export const defaultSlaveConfig: ISlaveConfigs = {
-  startTemperatureRange: 15,
-  endTemperatureRange: 30,
-  temperatureUpdateCycle: 30,
+  rangeBegin: 15,
+  rangeEnd: 30,
+  updateCycle: 30,
   waterPumpCycle: 3,
   waterPumpRuntime: 10,
   ledCycle: 3,
@@ -27,5 +27,5 @@ export type IWaterPumpConfig = Pick<
 
 export type ITemperatureConfig = Pick<
   ISlaveConfigs,
-  'startTemperatureRange' | 'endTemperatureRange' | 'temperatureUpdateCycle'
+  'rangeBegin' | 'rangeEnd' | 'updateCycle'
 >;

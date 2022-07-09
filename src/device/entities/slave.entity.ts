@@ -26,10 +26,11 @@ export class Slave {
   @JoinColumn({ name: 'masterId' })
   @ManyToOne((type) => Master, (master) => master.slaves, {
     onDelete: 'CASCADE',
-    eager: true,
+    // eager: true,
   })
   master: Master;
 
+  @JoinColumn()
   @OneToOne((type) => ThermometerConfig, (thermometer) => thermometer.slave, {
     cascade: ['insert', 'update'],
   })
