@@ -18,9 +18,10 @@ export class DeviceTemperatureController {
   constructor(
     @Inject(CACHE_MANAGER) private readonly cacheManager: Cache,
     private readonly deviceTemperatureService: DeviceTemperatureService,
-    private readonly deviceFanService: DeviceFanService,
-    private readonly redisService: RedisService,
-  ) {}
+  ) // private readonly deviceFanService: DeviceFanService,
+  // private readonly redisService: RedisService,
+  {}
+  /*
 
   @EventPattern(TEMPERATURE, Transport.MQTT)
   async receiveTemperature(
@@ -58,5 +59,6 @@ export class DeviceTemperatureController {
     } catch (e) {
       throw e;
     }
-  }
+*/
+  // }
 }

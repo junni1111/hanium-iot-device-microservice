@@ -10,18 +10,11 @@ export class SlaveRepository extends Repository<Slave> {
     const { masterId, slaveId } = createSlaveDto;
 
     try {
-      // const master = new Master();
-      // master.id = masterId;
       const slave = this.create({
-        slaveId,
         masterId,
-        // master: { id: masterId },
+        slaveId,
         ...defaultSlaveConfig,
       });
-
-      // const slave = this.create(
-      //   Slave.createSlave(masterId, slaveId, defaultSlaveConfig),
-      // );
 
       return this.save(slave);
     } catch (e) {
@@ -29,62 +22,62 @@ export class SlaveRepository extends Repository<Slave> {
     }
   }
 
-  async setConfig(
-    masterId: number,
-    slaveId: number,
-    configs: Partial<ISlaveConfigs>,
-  ) {
-    try {
-      const result = await this.createQueryBuilder()
-        .update(Slave)
-        .set(configs)
-        .where('masterId = :masterId', { masterId })
-        .andWhere('slaveId = :slaveId', { slaveId })
-        .execute();
-
-      return result;
-    } catch (e) {
-      console.log(e);
-    }
-  }
-
-  async getConfigs(masterId: number, slaveId: number) {
-    try {
-      return this.findOne({
-        select: [
-          'startTemperatureRange',
-          'endTemperatureRange',
-          'temperatureUpdateCycle',
-          'waterPumpCycle',
-          'waterPumpRuntime',
-          'ledCycle',
-          'ledRuntime',
-        ],
-        where: { master: { id: masterId }, slaveId },
-      });
-    } catch (e) {
-      console.log(`DB Exception: `, e);
-    }
-  }
-
-  async setOptimizeConfigs(masterId: number, slaveId: number) {
-    try {
-      /* TODO: Extract After Demo */
-      const optimizeValue = defaultSlaveConfig;
-
-      const result = await this.createQueryBuilder()
-        .update(Slave)
-        .set(optimizeValue)
-        .where('masterId = :masterId', { masterId })
-        .andWhere('id = :slaveId', { slaveId })
-        .execute();
-
-      return result;
-    } catch (e) {
-      console.log(e);
-    }
-  }
-
+  // async setConfig(
+  //   masterId: number,
+  //   slaveId: number,
+  //   configs: Partial<ISlaveConfigs>,
+  // ) {
+  //   try {
+  //     const result = await this.createQueryBuilder()
+  //       .update(Slave)
+  //       .set(configs)
+  //       .where('masterId = :masterId', { masterId })
+  //       .andWhere('slaveId = :slaveId', { slaveId })
+  //       .execute();
+  //
+  //     return result;
+  //   } catch (e) {
+  //     console.log(e);
+  //   }
+  // }
+  //
+  // async getConfigs(masterId: number, slaveId: number) {
+  //   try {
+  //     return this.findOne({
+  //       select: [
+  //         'startTemperatureRange',
+  //         'endTemperatureRange',
+  //         'temperatureUpdateCycle',
+  //         'waterPumpCycle',
+  //         'waterPumpRuntime',
+  //         'ledCycle',
+  //         'ledRuntime',
+  //       ],
+  //       where: { master: { id: masterId }, slaveId },
+  //     });
+  //   } catch (e) {
+  //     console.log(`DB Exception: `, e);
+  //   }
+  // }
+  //
+  // async setOptimizeConfigs(masterId: number, slaveId: number) {
+  //   try {
+  //     /* TODO: Extract After Demo */
+  //     const optimizeValue = defaultSlaveConfig;
+  //
+  //     const result = await this.createQueryBuilder()
+  //       .update(Slave)
+  //       .set(optimizeValue)
+  //       .where('masterId = :masterId', { masterId })
+  //       .andWhere('id = :slaveId', { slaveId })
+  //       .execute();
+  //
+  //     return result;
+  //   } catch (e) {
+  //     console.log(e);
+  //   }
+  // }
+  //
   async deleteSlave(masterId: number, slaveId: number) {
     return this.createQueryBuilder()
       .delete()

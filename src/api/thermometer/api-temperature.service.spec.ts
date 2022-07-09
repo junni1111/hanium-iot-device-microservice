@@ -4,14 +4,14 @@ import { TypeOrmModule } from '@nestjs/typeorm';
 import { databaseService } from '../../config/database.service';
 import { DeviceTemperatureService } from '../../device/thermometer/device-temperature.service';
 import { addDays } from 'date-fns';
-import { Temperature } from '../../device/entities/temperature.entity';
-import { TemperatureRepository } from '../../device/repositories/temperature.repository';
+import { ThermometerConfig } from '../../device/entities/thermometer.entity';
+import { ThermometerRepository } from '../../device/repositories/thermometer.repository';
 
 describe('온도 api 서비스 테스트', () => {
   const MOCK_MASTER_ID = 100;
   const MOCK_SLAVE_ID = 100;
   let deviceTemperatureService: DeviceTemperatureService;
-  let temperatureRepo: TemperatureRepository;
+  let temperatureRepo: ThermometerRepository;
 
   beforeEach(async () => {
     const module: TestingModule = await Test.createTestingModule({
@@ -21,7 +21,7 @@ describe('온도 api 서비스 테스트', () => {
       ],
     }).compile();
 
-    temperatureRepo = module.get<TemperatureRepository>(TemperatureRepository);
+    temperatureRepo = module.get<ThermometerRepository>(ThermometerRepository);
     deviceTemperatureService = module.get<DeviceTemperatureService>(
       DeviceTemperatureService,
     );
@@ -32,14 +32,14 @@ describe('온도 api 서비스 테스트', () => {
     await temperatureRepo
       .createQueryBuilder()
       .delete()
-      .from(Temperature)
+      .from(ThermometerConfig)
       .where(`masterId = :masterId`, { masterId: MOCK_MASTER_ID })
       .andWhere(`slaveId = :slaveId`, { slaveId: MOCK_SLAVE_ID })
       .execute();
   });
 
   it('온도를 저장하고, 삭제한다', async () => {
-    const temperature = new Temperature(MOCK_MASTER_ID, MOCK_SLAVE_ID, 22);
+    const temperature = new ThermometerConfig(MOCK_MASTER_ID, MOCK_SLAVE_ID, 22);
     const saveResult = await deviceTemperatureService.insertTemperature(
       temperature,
     );
@@ -48,7 +48,7 @@ describe('온도 api 서비스 테스트', () => {
     const deleteResult = await temperatureRepo
       .createQueryBuilder()
       .delete()
-      .from(Temperature)
+      .from(ThermometerConfig)
       .where(`masterId = :masterId`, { masterId: MOCK_MASTER_ID })
       .andWhere(`slaveId = :slaveId`, { slaveId: MOCK_SLAVE_ID })
       .execute();
@@ -56,7 +56,7 @@ describe('온도 api 서비스 테스트', () => {
   });
 
   it('기간 내의 저장된 온도들을 반환한다 ', async () => {
-    const temperature = new Temperature(MOCK_MASTER_ID, MOCK_SLAVE_ID, 22);
+    const temperature = new ThermometerConfig(MOCK_MASTER_ID, MOCK_SLAVE_ID, 22);
     const saveResult = await deviceTemperatureService.insertTemperature(
       temperature,
     );

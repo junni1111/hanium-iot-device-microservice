@@ -4,47 +4,24 @@ import {
   Entity,
   JoinColumn,
   ManyToOne,
+  OneToMany,
   OneToOne,
+  PrimaryColumn,
   PrimaryGeneratedColumn,
 } from 'typeorm';
 import { Master } from './master.entity';
-import { ISlaveConfigs } from '../interfaces/slave-configs';
-import { Temperature } from './temperature.entity';
+import { ThermometerConfig } from './thermometer.entity';
+import { Temperature } from './temperature-log.entity';
 
 @Entity('slaves')
 export class Slave {
-  @PrimaryGeneratedColumn({ type: 'integer' })
-  id: number;
-
-  @Column({ type: 'integer' })
-  slaveId: number;
-
-  @Column({ type: 'integer' })
-  startTemperatureRange: number;
-
-  @Column({ type: 'integer' })
-  endTemperatureRange: number;
-
-  @Column({ type: 'integer' })
-  temperatureUpdateCycle: number;
-
-  @Column({ type: 'integer' })
-  waterPumpCycle: number;
-
-  @Column({ type: 'integer' })
-  waterPumpRuntime: number;
-
-  @Column({ type: 'integer' })
-  ledCycle: number;
-
-  @Column({ type: 'integer' })
-  ledRuntime: number;
-
-  @CreateDateColumn({ type: 'timestamptz', name: 'create_at' })
-  createAt: Date;
-
-  @Column({ type: 'int', nullable: true })
+  // @PrimaryGeneratedColumn({ type: 'integer' })
+  // id: number;
+  @PrimaryColumn({ type: 'integer' })
   masterId: number;
+
+  @PrimaryColumn({ type: 'integer' })
+  slaveId: number;
 
   @JoinColumn({ name: 'masterId' })
   @ManyToOne((type) => Master, (master) => master.slaves, {
@@ -53,29 +30,14 @@ export class Slave {
   })
   master: Master;
 
-  // @OneToOne((type) => Temperature, (sensor) => sensor.slave)
-  // temperatureSensor: Temperature;
+  // @OneToOne((type) => ThermometerConfig, (thermometer) => thermometer.slave, {
+  //   cascade: ['insert', 'update'],
+  // })
+  // thermometerConfig: ThermometerConfig;
 
-  static createSlave(
-    masterId: number,
-    slaveId: number,
-    configs: Partial<ISlaveConfigs>,
-  ) {
-    const master = new Master();
-    master.id = masterId;
+  @OneToMany((type) => Temperature, (temperature) => temperature.slave)
+  temperatures: Temperature[];
 
-    const slave = new Slave();
-    slave.slaveId = slaveId;
-    slave.startTemperatureRange = configs?.startTemperatureRange;
-    slave.endTemperatureRange = configs?.endTemperatureRange;
-    slave.temperatureUpdateCycle = configs?.temperatureUpdateCycle;
-    slave.waterPumpCycle = configs?.waterPumpCycle;
-    slave.waterPumpRuntime = configs?.waterPumpRuntime;
-    slave.ledCycle = configs?.ledCycle;
-    slave.ledRuntime = configs?.ledRuntime;
-
-    slave.master = master;
-
-    return slave;
-  }
+  @CreateDateColumn({ type: 'timestamptz', name: 'create_at' })
+  createAt: Date;
 }

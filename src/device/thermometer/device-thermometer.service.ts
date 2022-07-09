@@ -2,7 +2,6 @@ import { CACHE_MANAGER, Inject, Injectable } from '@nestjs/common';
 import { MQTT_BROKER } from '../../util/constants/constants';
 import { ClientProxy } from '@nestjs/microservices';
 import { ThermometerConfig } from '../entities/thermometer.entity';
-// import { TemperatureRepository } from '../repositories/temperature.repository';
 import { DeviceService } from '../device.service';
 import { SlaveRepository } from '../repositories/slave.repository';
 import { ITemperatureConfig } from '../interfaces/slave-configs';
@@ -23,13 +22,10 @@ import { TemperatureRepository } from './device-temperature.repository';
 import { ThermometerRepository } from '../repositories/thermometer.repository';
 
 @Injectable()
-export class DeviceTemperatureService {
+export class DeviceThermometerService {
   constructor(
-    @Inject(MQTT_BROKER) private readonly mqttBroker: ClientProxy,
-    @Inject(CACHE_MANAGER) private readonly cacheManager: Cache,
-    // private readonly temperatureRepository: TemperatureRepository,
     private readonly thermometerRepository: ThermometerRepository,
-    private readonly temperatureRepository: TemperatureRepository, // private readonly deviceService: DeviceService, // private readonly slaveRepository: SlaveRepository,
+    private readonly temperatureRepository: TemperatureRepository,
   ) {}
 
   /** Todo: Custom Repository 제거하고
@@ -42,7 +38,7 @@ export class DeviceTemperatureService {
   //     .values(temperature)
   //     .execute();
   // }
-  //
+
   // insertTemperatureLog(masterId, slaveId, temperature) {
   //   // const sensor = Temperature.createSensor(masterId, slaveId);
   //   const sensor = this.temperatureRepository.create(

@@ -5,14 +5,12 @@ import { ClientsModule, Transport } from '@nestjs/microservices';
 import { MQTT_BROKER } from '../util/constants/constants';
 import { MQTT_BROKER_URL } from '../config/config';
 import { TypeOrmModule } from '@nestjs/typeorm';
-import { Temperature } from './entities/temperature.entity';
+import { ThermometerConfig } from './entities/thermometer.entity';
 import { DevicePollingService } from './device-polling.service';
 import { DeviceMasterService } from './master/device-master.service';
 import { Humidity } from './entities/humidity.entity';
 import { WaterPump } from './entities/water-pump.entity';
 import { Led } from './entities/led.entity';
-// import { TemperatureRepository } from './repositories/temperature.repository';
-import { Master } from './entities/master.entity';
 import { Slave } from './entities/slave.entity';
 import { MasterRepository } from './repositories/master.repository';
 import { SlaveRepository } from './repositories/slave.repository';
@@ -24,19 +22,20 @@ import { REDIS_HOST, REDIS_PORT } from '../config/redis.config';
 import { DeviceFanService } from './fan/device-fan.service';
 import { RedisModule } from '../cache/redis.module';
 import { DeviceTemperatureController } from './thermometer/device-temperature.controller';
-import { TemperatureLog } from './entities/temperature-log.entity';
+import { Temperature } from './entities/temperature-log.entity';
+import { DeviceTemperatureModule } from './thermometer/device-temperature.module';
 
 @Module({
   imports: [
     TypeOrmModule.forFeature([
-      Temperature,
+      ThermometerConfig,
       Humidity,
       WaterPump,
       Led,
       Slave,
       MasterRepository,
       SlaveRepository,
-      TemperatureLog,
+      Temperature,
     ]),
     ClientsModule.register([
       {
@@ -53,6 +52,7 @@ import { TemperatureLog } from './entities/temperature-log.entity';
       port: REDIS_PORT,
     }),
     RedisModule,
+    DeviceTemperatureModule,
   ],
   controllers: [DeviceController, DeviceTemperatureController],
   providers: [

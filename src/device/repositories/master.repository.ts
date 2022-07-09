@@ -10,7 +10,6 @@ export class MasterRepository extends Repository<Master> {
       id: masterId,
       address: address,
     });
-
     return this.save(master);
   }
 }
