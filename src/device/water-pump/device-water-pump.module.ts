@@ -14,7 +14,6 @@ import { DeviceWaterPumpService } from './device-water-pump.service';
     MqttBrokerModule,
     TypeOrmModule.forFeature([WaterPumpConfig, WaterPumpRepository]),
   ],
-  controllers: [],
   providers: [DeviceWaterPumpService],
   exports: [TypeOrmModule, DeviceWaterPumpService],
 })

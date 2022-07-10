@@ -9,7 +9,7 @@ import { ThermometerConfig } from './entities/thermometer.entity';
 import { DevicePollingService } from './device-polling.service';
 import { DeviceMasterService } from './master/device-master.service';
 import { Humidity } from './entities/humidity.entity';
-import { WaterPump, WaterPumpConfig } from './entities/water-pump.entity';
+import { WaterPumpConfig } from './entities/water-pump.entity';
 import { Led } from './entities/led.entity';
 import { Slave } from './entities/slave.entity';
 import { MasterRepository } from './repositories/master.repository';
@@ -25,13 +25,14 @@ import { DeviceTemperatureController } from './thermometer/device-temperature.co
 import { Temperature } from './entities/temperature-log.entity';
 import { DeviceTemperatureModule } from './thermometer/device-temperature.module';
 import { WaterPumpRepository } from './repositories/water-pump.repository';
+import { MqttBrokerModule } from './mqtt-broker.module';
+import { DeviceWaterPumpModule } from './water-pump/device-water-pump.module';
 
 @Module({
   imports: [
     TypeOrmModule.forFeature([
       ThermometerConfig,
       Humidity,
-      WaterPump,
       Led,
       Slave,
       MasterRepository,
@@ -40,22 +41,10 @@ import { WaterPumpRepository } from './repositories/water-pump.repository';
       WaterPumpConfig,
       WaterPumpRepository,
     ]),
-    ClientsModule.register([
-      {
-        name: MQTT_BROKER,
-        transport: Transport.MQTT,
-        options: {
-          url: MQTT_BROKER_URL,
-        },
-      },
-    ]),
-    CacheModule.register({
-      store: redisStore,
-      host: REDIS_HOST,
-      port: REDIS_PORT,
-    }),
+    MqttBrokerModule,
     RedisModule,
     DeviceTemperatureModule,
+    DeviceWaterPumpModule,
   ],
   controllers: [DeviceController, DeviceTemperatureController],
   providers: [

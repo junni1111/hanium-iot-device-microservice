@@ -7,12 +7,12 @@ import {
   OneToMany,
   OneToOne,
   PrimaryColumn,
-  PrimaryGeneratedColumn,
 } from 'typeorm';
 import { Master } from './master.entity';
 import { ThermometerConfig } from './thermometer.entity';
 import { Temperature } from './temperature-log.entity';
 import { WaterPumpConfig } from './water-pump.entity';
+import { LedConfig } from './led.entity';
 
 @Entity('slaves')
 export class Slave {
@@ -36,6 +36,12 @@ export class Slave {
     cascade: ['insert', 'update'],
   })
   waterConfig: WaterPumpConfig;
+
+  @JoinColumn()
+  @OneToOne((type) => LedConfig, (led) => led.slave, {
+    cascade: ['insert', 'update'],
+  })
+  ledConfig: LedConfig;
 
   @JoinColumn()
   @OneToOne((type) => ThermometerConfig, (thermometer) => thermometer.slave, {

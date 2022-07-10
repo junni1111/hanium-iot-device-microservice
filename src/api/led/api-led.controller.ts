@@ -141,7 +141,7 @@ export class ApiLedController {
         console.log(`led runtime: `, ledConfigDto.ledRuntime);
       }
 
-      const configUpdateResult = await this.deviceLedService.setLedConfig(
+      const configUpdateResult = await this.deviceLedService.setConfig(
         ledConfigDto,
       );
 

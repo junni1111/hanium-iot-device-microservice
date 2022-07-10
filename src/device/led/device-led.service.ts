@@ -10,14 +10,16 @@ import { LedPowerDto } from '../../api/dto/led/led-power.dto';
 import { EPowerState } from '../../util/constants/api-topic';
 import { Cache } from 'cache-manager';
 import { ECommand } from '../interfaces/packet';
+import { MqttBrokerService } from '../mqtt-broker.service';
+import { LedRepository } from '../repositories/led.repository';
 
 @Injectable()
 export class DeviceLedService {
   constructor(
     @Inject(MQTT_BROKER) private readonly mqttBroker: ClientProxy,
     @Inject(CACHE_MANAGER) private readonly cacheManager: Cache,
-    private readonly deviceService: DeviceService,
-    private readonly slaveRepository: SlaveRepository,
+    private brokerService: MqttBrokerService,
+    private ledConfigRepository: LedRepository,
   ) {}
 
   /**
@@ -38,7 +40,7 @@ export class DeviceLedService {
       [ledState],
     );
 
-    return this.deviceService.publishEvent(topic, JSON.stringify(message));
+    return this.brokerService.publish(topic, JSON.stringify(message));
   }
 
   async requestLed({
@@ -70,7 +72,7 @@ export class DeviceLedService {
 
       console.log(message);
 
-      return this.deviceService.publishEvent(topic, JSON.stringify(message));
+      return this.brokerService.publish(topic, JSON.stringify(message));
     } catch (e) {
       console.log(e);
     }
@@ -88,10 +90,10 @@ export class DeviceLedService {
       0xdc,
       [],
     );
-    this.deviceService.publishEvent(topic, JSON.stringify(ledMessage));
+    this.brokerService.publish(topic, JSON.stringify(ledMessage));
   }
 
-  async setLedConfig({
+  async setConfig({
     masterId,
     slaveId,
     ledCycle,
@@ -99,7 +101,7 @@ export class DeviceLedService {
   }: Partial<SlaveConfigDto>) {
     try {
       const config: ILedConfig = { ledCycle, ledRuntime };
-      return this.slaveRepository.setConfig(masterId, slaveId, config);
+      return this.ledConfigRepository.setConfig(masterId, slaveId, config);
     } catch (e) {
       console.log(e);
     }

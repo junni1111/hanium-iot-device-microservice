@@ -8,7 +8,7 @@ import { WaterPumpConfig } from '../entities/water-pump.entity';
 
 @EntityRepository(WaterPumpConfig)
 export class WaterPumpRepository extends Repository<WaterPumpConfig> {
-  setConfigs(
+  setConfig(
     masterId: number,
     slaveId: number,
     configs: IWaterPumpConfig = { ...defaultSlaveConfig },

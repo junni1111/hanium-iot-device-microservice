@@ -141,7 +141,7 @@ export class ApiWaterPumpController {
         });
       }
 
-      const configUpdateResult = await this.deviceWaterPumpService.setConfigs(
+      const configUpdateResult = await this.deviceWaterPumpService.setConfig(
         waterPumpConfigDto,
       );
 

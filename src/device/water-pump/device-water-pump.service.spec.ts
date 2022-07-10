@@ -8,7 +8,6 @@ import { DeviceWaterPumpModule } from './device-water-pump.module';
 import { CreateMasterDto } from '../../api/dto/master/create-master.dto';
 import { CreateSlaveDto } from '../../api/dto/slave/create-slave.dto';
 import { getConnection } from 'typeorm';
-import { WaterPumpConfig } from '../entities/water-pump.entity';
 import { WaterPumpRepository } from '../repositories/water-pump.repository';
 
 describe('물 펌프 서비스 테스트', () => {
@@ -47,7 +46,7 @@ describe('물 펌프 서비스 테스트', () => {
   });
 
   it('물 펌프 설정값을 설정한다.', async () => {
-    const saved = await waterPumpService.setConfigs({
+    const saved = await waterPumpService.setConfig({
       masterId: MOCK_MASTER_ID,
       slaveId: MOCK_SLAVE_ID,
       waterPumpCycle: 11,
@@ -61,7 +60,7 @@ describe('물 펌프 서비스 테스트', () => {
     );
     expect([found.waterPumpCycle, found.waterPumpRuntime]).toEqual([11, 22]);
 
-    const updated = await waterPumpService.setConfigs({
+    const updated = await waterPumpService.setConfig({
       masterId: MOCK_MASTER_ID,
       slaveId: MOCK_SLAVE_ID,
       waterPumpCycle: 1111,

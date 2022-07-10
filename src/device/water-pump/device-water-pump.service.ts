@@ -128,7 +128,7 @@ export class DeviceWaterPumpService {
     Promise.allSettled([cacheRunningState, cachePowerState]);
   }
 
-  setConfigs({
+  setConfig({
     masterId,
     slaveId,
     waterPumpCycle,
@@ -139,7 +139,7 @@ export class DeviceWaterPumpService {
         waterPumpCycle,
         waterPumpRuntime,
       };
-      return this.pumpConfigRepository.setConfigs(masterId, slaveId, config);
+      return this.pumpConfigRepository.setConfig(masterId, slaveId, config);
     } catch (e) {
       console.log(e);
     }
