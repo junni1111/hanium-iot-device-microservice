@@ -6,12 +6,10 @@ import {
   Payload,
   Transport,
 } from '@nestjs/microservices';
-import { DeviceService } from './device.service';
 import {
   POLLING,
   SLAVE_RESPONSE,
   SLAVE_STATE,
-  TEMPERATURE,
 } from '../util/constants/mqtt-topic';
 import { EPollingState } from './interfaces/polling-status';
 import { DevicePollingService } from './device-polling.service';

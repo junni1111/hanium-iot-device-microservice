@@ -1,6 +1,5 @@
 import { CACHE_MANAGER, Controller, HttpStatus, Inject } from '@nestjs/common';
 import { MessagePattern, Payload, Transport } from '@nestjs/microservices';
-import { DeviceService } from '../../device/device.service';
 import { DeviceMasterService } from '../../device/master/device-master.service';
 import { ResponseStatus } from '../../device/interfaces/response-status';
 import {
@@ -15,9 +14,9 @@ import { LedStateDto } from '../dto/led/led-state.dto';
 import { Cache } from 'cache-manager';
 import { ApiLedService } from './api-led.service';
 import { SlaveConfigDto } from '../dto/slave/slave-config.dto';
-import { Slave } from '../../device/entities/slave.entity';
 import { ApiSlaveService } from '../slave/api-slave.service';
 import { SensorPowerKey, SensorStateKey } from '../../util/key-generator';
+import { ILedConfig } from '../../device/interfaces/slave-configs';
 
 @Controller()
 export class ApiLedController {
@@ -70,20 +69,21 @@ export class ApiLedController {
       slaveId: ledTurnDto.slaveId,
     });
 
-    let configs: Slave | undefined;
+    let configs: ILedConfig | undefined;
     try {
       console.log(`turn led dto: `, ledTurnDto);
 
       if (ledTurnDto.powerState === EPowerState.ON) {
-        // configs = await this.deviceMasterService.getConfigs(
-        //   ledTurnDto.masterId,
-        //   ledTurnDto.slaveId,
-        // );
-        // await this.deviceLedService.requestLed({
-        //   masterId: ledTurnDto.masterId,
-        //   slaveId: ledTurnDto.slaveId,
-        //   ...configs,
-        // });
+        configs = await this.deviceLedService.getConfig(
+          ledTurnDto.masterId,
+          ledTurnDto.slaveId,
+        );
+
+        await this.deviceLedService.requestLed({
+          masterId: ledTurnDto.masterId,
+          slaveId: ledTurnDto.slaveId,
+          ...configs,
+        });
       } else {
         /* Turn Off */
         await this.deviceLedService.turnLed(ledTurnDto);
@@ -145,7 +145,7 @@ export class ApiLedController {
         ledConfigDto,
       );
 
-      if (!configUpdateResult.affected) {
+      if (!configUpdateResult) {
         return {
           status: HttpStatus.BAD_REQUEST,
           topic: ESlaveConfigTopic.LED,

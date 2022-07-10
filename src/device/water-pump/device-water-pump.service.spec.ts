@@ -45,7 +45,22 @@ describe('물 펌프 서비스 테스트', () => {
     await getConnection().close();
   });
 
-  it('물 펌프 설정값을 설정한다.', async () => {
+  it('물 펌프 설정값을 생성하고 가져온다.', async () => {
+    const saved = await waterPumpService.setConfig({
+      masterId: MOCK_MASTER_ID,
+      slaveId: MOCK_SLAVE_ID,
+      waterPumpCycle: 11,
+      waterPumpRuntime: 22,
+    });
+    expect(saved.waterPumpCycle).toEqual(11);
+
+    const found = await waterPumpRepository.findBySlave(
+      MOCK_MASTER_ID,
+      MOCK_SLAVE_ID,
+    );
+    expect([found.waterPumpCycle, found.waterPumpRuntime]).toEqual([11, 22]);
+  });
+  it('물 펌프 설정값을 업데이트한다.', async () => {
     const saved = await waterPumpService.setConfig({
       masterId: MOCK_MASTER_ID,
       slaveId: MOCK_SLAVE_ID,

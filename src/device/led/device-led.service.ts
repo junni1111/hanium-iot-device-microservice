@@ -3,9 +3,7 @@ import { MQTT_BROKER } from '../../util/constants/constants';
 import { ClientProxy } from '@nestjs/microservices';
 import { LedPacketDto } from '../dto/led-packet.dto';
 import { SlaveConfigDto } from '../../api/dto/slave/slave-config.dto';
-import { DeviceService } from '../device.service';
 import { ILedConfig } from '../interfaces/slave-configs';
-import { SlaveRepository } from '../repositories/slave.repository';
 import { LedPowerDto } from '../../api/dto/led/led-power.dto';
 import { EPowerState } from '../../util/constants/api-topic';
 import { Cache } from 'cache-manager';
@@ -91,6 +89,10 @@ export class DeviceLedService {
       [],
     );
     this.brokerService.publish(topic, JSON.stringify(ledMessage));
+  }
+
+  getConfig(masterId: number, slaveId: number) {
+    return this.ledConfigRepository.findBySlave(masterId, slaveId);
   }
 
   async setConfig({

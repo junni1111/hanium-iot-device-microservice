@@ -1,11 +1,8 @@
 import { CACHE_MANAGER, Inject, Injectable } from '@nestjs/common';
 import { MQTT_BROKER } from '../../util/constants/constants';
-import { ClientProxy } from '@nestjs/microservices';
 import { WaterPumpPacketDto } from '../dto/water-pump-packet.dto';
 import { SlaveConfigDto } from '../../api/dto/slave/slave-config.dto';
-import { DeviceService } from '../device.service';
 import { IWaterPumpConfig } from '../interfaces/slave-configs';
-import { SlaveRepository } from '../repositories/slave.repository';
 import {
   EPowerState,
   ESlaveState,
@@ -126,6 +123,10 @@ export class DeviceWaterPumpService {
     );
 
     Promise.allSettled([cacheRunningState, cachePowerState]);
+  }
+
+  getConfig(masterId: number, slaveId: number) {
+    return this.pumpConfigRepository.findBySlave(masterId, slaveId);
   }
 
   setConfig({

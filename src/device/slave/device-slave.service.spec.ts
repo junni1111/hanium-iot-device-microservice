@@ -7,7 +7,6 @@ import { DeviceSlaveService } from './device-slave.service';
 import { DeviceSlaveModule } from './device-slave.module';
 import { CreateSlaveDto } from '../../api/dto/slave/create-slave.dto';
 import { DeviceMasterService } from '../master/device-master.service';
-import exp from 'constants';
 
 describe('DeviceTemperatureService', () => {
   const MASTER_ID = 101;
@@ -24,7 +23,7 @@ describe('DeviceTemperatureService', () => {
   });
 
   afterEach(async () => {
-    await clearDB();
+    // await clearDB();
     await getConnection().close();
   });
 

@@ -5,14 +5,12 @@ import { Interval } from '@nestjs/schedule';
 import { EPollingState, IGatewayStatus } from './interfaces/polling-status';
 import { Cache } from 'cache-manager';
 import { POLLING } from '../util/constants/mqtt-topic';
+import { MqttBrokerService } from './mqtt-broker.service';
 
 @Injectable()
 export class DevicePollingService {
   private gateways: IGatewayStatus[] = [];
-  constructor(
-    @Inject(CACHE_MANAGER) private readonly cacheManager: Cache,
-    @Inject(MQTT_BROKER) private readonly mqttBroker: ClientProxy,
-  ) {}
+  constructor(@Inject(CACHE_MANAGER) private readonly cacheManager: Cache) {}
 
   /* TODO: Gateway Network Check */
   @Interval('gateway-polling-check', 1000)

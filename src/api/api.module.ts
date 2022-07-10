@@ -17,11 +17,6 @@ import { DeviceTemperatureModule } from '../device/thermometer/device-temperatur
 
 @Module({
   imports: [
-    // CacheModule.register({
-    //   store: redisStore,
-    //   host: REDIS_HOST,
-    //   port: REDIS_PORT,
-    // }),
     DeviceTemperatureModule,
     // DeviceModule,
     RedisModule,

@@ -1,23 +1,4 @@
 import { CACHE_MANAGER, Inject, Injectable } from '@nestjs/common';
-import { MQTT_BROKER } from '../../util/constants/constants';
-import { ClientProxy } from '@nestjs/microservices';
-import { ThermometerConfig } from '../entities/thermometer.entity';
-import { DeviceService } from '../device.service';
-import { SlaveRepository } from '../repositories/slave.repository';
-import { ITemperatureConfig } from '../interfaces/slave-configs';
-import { Cache } from 'cache-manager';
-import { SlaveConfigDto } from '../../api/dto/slave/slave-config.dto';
-import { ESlaveConfigTopic, ESlaveState } from '../../util/constants/api-topic';
-import {
-  GenerateDayAverageKey,
-  GenerateAverageKeys,
-  SensorConfigKey,
-  SensorStateKey,
-} from '../../util/key-generator';
-import { createQueryBuilder, Repository } from 'typeorm';
-import { GraphPoint } from '../interfaces/graph-config';
-import { InjectRepository } from '@nestjs/typeorm';
-import { Temperature } from '../entities/temperature-log.entity';
 import { TemperatureRepository } from './device-temperature.repository';
 import { ThermometerRepository } from '../repositories/thermometer.repository';
 
