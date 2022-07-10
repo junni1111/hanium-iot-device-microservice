@@ -45,36 +45,7 @@ describe('API Slave 서비스 테스트', () => {
       MOCK_MASTER_ID,
       MOCK_SLAVE_ID,
     );
-    expect(fetchConfigs.rangebegin).toEqual(defaultConfigs.rangeBegin);
 
-    // const saved = await ledService.setConfig({
-    //   masterId: MOCK_MASTER_ID,
-    //   slaveId: MOCK_SLAVE_ID,
-    //   ledRuntime: 11,
-    //   ledCycle: 22,
-    // });
-    // expect(saved.ledCycle).toEqual(22);
-    //
-    // const found = await ledRepository.findBySlave(
-    //   MOCK_MASTER_ID,
-    //   MOCK_SLAVE_ID,
-    // );
-    // expect([found.ledRuntime, found.ledCycle]).toEqual([11, 22]);
-    //
-    // const updated = await ledService.setConfig({
-    //   masterId: MOCK_MASTER_ID,
-    //   slaveId: MOCK_SLAVE_ID,
-    //   ledRuntime: 1111,
-    //   ledCycle: 2222,
-    // });
-    // expect(updated.ledRuntime).toEqual(1111);
-    //
-    // const updateFound = await ledRepository.findBySlave(
-    //   MOCK_MASTER_ID,
-    //   MOCK_SLAVE_ID,
-    // );
-    // expect([updateFound.ledRuntime, updateFound.ledCycle]).toEqual([
-    //   1111, 2222,
-    // ]);
+    expect(fetchConfigs.rangeBegin).toEqual(defaultConfigs.rangeBegin);
   });
 });

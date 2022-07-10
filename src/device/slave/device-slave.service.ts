@@ -4,6 +4,7 @@ import { CreateSlaveDto } from '../../api/dto/slave/create-slave.dto';
 import { LedRepository } from '../repositories/led.repository';
 import { WaterPumpRepository } from '../repositories/water-pump.repository';
 import { ThermometerRepository } from '../repositories/thermometer.repository';
+import { ISlaveConfigs } from '../interfaces/slave-configs';
 
 @Injectable()
 export class DeviceSlaveService {
@@ -46,24 +47,27 @@ export class DeviceSlaveService {
     return this.slaveRepository.deleteSlave(masterId, slaveId);
   }
 
-  getConfigs(masterId: number, slaveId: number) {
-    return this.slaveRepository
-      .createQueryBuilder('slave')
-      .where(`slave.masterId = :masterId`, { masterId })
-      .andWhere(`slave.slaveId = :slaveId`, { slaveId })
-      .leftJoinAndSelect('slave.thermometerConfig', 't')
-      .leftJoinAndSelect('slave.ledConfig', 'led')
-      .leftJoinAndSelect('slave.waterConfig', 'water')
-      .select([
-        't.rangeBegin AS rangeBegin',
-        't.rangeEnd AS rangeEnd',
-        't.updateCycle AS updateCycle',
-        'led.ledCycle AS ledCycle',
-        'led.ledRuntime AS ledRuntime',
-        'water.waterPumpCycle AS waterPumpCycle',
-        'water.waterPumpRuntime AS waterPumpRuntime',
-      ])
-      .getRawOne();
+  async getConfigs(masterId: number, slaveId: number) {
+    try {
+      const fetched = await this.slaveRepository.getConfigs(masterId, slaveId);
+      if (!fetched) {
+        return;
+      }
+
+      const configs: ISlaveConfigs = {
+        rangeBegin: fetched.rangebegin,
+        rangeEnd: fetched.rangeend,
+        updateCycle: fetched.updatecycle,
+        waterPumpCycle: fetched.waterpumpcycle,
+        waterPumpRuntime: fetched.waterpumpruntime,
+        ledCycle: fetched.ledcycle,
+        ledRuntime: fetched.ledruntime,
+      };
+
+      return configs;
+    } catch (e) {
+      throw new Error(e);
+    }
   }
   //
   // async createMaster(createMasterDto: CreateMasterDto) {
