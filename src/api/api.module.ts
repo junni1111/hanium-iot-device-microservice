@@ -14,13 +14,11 @@ import { ApiThermometerController } from './thermometer/api-thermometer.controll
 import { ApiFanController } from './fan/api-fan.controller';
 import { RedisModule } from '../cache/redis.module';
 import { DeviceTemperatureModule } from '../device/thermometer/device-temperature.module';
+import { DeviceMasterService } from '../device/master/device-master.service';
+import { DeviceSlaveService } from '../device/slave/device-slave.service';
 
 @Module({
-  imports: [
-    DeviceTemperatureModule,
-    // DeviceModule,
-    RedisModule,
-  ],
+  imports: [DeviceModule, RedisModule],
   controllers: [
     ApiMasterController,
     ApiSlaveController,
@@ -30,6 +28,12 @@ import { DeviceTemperatureModule } from '../device/thermometer/device-temperatur
     ApiFanController,
     ApiUtilityController,
   ],
-  providers: [ApiLedService, ApiWaterPumpService, ApiSlaveService],
+  providers: [
+    ApiLedService,
+    ApiWaterPumpService,
+    ApiSlaveService,
+    DeviceMasterService,
+    DeviceSlaveService,
+  ],
 })
 export class ApiModule {}

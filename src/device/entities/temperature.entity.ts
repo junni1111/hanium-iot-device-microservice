@@ -2,7 +2,6 @@ import {
   Column,
   CreateDateColumn,
   Entity,
-  JoinColumn,
   ManyToOne,
   PrimaryGeneratedColumn,
 } from 'typeorm';
@@ -16,7 +15,7 @@ export class Temperature {
   @Column({ type: 'float' })
   temperature: number;
 
-  @ManyToOne((type) => Slave, (slave) => slave.temperatures, { cascade: true })
+  @ManyToOne((type) => Slave, (slave) => slave.temperatures)
   slave: Slave;
 
   @CreateDateColumn({ type: 'timestamptz', name: 'create_at' })

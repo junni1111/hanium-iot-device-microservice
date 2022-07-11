@@ -1,5 +1,5 @@
 import { EntityRepository, Repository } from 'typeorm';
-import { Temperature } from '../entities/temperature-log.entity';
+import { Temperature } from '../entities/temperature.entity';
 import { Master } from '../entities/master.entity';
 import { Slave } from '../entities/slave.entity';
 import { ThermometerConfig } from '../entities/thermometer.entity';

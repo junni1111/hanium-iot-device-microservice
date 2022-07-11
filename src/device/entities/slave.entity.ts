@@ -10,7 +10,7 @@ import {
 } from 'typeorm';
 import { Master } from './master.entity';
 import { ThermometerConfig } from './thermometer.entity';
-import { Temperature } from './temperature-log.entity';
+import { Temperature } from './temperature.entity';
 import { WaterPumpConfig } from './water-pump.entity';
 import { LedConfig } from './led.entity';
 
