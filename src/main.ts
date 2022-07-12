@@ -5,10 +5,9 @@ import {
   DEVICE_HEALTH_PORT,
   DEVICE_HOST,
   DEVICE_PORT,
-  MQTT_BROKER_URL,
+  MQTT_BROKER_URL, REDIS_HOST, REDIS_PORT,
 } from './config/config';
 import { Logger, ValidationPipe } from '@nestjs/common';
-import { REDIS_HOST, REDIS_PORT } from './config/redis.config';
 
 async function bootstrap() {
   Logger.log(`Start ENV = ${process.env.NODE_ENV}`);

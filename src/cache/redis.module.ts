@@ -1,8 +1,8 @@
 import { CacheModule, Module } from '@nestjs/common';
 import * as redisStore from 'cache-manager-ioredis';
 import { RedisController } from './redis.controller';
-import { REDIS_HOST, REDIS_PORT } from '../config/redis.config';
 import { RedisService } from './redis.service';
+import { REDIS_HOST, REDIS_PORT } from '../config/config';
 
 @Module({
   imports: [
