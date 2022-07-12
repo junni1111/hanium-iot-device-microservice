@@ -11,8 +11,8 @@ import { Logger, ValidationPipe } from '@nestjs/common';
 import { REDIS_HOST, REDIS_PORT } from './config/redis.config';
 
 async function bootstrap() {
-  Logger.log(`Start ENV = `, process.env.NODE_ENV);
-  Logger.log(`ENV LIST: `, process.env);
+  Logger.log(`Start ENV = ${process.env.NODE_ENV}`);
+  console.log(`ENV LIST:`, process.env);
   Logger.log(
     `Device Microservice Listening HOST:${DEVICE_HOST} PORT:${DEVICE_PORT} MQTT URL:${MQTT_BROKER_URL}...
       Redis Host: ${REDIS_HOST} Redis Port: ${REDIS_PORT}`,
