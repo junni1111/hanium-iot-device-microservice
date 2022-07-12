@@ -29,22 +29,26 @@ export class DeviceTemperatureController {
     @Ctx() context: MqttContext,
   ) {
     const [, mId, , sId] = context.getTopic().split('/');
-    const masterId = parseInt(mId);
+    const masterId = parseInt(mId); // 🤔
     const slaveId = parseInt(sId);
 
     try {
-      const [rangeMin, rangeMax] =
+      /**
+       * Todo: id로 캐싱된 온도 범위 가져옴
+       *       캐싱된 범위 없으면 db 조회 */
+      const [rangeMin, rangeMax] = // 🤔
         await this.deviceTemperatureService.getTemperatureRange(
           masterId,
           slaveId,
         );
-
       const range = new TemperatureRangeDto(temperature, rangeMin, rangeMax);
+
       const turnResult = this.deviceFanService.turnFan(
         masterId,
         slaveId,
         range,
       );
+<<<<<<< HEAD
 
       Logger.log(turnResult);
       // Todo: Refactor
@@ -54,6 +58,15 @@ export class DeviceTemperatureController {
           masterId, slaveId
       );
       // Logger.debug(saveResults);
+=======
+      Logger.debug(turnResult);
+
+      const saveResults = await this.deviceTemperatureService.saveTemperature(
+        new Temperature(masterId, slaveId, temperature),
+        new Date(), // now
+      );
+      Logger.debug(saveResults);
+>>>>>>> 1a1559f2d0261dcc29b73c70d15babc283d150b7
     } catch (e) {
       throw e;
     }

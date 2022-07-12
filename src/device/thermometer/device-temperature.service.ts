@@ -17,20 +17,28 @@ import {
 } from '../../util/key-generator';
 import { createQueryBuilder, Repository } from 'typeorm';
 import { GraphPoint } from '../interfaces/graph-config';
+<<<<<<< HEAD
 import { InjectRepository } from '@nestjs/typeorm';
 import { TemperatureLog } from '../entities/temperature-log.entity';
+=======
+import { TemperatureBetweenDto } from '../../api/dto/temperature/temperature-between.dto';
+>>>>>>> 1a1559f2d0261dcc29b73c70d15babc283d150b7
 
 @Injectable()
 export class DeviceTemperatureService {
   constructor(
     @Inject(MQTT_BROKER) private readonly mqttBroker: ClientProxy,
     @Inject(CACHE_MANAGER) private readonly cacheManager: Cache,
+<<<<<<< HEAD
     // private readonly temperatureRepository: TemperatureRepository,
     @InjectRepository(Temperature)
     private readonly temperatureRepository: Repository<Temperature>,
     @InjectRepository(TemperatureLog)
     private readonly temperatureLogRepository: Repository<TemperatureLog>,
+=======
+>>>>>>> 1a1559f2d0261dcc29b73c70d15babc283d150b7
     private readonly deviceService: DeviceService,
+    private readonly temperatureRepository: TemperatureRepository,
     private readonly slaveRepository: SlaveRepository,
   ) {}
 
@@ -173,8 +181,8 @@ export class DeviceTemperatureService {
     }
   }
 
-  async createTestData(masterId: number, slaveId: number) {
-    return this.temperatureRepository.createTestData(masterId, slaveId);
+  async createTestData(temperatureBetweenDto: TemperatureBetweenDto) {
+    return this.temperatureRepository.createTestData(temperatureBetweenDto);
   }
 
   async cacheTemperature({ masterId, slaveId, temperature }: Temperature) {

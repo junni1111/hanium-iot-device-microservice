@@ -11,7 +11,7 @@ import { DeviceMasterService } from './master/device-master.service';
 import { Humidity } from './entities/humidity.entity';
 import { WaterPump } from './entities/water-pump.entity';
 import { Led } from './entities/led.entity';
-// import { TemperatureRepository } from './repositories/temperature.repository';
+import { TemperatureRepository } from './repositories/temperature.repository';
 import { Master } from './entities/master.entity';
 import { Slave } from './entities/slave.entity';
 import { MasterRepository } from './repositories/master.repository';
@@ -34,7 +34,7 @@ import { DeviceTemperatureController } from './thermometer/device-temperature.co
       Led,
       Master,
       Slave,
-      // TemperatureRepository,
+      TemperatureRepository,
       MasterRepository,
       SlaveRepository,
     ]),
