@@ -1,4 +1,4 @@
-import { Module } from '@nestjs/common';
+import { CacheModule, Module } from '@nestjs/common';
 import { TypeOrmModule } from '@nestjs/typeorm';
 import { DeviceSlaveModule } from '../slave/device-slave.module';
 import { ThermometerConfig } from '../entities/thermometer.entity';
@@ -8,14 +8,19 @@ import { TemperatureRepository } from './device-temperature.repository';
 import { DeviceTemperatureController } from './device-temperature.controller';
 import { DeviceTemperatureService } from './device-temperature.service';
 import { DeviceThermometerService } from './device-thermometer.service';
-import { RedisModule } from '../../cache/redis.module';
 import { MqttBrokerModule } from '../mqtt-broker.module';
 import { DeviceFanService } from '../fan/device-fan.service';
+import { CacheConfigModule } from '../../config/cache/cache.module';
+import { CacheConfigService } from '../../config/cache/cache.service';
 
 @Module({
   imports: [
+    CacheModule.registerAsync({
+      imports: [CacheConfigModule],
+      useClass: CacheConfigService,
+      inject: [CacheConfigService],
+    }),
     DeviceSlaveModule,
-    RedisModule,
     MqttBrokerModule,
     TypeOrmModule.forFeature([
       ThermometerConfig,
