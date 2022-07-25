@@ -2,16 +2,24 @@ import { Module } from '@nestjs/common';
 import { DeviceModule } from './device/device.module';
 import { ApiModule } from './api/api.module';
 import { TypeOrmModule } from '@nestjs/typeorm';
-import { databaseService } from './config/database.service';
 import { ScheduleModule } from '@nestjs/schedule';
-import { RedisModule } from './cache/redis.module';
+import { ConfigModule } from '@nestjs/config';
+import { DataBaseConfigModule } from './config/database/database.module';
+import { DataBaseConfigService } from './config/database/database.service';
 
 @Module({
   imports: [
-    TypeOrmModule.forRoot(databaseService.getTypeOrmConfig()),
+    ConfigModule.forRoot({
+      envFilePath: `${__dirname}/../env/.env.${process.env.NODE_ENV}`,
+      isGlobal: true,
+    }),
+    TypeOrmModule.forRootAsync({
+      imports: [DataBaseConfigModule],
+      useClass: DataBaseConfigService,
+      inject: [DataBaseConfigService],
+    }),
     DeviceModule,
     ApiModule,
-    RedisModule,
     ScheduleModule.forRoot(),
   ],
 })
