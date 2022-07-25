@@ -1,11 +1,8 @@
 import { CACHE_MANAGER, Inject, Injectable } from '@nestjs/common';
 import { MQTT_BROKER } from '../../util/constants/constants';
-import { ClientProxy } from '@nestjs/microservices';
 import { WaterPumpPacketDto } from '../dto/water-pump-packet.dto';
 import { SlaveConfigDto } from '../../api/dto/slave/slave-config.dto';
-import { DeviceService } from '../device.service';
 import { IWaterPumpConfig } from '../interfaces/slave-configs';
-import { SlaveRepository } from '../repositories/slave.repository';
 import {
   EPowerState,
   ESlaveState,
@@ -14,14 +11,15 @@ import {
 import { LedPowerDto } from '../../api/dto/led/led-power.dto';
 import { Cache } from 'cache-manager';
 import { SensorPowerKey, SensorStateKey } from '../../util/key-generator';
+import { WaterPumpRepository } from '../repositories/water-pump.repository';
+import { MqttBrokerService } from '../mqtt-broker.service';
 
 @Injectable()
 export class DeviceWaterPumpService {
   constructor(
-    @Inject(MQTT_BROKER) private readonly mqttBroker: ClientProxy,
+    @Inject(MQTT_BROKER) private brokerService: MqttBrokerService,
     @Inject(CACHE_MANAGER) private readonly cacheManager: Cache,
-    private readonly deviceService: DeviceService,
-    private readonly slaveRepository: SlaveRepository,
+    private pumpConfigRepository: WaterPumpRepository,
   ) {}
 
   async turnWaterPump({ masterId, slaveId, powerState }: LedPowerDto) {
@@ -43,7 +41,7 @@ export class DeviceWaterPumpService {
 
     console.log(message);
 
-    return this.deviceService.publishEvent(topic, JSON.stringify(message));
+    return this.brokerService.publish(topic, JSON.stringify(message));
   }
 
   async requestWaterPump({
@@ -71,7 +69,7 @@ export class DeviceWaterPumpService {
         //통보없이 자동 off : 0xaf
         [0xaa, cycleHigh, cycleLow, runtimeHigh, runtimeLow],
       );
-      return this.deviceService.publishEvent(topic, JSON.stringify(message));
+      return this.brokerService.publish(topic, JSON.stringify(message));
     } catch (e) {
       console.log(e);
     }
@@ -89,7 +87,7 @@ export class DeviceWaterPumpService {
       0xa0,
       [],
     );
-    this.deviceService.publishEvent(topic, JSON.stringify(motorMessage));
+    this.brokerService.publish(topic, JSON.stringify(motorMessage));
   }
 
   /**
@@ -127,7 +125,11 @@ export class DeviceWaterPumpService {
     Promise.allSettled([cacheRunningState, cachePowerState]);
   }
 
-  async setWaterPumpConfig({
+  getConfig(masterId: number, slaveId: number) {
+    return this.pumpConfigRepository.findBySlave(masterId, slaveId);
+  }
+
+  setConfig({
     masterId,
     slaveId,
     waterPumpCycle,
@@ -138,7 +140,7 @@ export class DeviceWaterPumpService {
         waterPumpCycle,
         waterPumpRuntime,
       };
-      return this.slaveRepository.setConfig(masterId, slaveId, config);
+      return this.pumpConfigRepository.setConfig(masterId, slaveId, config);
     } catch (e) {
       console.log(e);
     }

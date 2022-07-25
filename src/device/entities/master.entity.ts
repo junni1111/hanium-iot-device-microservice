@@ -7,7 +7,7 @@ import {
 } from 'typeorm';
 import { Slave } from './slave.entity';
 
-@Entity()
+@Entity('masters')
 export class Master {
   @PrimaryColumn({ type: 'integer' })
   id: number;
@@ -18,14 +18,8 @@ export class Master {
   @CreateDateColumn({ type: 'timestamptz', name: 'create_at' })
   createAt: Date;
 
-  @OneToMany((type) => Slave, (slave) => slave.master)
+  @OneToMany((type) => Slave, (slave) => slave.master, {
+    cascade: ['insert', 'update'],
+  })
   slaves: Slave[];
-
-  static createMaster(masterId: number, address: string) {
-    const master = new Master();
-    master.id = masterId;
-    master.address = address;
-
-    return master;
-  }
 }

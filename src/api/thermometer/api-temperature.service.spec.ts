@@ -1,88 +1,97 @@
 import { Test, TestingModule } from '@nestjs/testing';
-import { ApiModule } from '../api.module';
-import { TypeOrmModule } from '@nestjs/typeorm';
-import { databaseService } from '../../config/database.service';
 import { DeviceTemperatureService } from '../../device/thermometer/device-temperature.service';
-import { addDays } from 'date-fns';
-import { Temperature } from '../../device/entities/temperature.entity';
-import { TemperatureRepository } from '../../device/repositories/temperature.repository';
+import { addMinutes } from 'date-fns';
+import { clearDB } from '../../util/test-helper';
+import { DeviceTemperatureModule } from '../../device/thermometer/device-temperature.module';
+import { DeviceMasterService } from '../../device/master/device-master.service';
+import { DeviceSlaveService } from '../../device/slave/device-slave.service';
+import { CreateMasterDto } from '../dto/master/create-master.dto';
+import { CreateSlaveDto } from '../dto/slave/create-slave.dto';
+import { getTypeOrmTestModule } from '../../config/database-test.service';
 
 describe('온도 api 서비스 테스트', () => {
   const MOCK_MASTER_ID = 100;
   const MOCK_SLAVE_ID = 100;
-  let deviceTemperatureService: DeviceTemperatureService;
-  let temperatureRepo: TemperatureRepository;
+  let masterService: DeviceMasterService;
+  let slaveService: DeviceSlaveService;
+  let temperatureService: DeviceTemperatureService;
 
   beforeEach(async () => {
     const module: TestingModule = await Test.createTestingModule({
-      imports: [
-        ApiModule,
-        TypeOrmModule.forRoot(databaseService.getTypeOrmConfig()),
-      ],
+      imports: [DeviceTemperatureModule, getTypeOrmTestModule()],
     }).compile();
 
-    temperatureRepo = module.get<TemperatureRepository>(TemperatureRepository);
-    deviceTemperatureService = module.get<DeviceTemperatureService>(
+    masterService = module.get<DeviceMasterService>(DeviceMasterService);
+    slaveService = module.get<DeviceSlaveService>(DeviceSlaveService);
+    temperatureService = module.get<DeviceTemperatureService>(
       DeviceTemperatureService,
     );
   });
 
-  afterEach(async () => {
-    /** Todo: Change to test DB!!! */
-    await temperatureRepo
-      .createQueryBuilder()
-      .delete()
-      .from(Temperature)
-      .where(`masterId = :masterId`, { masterId: MOCK_MASTER_ID })
-      .andWhere(`slaveId = :slaveId`, { slaveId: MOCK_SLAVE_ID })
-      .execute();
+  beforeEach(async () => {
+    await masterService.createMaster(
+      new CreateMasterDto(MOCK_MASTER_ID, 'Default Address'),
+    );
+    await slaveService.createSlave(
+      new CreateSlaveDto(MOCK_MASTER_ID, MOCK_SLAVE_ID),
+    );
   });
 
-  it('온도를 저장하고, 삭제한다', async () => {
-    const temperature = new Temperature(MOCK_MASTER_ID, MOCK_SLAVE_ID, 22);
-    const saveResult = await deviceTemperatureService.insertTemperature(
-      temperature,
-    );
-    expect(saveResult.raw.length).toEqual(1);
+  afterEach(async () => {
+    await clearDB();
+  });
 
-    const deleteResult = await temperatureRepo
-      .createQueryBuilder()
-      .delete()
-      .from(Temperature)
-      .where(`masterId = :masterId`, { masterId: MOCK_MASTER_ID })
-      .andWhere(`slaveId = :slaveId`, { slaveId: MOCK_SLAVE_ID })
-      .execute();
-    expect(deleteResult.affected).toEqual(1);
+  it('팬이 작동할 온도 범위를 설정한다.', async () => {
+    const saved = await temperatureService.setConfigs({
+      masterId: MOCK_MASTER_ID,
+      slaveId: MOCK_SLAVE_ID,
+      rangeBegin: 11,
+      rangeEnd: 22,
+      updateCycle: 33,
+    });
+    expect(saved.rangeBegin).toEqual(11);
+
+    const updated = await temperatureService.setConfigs({
+      masterId: MOCK_MASTER_ID,
+      slaveId: MOCK_SLAVE_ID,
+      rangeBegin: 1111,
+      rangeEnd: 2222,
+      updateCycle: 33333,
+    });
+    expect(updated.rangeBegin).toEqual(1111);
   });
 
   it('기간 내의 저장된 온도들을 반환한다 ', async () => {
-    const temperature = new Temperature(MOCK_MASTER_ID, MOCK_SLAVE_ID, 22);
-    const saveResult = await deviceTemperatureService.insertTemperature(
-      temperature,
-    );
-    expect(saveResult.raw.length).toEqual(1);
+    const baseDate = new Date('2022-07-07');
+    const endDate = new Date('2022-07-09');
 
-    const beginDate = new Date(new Date().toDateString());
-    const endDate = addDays(beginDate, 1);
-    const temperatures =
-      await deviceTemperatureService.getTemperaturesBetweenDates(
+    let i = 0;
+    for (
+      let beginDate = baseDate;
+      beginDate < endDate;
+      beginDate = addMinutes(beginDate, 30)
+    ) {
+      await temperatureService.insertTemperature(
         MOCK_MASTER_ID,
         MOCK_SLAVE_ID,
+        ++i,
         beginDate,
-        endDate,
       );
-    console.log(temperatures);
-    expect(temperatures[0]['y']).toEqual(22);
+    }
+    const temperatures = await temperatureService.getTemperaturesBetweenDates(
+      MOCK_MASTER_ID,
+      MOCK_SLAVE_ID,
+      baseDate,
+      endDate,
+    );
+    expect(temperatures.length).toEqual(96);
 
-    const futureBegin = addDays(beginDate, 7);
-    const futureEnd = addDays(futureBegin, 1);
-    const emptyTemperatures =
-      await deviceTemperatureService.getTemperaturesBetweenDates(
-        MOCK_MASTER_ID,
-        MOCK_SLAVE_ID,
-        futureBegin,
-        futureEnd,
-      );
-    expect(emptyTemperatures.length).toEqual(0);
+    const { average } = await temperatureService.getAverage(
+      MOCK_MASTER_ID,
+      MOCK_SLAVE_ID,
+      baseDate,
+      endDate,
+    );
+    expect(average).toBeLessThan(1000);
   });
 });

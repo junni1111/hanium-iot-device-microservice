@@ -7,8 +7,6 @@ import {
   Transport,
 } from '@nestjs/microservices';
 import { Cache } from 'cache-manager';
-import { RedisService } from '../../cache/redis.service';
-import { Temperature } from '../entities/temperature.entity';
 import { DeviceFanService } from '../fan/device-fan.service';
 import { DeviceTemperatureService } from './device-temperature.service';
 import { TemperatureRangeDto } from '../../api/dto/temperature/temperature-range.dto';
@@ -20,7 +18,6 @@ export class DeviceTemperatureController {
     @Inject(CACHE_MANAGER) private readonly cacheManager: Cache,
     private readonly deviceTemperatureService: DeviceTemperatureService,
     private readonly deviceFanService: DeviceFanService,
-    private readonly redisService: RedisService,
   ) {}
 
   @EventPattern(TEMPERATURE, Transport.MQTT)
@@ -29,44 +26,33 @@ export class DeviceTemperatureController {
     @Ctx() context: MqttContext,
   ) {
     const [, mId, , sId] = context.getTopic().split('/');
-    const masterId = parseInt(mId); // 🤔
+    const masterId = parseInt(mId);
     const slaveId = parseInt(sId);
 
     try {
-      /**
-       * Todo: id로 캐싱된 온도 범위 가져옴
-       *       캐싱된 범위 없으면 db 조회 */
-      const [rangeMin, rangeMax] = // 🤔
+      const [rangeMin, rangeMax] =
         await this.deviceTemperatureService.getTemperatureRange(
           masterId,
           slaveId,
         );
-      const range = new TemperatureRangeDto(temperature, rangeMin, rangeMax);
 
+      const range = new TemperatureRangeDto(temperature, rangeMin, rangeMax);
       const turnResult = this.deviceFanService.turnFan(
         masterId,
         slaveId,
         range,
       );
-<<<<<<< HEAD
 
       Logger.log(turnResult);
       // Todo: Refactor
       const saveResults = await this.deviceTemperatureService.saveTemperature(
-        // new Temperature(masterId, slaveId, temperature),
-        // new Date(), // now
-          masterId, slaveId
-      );
-      // Logger.debug(saveResults);
-=======
-      Logger.debug(turnResult);
-
-      const saveResults = await this.deviceTemperatureService.saveTemperature(
-        new Temperature(masterId, slaveId, temperature),
-        new Date(), // now
+        masterId,
+        slaveId,
+        temperature,
+        new Date(),
       );
       Logger.debug(saveResults);
->>>>>>> 1a1559f2d0261dcc29b73c70d15babc283d150b7
+      console.log(`saveResults: `, saveResults);
     } catch (e) {
       throw e;
     }

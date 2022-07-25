@@ -1,108 +1,77 @@
 import { CACHE_MANAGER, Inject, Injectable } from '@nestjs/common';
 import { MQTT_BROKER } from '../../util/constants/constants';
 import { ClientProxy } from '@nestjs/microservices';
-import { Temperature } from '../entities/temperature.entity';
-// import { TemperatureRepository } from '../repositories/temperature.repository';
-import { DeviceService } from '../device.service';
 import { SlaveRepository } from '../repositories/slave.repository';
-import { ITemperatureConfig } from '../interfaces/slave-configs';
 import { Cache } from 'cache-manager';
-import { SlaveConfigDto } from '../../api/dto/slave/slave-config.dto';
 import { ESlaveConfigTopic, ESlaveState } from '../../util/constants/api-topic';
 import {
-  GenerateDayAverageKey,
   GenerateAverageKeys,
+  GenerateDayAverageKey,
   SensorConfigKey,
   SensorStateKey,
 } from '../../util/key-generator';
-import { createQueryBuilder, Repository } from 'typeorm';
+import { TemperatureRepository } from './device-temperature.repository';
+import { ThermometerRepository } from '../repositories/thermometer.repository';
 import { GraphPoint } from '../interfaces/graph-config';
-<<<<<<< HEAD
-import { InjectRepository } from '@nestjs/typeorm';
-import { TemperatureLog } from '../entities/temperature-log.entity';
-=======
-import { TemperatureBetweenDto } from '../../api/dto/temperature/temperature-between.dto';
->>>>>>> 1a1559f2d0261dcc29b73c70d15babc283d150b7
+import { SlaveConfigDto } from '../../api/dto/slave/slave-config.dto';
+import { ITemperatureConfig } from '../interfaces/slave-configs';
 
 @Injectable()
 export class DeviceTemperatureService {
   constructor(
-    @Inject(MQTT_BROKER) private readonly mqttBroker: ClientProxy,
-    @Inject(CACHE_MANAGER) private readonly cacheManager: Cache,
-<<<<<<< HEAD
-    // private readonly temperatureRepository: TemperatureRepository,
-    @InjectRepository(Temperature)
-    private readonly temperatureRepository: Repository<Temperature>,
-    @InjectRepository(TemperatureLog)
-    private readonly temperatureLogRepository: Repository<TemperatureLog>,
-=======
->>>>>>> 1a1559f2d0261dcc29b73c70d15babc283d150b7
-    private readonly deviceService: DeviceService,
-    private readonly temperatureRepository: TemperatureRepository,
-    private readonly slaveRepository: SlaveRepository,
+    @Inject(MQTT_BROKER) private mqttBroker: ClientProxy,
+    @Inject(CACHE_MANAGER) private cacheManager: Cache,
+    private slaveRepository: SlaveRepository,
+    private thermometerRepository: ThermometerRepository,
+    private temperatureRepository: TemperatureRepository,
   ) {}
 
   /** Todo: Custom Repository 제거하고
    *        이 함수에 온도 저장 로직 설정 */
-  // insertTemperature(temperature: Temperature) {
-  //   return this.temperatureRepository
-  //     .createQueryBuilder()
-  //     .insert()
-  //     .into(Temperature)
-  //     .values(temperature)
-  //     .execute();
-  // }
-
-  insertTemperatureLog(sensor: Temperature, temperature: number) {
-    const log = this.temperatureLogRepository.create(
-      new TemperatureLog(sensor, temperature),
+  insertTemperature(
+    masterId: number,
+    slaveId: number,
+    temperature: number,
+    createAt?: Date,
+  ) {
+    return this.temperatureRepository.createLog(
+      masterId,
+      slaveId,
+      temperature,
+      createAt,
     );
-
-    return this.temperatureLogRepository
-      .createQueryBuilder()
-      .insert()
-      .into(TemperatureLog)
-      .values(log)
-      .execute();
   }
 
   getAverage(masterId: number, slaveId: number, begin: Date, end: Date) {
     return this.temperatureRepository
-      .createQueryBuilder('temperatures')
-      .select('AVG(temperatures.temperature)', 'average')
-      .where(`master_id = :masterId`, { masterId })
-      .andWhere(`slave_id = :slaveId`, { slaveId })
-      .andWhere(`create_at BETWEEN :begin AND :end`, {
+      .createQueryBuilder('t')
+      .leftJoinAndSelect('t.slave', 'slave')
+      .select('AVG(t.temperature)', 'average')
+      .where(`slave.masterId = :masterId`, { masterId })
+      .andWhere(`slave.slaveId = :slaveId`, { slaveId })
+      .andWhere(`t.create_at BETWEEN :begin AND :end`, {
         begin,
         end,
       })
       .getRawOne();
   }
 
-  saveTemperature(masterId: number, slaveId: number, temperature) {
+  saveTemperature(masterId: number, slaveId: number, temperature, date: Date) {
     try {
-      const sensor = new Temperature(masterId, slaveId);
-      const inserResult = this.insertTemperatureLog(sensor, temperature);
-      const cachedResult = this.cacheTemperature();
+      return Promise.allSettled([
+        this.insertTemperature(masterId, slaveId, temperature),
+        this.cacheTemperature(masterId, slaveId, temperature),
+        this.cacheDayAverage(masterId, slaveId, temperature, date),
+      ]);
     } catch (e) {
       throw e;
     }
   }
 
-  // async saveTemperature(temperature: Temperature, date: Date) {
-  //   try {
-  //     return Promise.allSettled([
-  //       this.insertTemperature(temperature),
-  //       this.cacheTemperature(temperature),
-  //       this.cacheDayAverage(temperature, date),
-  //     ]);
-  //   } catch (e) {
-  //     throw e;
-  //   }
-  // }
-
   private async cacheDayAverage(
-    { masterId, slaveId, temperature }: Temperature,
+    masterId: number,
+    slaveId: number,
+    temperature: number,
     date: Date,
   ) {
     const dayAverageKey = GenerateDayAverageKey(masterId, slaveId, date);
@@ -111,7 +80,6 @@ export class DeviceTemperatureService {
     if (!averageInfo) {
       return this.cacheManager.set(
         dayAverageKey,
-
         [temperature, 1],
         { ttl: 604800 }, // 1주일 -> 초
       );
@@ -147,61 +115,53 @@ export class DeviceTemperatureService {
     beginDate: Date,
     endDate: Date,
   ) {
-    return createQueryBuilder()
-      .select(['create_at AS x', 'temperature AS y'])
-      .where(`master_id = :masterId`, { masterId })
-      .andWhere(`slave_id = :slaveId`, { slaveId })
-      .andWhere(`create_at BETWEEN :begin AND :end`, {
+    return this.temperatureRepository
+      .createQueryBuilder('t')
+      .leftJoinAndSelect('t.slave', 'slave')
+      .select(['t.create_at AS x', 't.temperature AS y'])
+      .where(`slave.masterId = :masterId`, { masterId })
+      .andWhere(`slave.slaveId = :slaveId`, { slaveId })
+      .andWhere(`t.create_at BETWEEN :begin AND :end`, {
         begin: beginDate,
         end: endDate,
       })
-      .distinct(true)
-      .from(Temperature, 'temperatures')
       .limit(100000) // Todo: 제한 고민
-      .orderBy('create_at', 'ASC')
+      .orderBy('t.create_at', 'ASC')
       .getRawMany();
   }
 
-  async setTemperatureConfig({
+  /** Todo: Refactor */
+  setConfigs({
     masterId,
     slaveId,
-    startTemperatureRange,
-    endTemperatureRange,
-    temperatureUpdateCycle,
+    rangeBegin,
+    rangeEnd,
+    updateCycle,
   }: Partial<SlaveConfigDto>) {
     try {
       const config: ITemperatureConfig = {
-        startTemperatureRange,
-        endTemperatureRange,
-        temperatureUpdateCycle,
+        rangeBegin,
+        rangeEnd,
+        updateCycle,
       };
-      return this.slaveRepository.setConfig(masterId, slaveId, config);
+
+      return this.thermometerRepository.setConfigs(masterId, slaveId, config);
     } catch (e) {
       console.log(e);
     }
   }
 
-  async createTestData(temperatureBetweenDto: TemperatureBetweenDto) {
-    return this.temperatureRepository.createTestData(temperatureBetweenDto);
-  }
-
-  async cacheTemperature({ masterId, slaveId, temperature }: Temperature) {
+  cacheTemperature(masterId: number, slaveId: number, temperature) {
     const key = SensorStateKey({
       sensor: ESlaveState.TEMPERATURE,
       masterId,
       slaveId,
     });
-    return this.cacheManager.set<number>(key, temperature, { ttl: 60 });
+
+    return this.cacheManager.set<number>(key, temperature, {
+      ttl: 60,
+    });
   }
-  //
-  // async cacheTemperature({ masterId, slaveId, temperature }: Temperature) {
-  //   const key = SensorStateKey({
-  //     sensor: ESlaveState.TEMPERATURE,
-  //     masterId,
-  //     slaveId,
-  //   });
-  //   return this.cacheManager.set<number>(key, temperature, { ttl: 60 });
-  // }
 
   async getTemperatureRange(
     masterId: number,
@@ -218,12 +178,13 @@ export class DeviceTemperatureService {
       return cachedRange;
     }
 
-    const configs = await this.slaveRepository.getConfigs(masterId, slaveId);
+    const configs = await this.thermometerRepository.findBySlave(
+      masterId,
+      slaveId,
+    );
+
     /** Todo: Exception handling */
-    const range = [
-      configs?.startTemperatureRange,
-      configs?.endTemperatureRange,
-    ];
+    const range = [configs?.rangeBegin, configs?.rangeEnd];
 
     await this.cacheManager.set<number[]>(key, range, { ttl: 3600 });
     return range;

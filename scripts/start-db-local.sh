@@ -4,6 +4,8 @@ set -e
 SERVER="postgres_container";
 PW="789456";
 DB="master";
+TEST_DB="test";
+
 # Port 5433임. 5432랑 혼동 x
 echo "echo stop & remove old docker [$SERVER] and starting new fresh instance of [$SERVER]"
 (docker kill $SERVER || :) && \
@@ -19,4 +21,5 @@ SLEEP 3;
 
 # create the db
 echo "CREATE DATABASE $DB ENCODING 'UTF-8';" | docker exec -i $SERVER psql -U postgres
+echo "CREATE DATABASE $TEST_DB ENCODING 'UTF-8';" | docker exec -i $SERVER psql -U postgres
 echo "\l" | docker exec -i $SERVER psql -U postgres

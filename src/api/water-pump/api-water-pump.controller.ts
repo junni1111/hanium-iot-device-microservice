@@ -17,6 +17,7 @@ import { Slave } from '../../device/entities/slave.entity';
 import { ApiSlaveService } from '../slave/api-slave.service';
 import { DeviceMasterService } from '../../device/master/device-master.service';
 import { SensorPowerKey, SensorStateKey } from '../../util/key-generator';
+import { IWaterPumpConfig } from '../../device/interfaces/slave-configs';
 
 @Controller()
 export class ApiWaterPumpController {
@@ -56,15 +57,16 @@ export class ApiWaterPumpController {
    * Todo: LED, 모터 둘다 포함 가능하게 고민*/
   @MessagePattern(ESlaveTurnPowerTopic.WATER_PUMP, Transport.TCP)
   async turnWaterPump(@Payload() waterPumpTurnDto: WaterPowerTurnDto) {
-    let configs: Slave | undefined;
+    let configs: IWaterPumpConfig | undefined;
     try {
       console.log(`turn water dto: `, waterPumpTurnDto);
 
       if (waterPumpTurnDto.powerState === EPowerState.ON) {
-        configs = await this.deviceMasterService.getConfigs(
+        configs = await this.deviceWaterPumpService.getConfig(
           waterPumpTurnDto.masterId,
           waterPumpTurnDto.slaveId,
         );
+
         await this.deviceWaterPumpService.requestWaterPump({
           masterId: waterPumpTurnDto.masterId,
           slaveId: waterPumpTurnDto.slaveId,
@@ -141,12 +143,11 @@ export class ApiWaterPumpController {
         });
       }
 
-      const configUpdateResult =
-        await this.deviceWaterPumpService.setWaterPumpConfig(
-          waterPumpConfigDto,
-        );
+      const configUpdateResult = await this.deviceWaterPumpService.setConfig(
+        waterPumpConfigDto,
+      );
 
-      if (!configUpdateResult.affected) {
+      if (!configUpdateResult) {
         return {
           status: HttpStatus.BAD_REQUEST,
           topic: ESlaveConfigTopic.WATER_PUMP,

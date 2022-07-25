@@ -22,3 +22,5 @@ export const DEVICE_PORT =
 // export const DEVICE_PORT = Number(process.env.DEVICE_PORT) || 8888;
 export const MQTT_BROKER_URL =
   process.env.MQTT_BROKER_URL || 'mqtt://0.0.0.0:1883';
+export const REDIS_HOST = process.env.REDIS_HOST || '0.0.0.0';
+export const REDIS_PORT = Number(process.env.REDIS_PORT) || 6379;

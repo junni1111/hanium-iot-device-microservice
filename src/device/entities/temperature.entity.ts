@@ -1,17 +1,23 @@
-import { Column, CreateDateColumn, Entity, PrimaryColumn } from 'typeorm';
+import {
+  Column,
+  CreateDateColumn,
+  Entity,
+  ManyToOne,
+  PrimaryGeneratedColumn,
+} from 'typeorm';
+import { Slave } from './slave.entity';
 
-@Entity('temperatures')
+@Entity('temperature_logs')
 export class Temperature {
-  @PrimaryColumn({ type: 'integer', name: 'master_id' })
-  masterId: number;
-
-  @PrimaryColumn({ type: 'integer', name: 'slave_id' })
-  slaveId: number;
+  @PrimaryGeneratedColumn()
+  id: number;
 
   @Column({ type: 'float' })
   temperature: number;
 
-  // @PrimaryColumn({type: 'timestamptz', name: 'create_at', })
-  @CreateDateColumn({ type: 'timestamptz', name: 'create_at', primary: true })
+  @ManyToOne((type) => Slave, (slave) => slave.temperatures)
+  slave: Slave;
+
+  @CreateDateColumn({ type: 'timestamptz', name: 'create_at' })
   createAt: Date;
 }

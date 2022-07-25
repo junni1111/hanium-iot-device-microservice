@@ -11,8 +11,6 @@ import { Cache } from 'cache-manager';
 import { SlaveConfigDto } from '../dto/slave/slave-config.dto';
 import { SensorConfigKey } from '../../util/key-generator';
 import { TemperatureBetweenDto } from '../dto/temperature/temperature-between.dto';
-import { DeviceFanService } from '../../device/fan/device-fan.service';
-import { RedisService } from '../../cache/redis.service';
 import { addDays } from 'date-fns';
 
 @Controller()
@@ -20,8 +18,6 @@ export class ApiThermometerController {
   constructor(
     @Inject(CACHE_MANAGER) private readonly cacheManager: Cache,
     private readonly deviceTemperatureService: DeviceTemperatureService,
-    private readonly deviceFanService: DeviceFanService,
-    private readonly redisService: RedisService,
   ) {}
 
   @MessagePattern(TEMPERATURE_BETWEEN, Transport.TCP)
@@ -84,12 +80,11 @@ export class ApiThermometerController {
     });
 
     try {
-      const configUpdateResult =
-        await this.deviceTemperatureService.setTemperatureConfig(
-          temperatureConfigDto,
-        );
+      const configUpdateResult = await this.deviceTemperatureService.setConfigs(
+        temperatureConfigDto,
+      );
 
-      if (!configUpdateResult.affected) {
+      if (!configUpdateResult) {
         return {
           status: HttpStatus.INTERNAL_SERVER_ERROR,
           topic: ESlaveConfigTopic.TEMPERATURE,
@@ -101,10 +96,7 @@ export class ApiThermometerController {
       /** Todo: 범위 값 저장 방식 고민 */
       const cachedResult = await this.cacheManager.set<number[]>(
         key,
-        [
-          temperatureConfigDto.startTemperatureRange,
-          temperatureConfigDto.endTemperatureRange,
-        ],
+        [temperatureConfigDto.rangeBegin, temperatureConfigDto.rangeEnd],
         { ttl: 3600 },
       );
 

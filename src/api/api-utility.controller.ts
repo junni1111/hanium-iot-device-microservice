@@ -2,7 +2,6 @@ import { Controller, Get, HttpStatus, Res } from '@nestjs/common';
 import { MessagePattern, Payload, Transport } from '@nestjs/microservices';
 import { DeviceTemperatureService } from '../device/thermometer/device-temperature.service';
 import { SlaveStateDto } from './dto/slave/slave-state.dto';
-import { TemperatureBetweenDto } from './dto/temperature/temperature-between.dto';
 
 @Controller()
 export class ApiUtilityController {
@@ -22,16 +21,13 @@ export class ApiUtilityController {
     return 'device-pong';
   }
 
-  @MessagePattern('test/temperature', Transport.TCP)
-  async createTestTemperatureData(
-    @Payload() temperatureBetweenDto: TemperatureBetweenDto,
-  ) {
-    console.log(`create test data...`, temperatureBetweenDto);
-
-    const value = await this.deviceTemperatureService.createTestData(
-      temperatureBetweenDto,
-    );
-    console.log(value.length);
-    return value;
-  }
+  // @MessagePattern('test/temperature', Transport.TCP)
+  // async createTestTemperatureData(@Payload() slaveStateDto: SlaveStateDto) {
+  //   console.log(`create test data...`, slaveStateDto);
+  //
+  //   return await this.deviceTemperatureService.createTestData(
+  //     slaveStateDto.masterId,
+  //     slaveStateDto.slaveId,
+  //   );
+  // }
 }

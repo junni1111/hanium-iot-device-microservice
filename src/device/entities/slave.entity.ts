@@ -1,79 +1,56 @@
 import {
-  Column,
   CreateDateColumn,
   Entity,
+  JoinColumn,
   ManyToOne,
-  PrimaryGeneratedColumn,
+  OneToMany,
+  OneToOne,
+  PrimaryColumn,
 } from 'typeorm';
 import { Master } from './master.entity';
-import { JoinColumn } from 'typeorm/browser';
-import { ISlaveConfigs } from '../interfaces/slave-configs';
+import { ThermometerConfig } from './thermometer.entity';
+import { Temperature } from './temperature.entity';
+import { WaterPumpConfig } from './water-pump.entity';
+import { LedConfig } from './led.entity';
 
-@Entity()
+@Entity('slaves')
 export class Slave {
-  @PrimaryGeneratedColumn({ type: 'integer' })
-  id: number;
+  // @PrimaryGeneratedColumn({ type: 'integer' })
+  // id: number;
+  @PrimaryColumn({ type: 'integer' })
+  masterId: number;
 
-  @Column({ type: 'integer' })
+  @PrimaryColumn({ type: 'integer' })
   slaveId: number;
 
-  @Column({ type: 'integer' })
-  startTemperatureRange: number;
-
-  @Column({ type: 'integer' })
-  endTemperatureRange: number;
-
-  @Column({ type: 'integer' })
-  temperatureUpdateCycle: number;
-
-  @Column({ type: 'integer' })
-  waterPumpCycle: number;
-
-  @Column({ type: 'integer' })
-  waterPumpRuntime: number;
-
-  @Column({ type: 'integer' })
-  ledCycle: number;
-
-  @Column({ type: 'integer' })
-  ledRuntime: number;
-
-  @CreateDateColumn({ type: 'timestamptz', name: 'create_at' })
-  createAt: Date;
-
+  @JoinColumn({ name: 'masterId' })
   @ManyToOne((type) => Master, (master) => master.slaves, {
     onDelete: 'CASCADE',
+    // eager: true,
   })
   master: Master;
 
-  static createSlave(
-    masterId: number,
-    slaveId: number,
-    {
-      startTemperatureRange,
-      endTemperatureRange,
-      temperatureUpdateCycle,
-      waterPumpCycle,
-      waterPumpRuntime,
-      ledRuntime,
-      ledCycle,
-    }: ISlaveConfigs,
-  ) {
-    const master = new Master();
-    master.id = masterId;
+  @JoinColumn()
+  @OneToOne((type) => WaterPumpConfig, (waterPump) => waterPump.slave, {
+    cascade: ['insert', 'update'],
+  })
+  waterConfig: WaterPumpConfig;
 
-    const slave = new Slave();
-    slave.slaveId = slaveId;
-    slave.startTemperatureRange = startTemperatureRange;
-    slave.endTemperatureRange = endTemperatureRange;
-    slave.temperatureUpdateCycle = temperatureUpdateCycle;
-    slave.waterPumpCycle = waterPumpCycle;
-    slave.waterPumpRuntime = waterPumpRuntime;
-    slave.ledCycle = ledCycle;
-    slave.ledRuntime = ledRuntime;
+  @JoinColumn()
+  @OneToOne((type) => LedConfig, (led) => led.slave, {
+    cascade: ['insert', 'update'],
+  })
+  ledConfig: LedConfig;
 
-    slave.master = master;
+  @JoinColumn()
+  @OneToOne((type) => ThermometerConfig, (thermometer) => thermometer.slave, {
+    cascade: ['insert', 'update'],
+  })
+  thermometerConfig: ThermometerConfig;
 
-    return slave;
-  }
+  @OneToMany((type) => Temperature, (temperature) => temperature.slave)
+  temperatures: Temperature[];
+
+  @CreateDateColumn({ type: 'timestamptz', name: 'create_at' })
+  createAt: Date;
 }

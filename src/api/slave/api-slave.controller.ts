@@ -8,12 +8,14 @@ import { Cache } from 'cache-manager';
 import { SlaveStateDto } from '../dto/slave/slave-state.dto';
 import { SlaveConfigDto } from '../dto/slave/slave-config.dto';
 import { ApiSlaveService } from './api-slave.service';
+import { DeviceSlaveService } from '../../device/slave/device-slave.service';
 
 @Controller()
 export class ApiSlaveController {
   constructor(
     @Inject(CACHE_MANAGER) private readonly cacheManager: Cache,
-    private readonly masterService: DeviceMasterService,
+    // private readonly masterService: DeviceMasterService,
+    private slaveService: DeviceSlaveService,
     private readonly pollingService: DevicePollingService,
     private readonly apiSlaveService: ApiSlaveService,
   ) {}
@@ -44,7 +46,8 @@ export class ApiSlaveController {
   @MessagePattern(ESlaveConfigTopic.ALL, Transport.TCP)
   async fetchConfig(@Payload() { masterId, slaveId }: Partial<SlaveConfigDto>) {
     try {
-      const result = await this.masterService.getConfigs(masterId, slaveId);
+      /** Todo: Convert configs to camelCase */
+      const result = await this.slaveService.getConfigs(masterId, slaveId);
       console.log(result);
       return result;
     } catch (e) {

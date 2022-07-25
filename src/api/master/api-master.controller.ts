@@ -7,11 +7,13 @@ import { POLLING } from '../../util/constants/mqtt-topic';
 import { EPollingState } from '../../device/interfaces/polling-status';
 import { CreateMasterDto } from '../dto/master/create-master.dto';
 import { CreateSlaveDto } from '../dto/slave/create-slave.dto';
+import { DeviceSlaveService } from '../../device/slave/device-slave.service';
 
 @Controller()
 export class ApiMasterController {
   constructor(
     private readonly masterService: DeviceMasterService,
+    private slaveService: DeviceSlaveService,
     private readonly pollingService: DevicePollingService,
   ) {}
 
@@ -41,7 +43,7 @@ export class ApiMasterController {
     @Payload() createSlaveDto: CreateSlaveDto,
   ): Promise<ResponseStatus> {
     try {
-      const createResult = await this.masterService.createSlave(createSlaveDto);
+      const createResult = await this.slaveService.createSlave(createSlaveDto);
 
       /* TODO: Create Optimized Value First Time */
       // const optimized = await this.masterService.optimize(master_id, slave_id);
@@ -56,17 +58,17 @@ export class ApiMasterController {
     }
   }
 
-  @MessagePattern('optimize', Transport.TCP)
-  async optimizeConfig(@Payload() payload: string) {
-    try {
-      const { master_id, slave_id } = JSON.parse(payload);
-      const result = await this.masterService.optimize(master_id, slave_id);
-
-      return result;
-    } catch (e) {
-      console.log(e);
-    }
-  }
+  // @MessagePattern('optimize', Transport.TCP)
+  // async optimizeConfig(@Payload() payload: string) {
+  //   try {
+  //     const { master_id, slave_id } = JSON.parse(payload);
+  //     const result = await this.masterService.optimize(master_id, slave_id);
+  //
+  //     return result;
+  //   } catch (e) {
+  //     console.log(e);
+  //   }
+  // }
 
   /**
    * Todo: Refactor To Better Status Code */
