@@ -9,7 +9,7 @@ export class ApiUtilityController {
     private readonly deviceTemperatureService: DeviceTemperatureService,
   ) {}
 
-  @Get()
+  @Get('/')
   async healthCheck(@Res() res) {
     console.log(`Health Check`);
     return res.status(HttpStatus.OK).send('ok');
