@@ -1,5 +1,5 @@
 import { EntityRepository, Repository } from 'typeorm';
-import { Temperature } from '../entities/temperature.entity';
+import { Temperature } from '../thermometer/entities/temperature.entity';
 import { subDays, subMinutes, subSeconds } from 'date-fns';
 import { TemperatureBetweenDto } from '../../api/dto/temperature/temperature-between.dto';
 

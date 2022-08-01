@@ -1,8 +1,8 @@
 import { CacheModule, Module } from '@nestjs/common';
 import { TypeOrmModule } from '@nestjs/typeorm';
 import { DeviceSlaveModule } from '../slave/device-slave.module';
-import { ThermometerConfig } from '../entities/thermometer.entity';
-import { Temperature } from '../entities/temperature.entity';
+import { ThermometerConfig } from './entities/thermometer.entity';
+import { Temperature } from './entities/temperature.entity';
 import { ThermometerRepository } from '../repositories/thermometer.repository';
 import { TemperatureRepository } from './device-temperature.repository';
 import { DeviceTemperatureController } from './device-temperature.controller';

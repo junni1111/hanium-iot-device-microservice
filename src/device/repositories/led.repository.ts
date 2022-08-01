@@ -1,6 +1,6 @@
 import { EntityRepository, Repository } from 'typeorm';
 import { defaultSlaveConfig, ILedConfig } from '../interfaces/slave-configs';
-import { LedConfig } from '../entities/led.entity';
+import { LedConfig } from '../led/entities/led.entity';
 
 @EntityRepository(LedConfig)
 export class LedRepository extends Repository<LedConfig> {

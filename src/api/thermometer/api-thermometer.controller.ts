@@ -31,6 +31,49 @@ export class ApiThermometerController {
     private readonly deviceTemperatureService: DeviceTemperatureService,
   ) {}
 
+  /** Todo: Extract to service */
+  @Post('config')
+  async setTemperatureConfig(@Body() temperatureConfigDto: SlaveConfigDto) {
+    /** Todo: Change Key */
+    const key = SensorConfigKey({
+      sensor: ESlaveConfigTopic.TEMPERATURE,
+      masterId: temperatureConfigDto.masterId,
+      slaveId: temperatureConfigDto.slaveId,
+    });
+
+    try {
+      const configUpdateResult = await this.deviceTemperatureService.setConfigs(
+        temperatureConfigDto,
+      );
+
+      if (!configUpdateResult) {
+        return {
+          status: HttpStatus.INTERNAL_SERVER_ERROR,
+          topic: ESlaveConfigTopic.TEMPERATURE,
+          message: 'temperature config not affected',
+          data: configUpdateResult,
+        };
+      }
+
+      /** Todo: 범위 값 저장 방식 고민 */
+      const cachedResult = await this.cacheManager.set<number[]>(
+        key,
+        [temperatureConfigDto.rangeBegin, temperatureConfigDto.rangeEnd],
+        { ttl: 3600 },
+      );
+
+      return {
+        status: HttpStatus.OK,
+        topic: ESlaveConfigTopic.TEMPERATURE,
+        message: 'success to save temperature config',
+        data: cachedResult,
+      };
+    } catch (e) {
+      console.log(`catch temperature config error`, e);
+      return e;
+    }
+  }
+
   @Post('between')
   async fetchTemperatures(
     @Body() temperatureBetweenDto: TemperatureBetweenDto,
@@ -100,46 +143,13 @@ export class ApiThermometerController {
     };
   }
 
-  /** Todo: Extract to service */
-  @Post('config')
-  async setTemperatureConfig(@Body() temperatureConfigDto: SlaveConfigDto) {
-    /** Todo: Change Key */
-    const key = SensorConfigKey({
-      sensor: ESlaveConfigTopic.TEMPERATURE,
-      masterId: temperatureConfigDto.masterId,
-      slaveId: temperatureConfigDto.slaveId,
-    });
-
-    try {
-      const configUpdateResult = await this.deviceTemperatureService.setConfigs(
-        temperatureConfigDto,
-      );
-
-      if (!configUpdateResult) {
-        return {
-          status: HttpStatus.INTERNAL_SERVER_ERROR,
-          topic: ESlaveConfigTopic.TEMPERATURE,
-          message: 'temperature config not affected',
-          data: configUpdateResult,
-        };
-      }
-
-      /** Todo: 범위 값 저장 방식 고민 */
-      const cachedResult = await this.cacheManager.set<number[]>(
-        key,
-        [temperatureConfigDto.rangeBegin, temperatureConfigDto.rangeEnd],
-        { ttl: 3600 },
-      );
-
-      return {
-        status: HttpStatus.OK,
-        topic: ESlaveConfigTopic.TEMPERATURE,
-        message: 'success to save temperature config',
-        data: cachedResult,
-      };
-    } catch (e) {
-      console.log(`catch temperature config error`, e);
-      return e;
-    }
-  }
+  // @MessagePattern('test/temperature', Transport.TCP)
+  // async createTestTemperatureData(@Payload() slaveStateDto: SlaveStateDto) {
+  //   console.log(`create test data...`, slaveStateDto);
+  //
+  //   return await this.deviceTemperatureService.createTestData(
+  //     slaveStateDto.masterId,
+  //     slaveStateDto.slaveId,
+  //   );
+  // }
 }

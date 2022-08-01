@@ -8,15 +8,8 @@ import { setupSwagger } from './util/swagger';
 async function bootstrap() {
   const app = await NestFactory.create(AppModule, { cors: true });
   const configService = app.get(ConfigService);
-  const DEVICE_HOST = configService.get<string>('DEVICE_HOST', '0.0.0.0');
-  const DEVICE_PORT = configService.get<number>(
-    'DEVICE_PORT_8888_TCP_PORT',
-    8888,
-  );
-  const DEVICE_HEALTH_PORT = configService.get<number>(
-    'DEVICE_PORT_8000_TCP_PORT',
-    8000,
-  );
+  const DEVICE_HOST = configService.get<string>('DEVICE_HOST');
+  const DEVICE_PORT = configService.get<number>('DEVICE_PORT_8000_TCP_PORT');
   const MQTT_BROKER_URL = configService.get<string>('MQTT_BROKER_URL');
   const REDIS_HOST = configService.get<string>('REDIS_HOST');
   const REDIS_PORT = configService.get<number>('REDIS_PORT');
@@ -36,14 +29,6 @@ async function bootstrap() {
   );
 
   app.connectMicroservice({
-    transport: Transport.TCP,
-    options: {
-      host: DEVICE_HOST,
-      port: DEVICE_PORT,
-    },
-  });
-
-  app.connectMicroservice({
     transport: Transport.MQTT,
     options: {
       url: MQTT_BROKER_URL,
@@ -53,10 +38,10 @@ async function bootstrap() {
   setupSwagger(app);
 
   await app.startAllMicroservices();
-  await app.listen(DEVICE_HEALTH_PORT, () => {
+  await app.listen(DEVICE_PORT, () => {
     Logger.log(
       `Running Device Microservice. 
-      Listening HOST:${DEVICE_HOST} HEALTH_PORT:${DEVICE_HEALTH_PORT} DEVICE_PORT:${DEVICE_PORT} MQTT URL:${MQTT_BROKER_URL}...
+      Listening HOST:${DEVICE_HOST} PORT:${DEVICE_PORT} MQTT URL:${MQTT_BROKER_URL}...
       Redis Host: ${REDIS_HOST} Redis Port: ${REDIS_PORT}`,
     );
   });

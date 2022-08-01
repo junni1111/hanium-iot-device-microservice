@@ -7,20 +7,23 @@ import {
   OneToOne,
   PrimaryColumn,
 } from 'typeorm';
-import { Master } from './master.entity';
-import { ThermometerConfig } from './thermometer.entity';
-import { Temperature } from './temperature.entity';
-import { WaterPumpConfig } from './water-pump.entity';
-import { LedConfig } from './led.entity';
+import { Master } from '../../master/entities/master.entity';
+import { ThermometerConfig } from '../../thermometer/entities/thermometer.entity';
+import { Temperature } from '../../thermometer/entities/temperature.entity';
+import { WaterPumpConfig } from '../../water-pump/entities/water-pump.entity';
+import { LedConfig } from '../../led/entities/led.entity';
+import { IsNumber } from 'class-validator';
 
 @Entity('slaves')
 export class Slave {
   // @PrimaryGeneratedColumn({ type: 'integer' })
   // id: number;
   @PrimaryColumn({ type: 'integer' })
+  @IsNumber()
   masterId: number;
 
   @PrimaryColumn({ type: 'integer' })
+  @IsNumber()
   slaveId: number;
 
   @JoinColumn({ name: 'masterId' })

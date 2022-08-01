@@ -1,5 +1,5 @@
 import { EntityRepository, Repository } from 'typeorm';
-import { ThermometerConfig } from '../entities/thermometer.entity';
+import { ThermometerConfig } from '../thermometer/entities/thermometer.entity';
 import {
   defaultSlaveConfig,
   ITemperatureConfig,

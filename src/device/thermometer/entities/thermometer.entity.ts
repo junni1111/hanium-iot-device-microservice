@@ -6,7 +6,7 @@ import {
   OneToOne,
   PrimaryGeneratedColumn,
 } from 'typeorm';
-import { Slave } from './slave.entity';
+import { Slave } from '../../slave/entities/slave.entity';
 
 @Entity('thermometer_configs')
 export class ThermometerConfig {

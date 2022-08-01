@@ -1,4 +1,12 @@
-import { Body, Controller, Get, HttpStatus, Post, Query } from '@nestjs/common';
+import {
+  Body,
+  Controller,
+  Get,
+  HttpStatus,
+  Post,
+  Query,
+  Res,
+} from '@nestjs/common';
 import { DevicePollingService } from '../../device/device-polling.service';
 import { DeviceMasterService } from '../../device/master/device-master.service';
 import { ResponseStatus } from '../../device/interfaces/response-status';
@@ -18,9 +26,8 @@ export class ApiMasterController {
   ) {}
 
   @Post('')
-  async createMaster(
-    @Body() createMasterDto: CreateMasterDto,
-  ): Promise<ResponseStatus> {
+  async createMaster(@Body() createMasterDto: CreateMasterDto) {
+    console.log('dto : ', createMasterDto);
     try {
       const createResult = await this.masterService.createMaster(
         createMasterDto,
@@ -40,9 +47,7 @@ export class ApiMasterController {
   /**
    * Todo: Refactor To Better Status Code */
   @Get('polling')
-  async getPollingState(
-    @Query('masterId') masterId: string,
-  ): Promise<ResponseStatus> {
+  async getPollingState(@Query('masterId') masterId: string) {
     try {
       const pollingState = await this.pollingService.getPollingState(masterId);
 

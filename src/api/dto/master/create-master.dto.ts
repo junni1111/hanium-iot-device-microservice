@@ -1,3 +1,7 @@
-export class CreateMasterDto {
-  constructor(readonly masterId: number, readonly address: string) {}
-}
+import { PickType } from '@nestjs/swagger';
+import { Master } from '../../../device/master/entities/master.entity';
+
+export class CreateMasterDto extends PickType(Master, [
+  'id',
+  'address',
+] as const) {}

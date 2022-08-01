@@ -4,7 +4,7 @@ import {
   defaultSlaveConfig,
   IWaterPumpConfig,
 } from '../interfaces/slave-configs';
-import { WaterPumpConfig } from '../entities/water-pump.entity';
+import { WaterPumpConfig } from '../water-pump/entities/water-pump.entity';
 
 @EntityRepository(WaterPumpConfig)
 export class WaterPumpRepository extends Repository<WaterPumpConfig> {

@@ -3,7 +3,7 @@ import { TypeOrmModule } from '@nestjs/typeorm';
 import { DeviceSlaveModule } from '../slave/device-slave.module';
 import { MqttBrokerModule } from '../mqtt-broker.module';
 import { WaterPumpRepository } from '../repositories/water-pump.repository';
-import { WaterPumpConfig } from '../entities/water-pump.entity';
+import { WaterPumpConfig } from './entities/water-pump.entity';
 import { DeviceWaterPumpService } from './device-water-pump.service';
 import { CacheConfigModule } from '../../config/cache/cache.module';
 import { CacheConfigService } from '../../config/cache/cache.service';

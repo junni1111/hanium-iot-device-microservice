@@ -5,7 +5,7 @@ import {
   OneToOne,
   PrimaryGeneratedColumn,
 } from 'typeorm';
-import { Slave } from './slave.entity';
+import { Slave } from '../../slave/entities/slave.entity';
 
 @Entity('led_configs')
 export class LedConfig {

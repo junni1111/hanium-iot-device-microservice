@@ -5,7 +5,7 @@ import {
   ManyToOne,
   PrimaryGeneratedColumn,
 } from 'typeorm';
-import { Slave } from './slave.entity';
+import { Slave } from '../../slave/entities/slave.entity';
 
 @Entity('temperature_logs')
 export class Temperature {

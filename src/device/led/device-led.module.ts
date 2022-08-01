@@ -4,7 +4,7 @@ import { DeviceSlaveModule } from '../slave/device-slave.module';
 import { MqttBrokerModule } from '../mqtt-broker.module';
 import { DeviceLedService } from './device-led.service';
 import { LedRepository } from '../repositories/led.repository';
-import { LedConfig } from '../entities/led.entity';
+import { LedConfig } from './entities/led.entity';
 import { CacheConfigModule } from '../../config/cache/cache.module';
 import { CacheConfigService } from '../../config/cache/cache.service';
 

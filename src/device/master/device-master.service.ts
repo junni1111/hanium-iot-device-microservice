@@ -1,7 +1,7 @@
 import { Injectable } from '@nestjs/common';
 import { CreateMasterDto } from '../../api/dto/master/create-master.dto';
 import { MasterRepository } from '../repositories/master.repository';
-import { Master } from '../entities/master.entity';
+import { Master } from './entities/master.entity';
 
 @Injectable()
 export class DeviceMasterService {
