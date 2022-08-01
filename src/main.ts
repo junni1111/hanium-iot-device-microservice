@@ -7,8 +7,7 @@ import { ConfigService } from '@nestjs/config';
 async function bootstrap() {
   const app = await NestFactory.create(AppModule, { cors: true });
   const configService = app.get(ConfigService);
-  const DEVICE_HOST = configService.get<string>('DEVICE_HOST', '0.0.0.0'
-  );
+  const DEVICE_HOST = configService.get<string>('DEVICE_HOST', '0.0.0.0');
   const DEVICE_PORT = configService.get<number>(
     'DEVICE_PORT_8888_TCP_PORT',
     8888,
