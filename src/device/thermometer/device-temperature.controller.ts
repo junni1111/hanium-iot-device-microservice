@@ -53,6 +53,7 @@ export class DeviceTemperatureController {
       );
       Logger.debug(saveResults);
       console.log(`saveResults: `, saveResults);
+      console.log(`temperature: `, temperature);
     } catch (e) {
       throw e;
     }
