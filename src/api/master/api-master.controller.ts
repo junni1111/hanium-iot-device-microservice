@@ -1,15 +1,15 @@
-import { Controller, HttpStatus } from '@nestjs/common';
-import { MessagePattern, Payload, Transport } from '@nestjs/microservices';
+import { Body, Controller, Get, HttpStatus, Post, Query } from '@nestjs/common';
 import { DevicePollingService } from '../../device/device-polling.service';
 import { DeviceMasterService } from '../../device/master/device-master.service';
 import { ResponseStatus } from '../../device/interfaces/response-status';
-import { POLLING } from '../../util/constants/mqtt-topic';
 import { EPollingState } from '../../device/interfaces/polling-status';
 import { CreateMasterDto } from '../dto/master/create-master.dto';
-import { CreateSlaveDto } from '../dto/slave/create-slave.dto';
 import { DeviceSlaveService } from '../../device/slave/device-slave.service';
+import { ApiTags } from '@nestjs/swagger';
+import { MASTER } from '../../util/constants/swagger';
 
-@Controller()
+@ApiTags(MASTER)
+@Controller('master')
 export class ApiMasterController {
   constructor(
     private readonly masterService: DeviceMasterService,
@@ -17,9 +17,9 @@ export class ApiMasterController {
     private readonly pollingService: DevicePollingService,
   ) {}
 
-  @MessagePattern('create/master', Transport.TCP)
+  @Post('')
   async createMaster(
-    @Payload() createMasterDto: CreateMasterDto,
+    @Body() createMasterDto: CreateMasterDto,
   ): Promise<ResponseStatus> {
     try {
       const createResult = await this.masterService.createMaster(
@@ -37,43 +37,12 @@ export class ApiMasterController {
     }
   }
 
-  /* TODO: Extract to slave controller */
-  @MessagePattern('create/slave', Transport.TCP)
-  async createSlave(
-    @Payload() createSlaveDto: CreateSlaveDto,
-  ): Promise<ResponseStatus> {
-    try {
-      const createResult = await this.slaveService.createSlave(createSlaveDto);
-
-      /* TODO: Create Optimized Value First Time */
-      // const optimized = await this.masterService.optimize(master_id, slave_id);
-      return {
-        status: HttpStatus.OK,
-        topic: 'slave',
-        message: 'slave create success',
-        data: createResult,
-      };
-    } catch (e) {
-      console.log(e);
-    }
-  }
-
-  // @MessagePattern('optimize', Transport.TCP)
-  // async optimizeConfig(@Payload() payload: string) {
-  //   try {
-  //     const { master_id, slave_id } = JSON.parse(payload);
-  //     const result = await this.masterService.optimize(master_id, slave_id);
-  //
-  //     return result;
-  //   } catch (e) {
-  //     console.log(e);
-  //   }
-  // }
-
   /**
    * Todo: Refactor To Better Status Code */
-  @MessagePattern(POLLING, Transport.TCP)
-  async getPollingState(@Payload() masterId: string): Promise<ResponseStatus> {
+  @Get('polling')
+  async getPollingState(
+    @Query('masterId') masterId: string,
+  ): Promise<ResponseStatus> {
     try {
       const pollingState = await this.pollingService.getPollingState(masterId);
 

@@ -1,5 +1,11 @@
-import { CACHE_MANAGER, Controller, HttpStatus, Inject } from '@nestjs/common';
-import { MessagePattern, Payload, Transport } from '@nestjs/microservices';
+import {
+  Body,
+  CACHE_MANAGER,
+  Controller,
+  HttpStatus,
+  Inject,
+  Post,
+} from '@nestjs/common';
 import { ResponseStatus } from '../../device/interfaces/response-status';
 import {
   EPowerState,
@@ -13,13 +19,15 @@ import { Cache } from 'cache-manager';
 import { WaterPumpStateDto } from '../dto/water-pump/water-pump-state.dto';
 import { ApiWaterPumpService } from './api-water-pump.service';
 import { SlaveConfigDto } from '../dto/slave/slave-config.dto';
-import { Slave } from '../../device/entities/slave.entity';
 import { ApiSlaveService } from '../slave/api-slave.service';
 import { DeviceMasterService } from '../../device/master/device-master.service';
 import { SensorPowerKey, SensorStateKey } from '../../util/key-generator';
 import { IWaterPumpConfig } from '../../device/interfaces/slave-configs';
+import { ApiTags } from '@nestjs/swagger';
+import { WATER_PUMP } from '../../util/constants/swagger';
 
-@Controller()
+@ApiTags(WATER_PUMP)
+@Controller('water-pump')
 export class ApiWaterPumpController {
   constructor(
     @Inject(CACHE_MANAGER) private readonly cacheManager: Cache,
@@ -28,11 +36,63 @@ export class ApiWaterPumpController {
     private readonly apiWaterPumpService: ApiWaterPumpService,
     private readonly deviceWaterPumpService: DeviceWaterPumpService,
   ) {}
-  /**
-   * Todo: Extract Controller */
-  @MessagePattern(ESlaveState.WATER_PUMP, Transport.TCP)
+
+  @Post('config')
+  async setWaterPumpConfig(
+    @Body() waterPumpConfigDto: SlaveConfigDto,
+  ): Promise<ResponseStatus> {
+    try {
+      console.log(`call set waterpump config`, waterPumpConfigDto);
+
+      const waterPumpPacket =
+        await this.deviceWaterPumpService.requestWaterPump(waterPumpConfigDto);
+
+      if (waterPumpConfigDto.waterPumpRuntime > 0) {
+        const powerStateKey = SensorPowerKey({
+          sensor: ESlaveTurnPowerTopic.WATER_PUMP,
+          masterId: waterPumpConfigDto.masterId,
+          slaveId: waterPumpConfigDto.slaveId,
+        });
+        await this.cacheManager.set<string>(powerStateKey, 'on', { ttl: 0 });
+
+        const key = SensorStateKey({
+          sensor: ESlaveState.WATER_PUMP,
+          masterId: waterPumpConfigDto.masterId,
+          slaveId: waterPumpConfigDto.slaveId,
+        });
+        await this.cacheManager.set<string>(key, 'on', {
+          ttl: waterPumpConfigDto.waterPumpRuntime * 60,
+        });
+      }
+
+      const configUpdateResult = await this.deviceWaterPumpService.setConfig(
+        waterPumpConfigDto,
+      );
+
+      if (!configUpdateResult) {
+        return {
+          status: HttpStatus.BAD_REQUEST,
+          topic: ESlaveConfigTopic.WATER_PUMP,
+          message: 'water pump config not affected',
+          data: configUpdateResult,
+        };
+      }
+
+      return {
+        status: HttpStatus.OK,
+        topic: ESlaveConfigTopic.WATER_PUMP,
+        message: 'send water pump packet to device',
+        data: waterPumpPacket,
+      };
+    } catch (e) {
+      console.log(e);
+      throw e;
+    }
+  }
+
+  @Post('state')
   async getWaterPumpState(
-    @Payload() waterPumpStateDto: WaterPumpStateDto,
+    @Body() waterPumpStateDto: WaterPumpStateDto,
   ): Promise<ResponseStatus> {
     try {
       const state = await this.apiSlaveService.getRunningState(
@@ -52,11 +112,9 @@ export class ApiWaterPumpController {
   }
 
   /**
-   * Todo: Extract to service */
-  /**
    * Todo: LED, 모터 둘다 포함 가능하게 고민*/
-  @MessagePattern(ESlaveTurnPowerTopic.WATER_PUMP, Transport.TCP)
-  async turnWaterPump(@Payload() waterPumpTurnDto: WaterPowerTurnDto) {
+  @Post('power')
+  async turnWaterPump(@Body() waterPumpTurnDto: WaterPowerTurnDto) {
     let configs: IWaterPumpConfig | undefined;
     try {
       console.log(`turn water dto: `, waterPumpTurnDto);
@@ -111,60 +169,6 @@ export class ApiWaterPumpController {
     } catch (e) {
       console.log(`catch water pump config error`, e);
       return e;
-    }
-  }
-
-  /** Todo: Extract service */
-  @MessagePattern(ESlaveConfigTopic.WATER_PUMP, Transport.TCP)
-  async setWaterPumpConfig(
-    @Payload() waterPumpConfigDto: SlaveConfigDto,
-  ): Promise<ResponseStatus> {
-    try {
-      console.log(`call set waterpump config`, waterPumpConfigDto);
-
-      const waterPumpPacket =
-        await this.deviceWaterPumpService.requestWaterPump(waterPumpConfigDto);
-
-      if (waterPumpConfigDto.waterPumpRuntime > 0) {
-        const powerStateKey = SensorPowerKey({
-          sensor: ESlaveTurnPowerTopic.WATER_PUMP,
-          masterId: waterPumpConfigDto.masterId,
-          slaveId: waterPumpConfigDto.slaveId,
-        });
-        await this.cacheManager.set<string>(powerStateKey, 'on', { ttl: 0 });
-
-        const key = SensorStateKey({
-          sensor: ESlaveState.WATER_PUMP,
-          masterId: waterPumpConfigDto.masterId,
-          slaveId: waterPumpConfigDto.slaveId,
-        });
-        await this.cacheManager.set<string>(key, 'on', {
-          ttl: waterPumpConfigDto.waterPumpRuntime * 60,
-        });
-      }
-
-      const configUpdateResult = await this.deviceWaterPumpService.setConfig(
-        waterPumpConfigDto,
-      );
-
-      if (!configUpdateResult) {
-        return {
-          status: HttpStatus.BAD_REQUEST,
-          topic: ESlaveConfigTopic.WATER_PUMP,
-          message: 'water pump config not affected',
-          data: configUpdateResult,
-        };
-      }
-
-      return {
-        status: HttpStatus.OK,
-        topic: ESlaveConfigTopic.WATER_PUMP,
-        message: 'send water pump packet to device',
-        data: waterPumpPacket,
-      };
-    } catch (e) {
-      console.log(e);
-      throw e;
     }
   }
 }

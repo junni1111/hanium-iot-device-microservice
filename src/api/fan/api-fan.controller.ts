@@ -1,5 +1,11 @@
-import { CACHE_MANAGER, Controller, HttpStatus, Inject } from '@nestjs/common';
-import { MessagePattern, Payload, Transport } from '@nestjs/microservices';
+import {
+  Body,
+  CACHE_MANAGER,
+  Controller,
+  HttpStatus,
+  Inject,
+  Post,
+} from '@nestjs/common';
 import { DeviceMasterService } from '../../device/master/device-master.service';
 import {
   EPowerState,
@@ -11,8 +17,11 @@ import { ApiSlaveService } from '../slave/api-slave.service';
 import { SensorPowerKey, SensorStateKey } from '../../util/key-generator';
 import { DeviceFanService } from '../../device/fan/device-fan.service';
 import { SlavePowerDto } from '../dto/slave/slave-power.dto';
+import { ApiTags } from '@nestjs/swagger';
+import { FAN } from '../../util/constants/swagger';
 
-@Controller()
+@ApiTags(FAN)
+@Controller('fan')
 export class ApiFanController {
   constructor(
     @Inject(CACHE_MANAGER) private readonly cacheManager: Cache,
@@ -21,9 +30,8 @@ export class ApiFanController {
     private readonly deviceFanService: DeviceFanService,
   ) {}
 
-  /** Todo: Extract to service */
-  @MessagePattern(ESlaveTurnPowerTopic.FAN, Transport.TCP)
-  async turnFan(@Payload() fanPowerDto: SlavePowerDto) {
+  @Post('power')
+  async turnFan(@Body() fanPowerDto: SlavePowerDto) {
     console.log(`@@@@@@ TURN FAN`, fanPowerDto);
     const powerStateKey = SensorPowerKey({
       sensor: ESlaveTurnPowerTopic.FAN,

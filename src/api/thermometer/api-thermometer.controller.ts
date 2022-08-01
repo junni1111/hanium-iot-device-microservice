@@ -1,5 +1,13 @@
-import { CACHE_MANAGER, Controller, HttpStatus, Inject } from '@nestjs/common';
-import { MessagePattern, Payload, Transport } from '@nestjs/microservices';
+import {
+  Body,
+  CACHE_MANAGER,
+  Controller,
+  Get,
+  HttpStatus,
+  Inject,
+  Post,
+  Query,
+} from '@nestjs/common';
 import { ResponseStatus } from '../../device/interfaces/response-status';
 import {
   ESlaveConfigTopic,
@@ -12,17 +20,20 @@ import { SlaveConfigDto } from '../dto/slave/slave-config.dto';
 import { SensorConfigKey } from '../../util/key-generator';
 import { TemperatureBetweenDto } from '../dto/temperature/temperature-between.dto';
 import { addDays } from 'date-fns';
+import { ApiTags } from '@nestjs/swagger';
+import { THERMOMETER } from '../../util/constants/swagger';
 
-@Controller()
+@ApiTags(THERMOMETER)
+@Controller('temperature')
 export class ApiThermometerController {
   constructor(
     @Inject(CACHE_MANAGER) private readonly cacheManager: Cache,
     private readonly deviceTemperatureService: DeviceTemperatureService,
   ) {}
 
-  @MessagePattern(TEMPERATURE_BETWEEN, Transport.TCP)
+  @Post('between')
   async fetchTemperatures(
-    @Payload() temperatureBetweenDto: TemperatureBetweenDto,
+    @Body() temperatureBetweenDto: TemperatureBetweenDto,
   ): Promise<ResponseStatus> {
     try {
       const temperatures =
@@ -44,9 +55,9 @@ export class ApiThermometerController {
     }
   }
 
-  @MessagePattern(TEMPERATURE_WEEK, Transport.TCP)
+  @Post('week')
   async fetchTemperatureOneWeek(
-    @Payload() temperatureBetweenDto: TemperatureBetweenDto,
+    @Body() temperatureBetweenDto: TemperatureBetweenDto,
   ): Promise<ResponseStatus> {
     try {
       const data = await this.deviceTemperatureService.getAveragePoints(
@@ -69,9 +80,29 @@ export class ApiThermometerController {
     }
   }
 
+  /* Todo: Change topic */
+  @Get('now')
+  async getCurrentTemperature(
+    @Query('masterId') masterId: number,
+    @Query('slaveId') slaveId: number,
+  ): Promise<ResponseStatus> {
+    /* Todo: Change to DTO */
+    const data = await this.deviceTemperatureService.getCachedTemperature(
+      masterId,
+      slaveId,
+    );
+
+    return {
+      status: HttpStatus.OK,
+      topic: 'temperature',
+      message: 'success fetch current temperature',
+      data,
+    };
+  }
+
   /** Todo: Extract to service */
-  @MessagePattern(ESlaveConfigTopic.TEMPERATURE, Transport.TCP)
-  async setTemperatureConfig(@Payload() temperatureConfigDto: SlaveConfigDto) {
+  @Post('config')
+  async setTemperatureConfig(@Body() temperatureConfigDto: SlaveConfigDto) {
     /** Todo: Change Key */
     const key = SensorConfigKey({
       sensor: ESlaveConfigTopic.TEMPERATURE,
@@ -110,25 +141,5 @@ export class ApiThermometerController {
       console.log(`catch temperature config error`, e);
       return e;
     }
-  }
-
-  /* Todo: Change topic */
-  @MessagePattern('temperature/now', Transport.TCP)
-  async getCurrentTemperature(
-    @Payload() payload: string,
-  ): Promise<ResponseStatus> {
-    /* Todo: Change to DTO */
-    const { master_id, slave_id } = JSON.parse(payload);
-    const data = await this.deviceTemperatureService.getCachedTemperature(
-      parseInt(master_id),
-      parseInt(slave_id),
-    );
-
-    return {
-      status: HttpStatus.OK,
-      topic: 'temperature',
-      message: 'success fetch current temperature',
-      data,
-    };
   }
 }

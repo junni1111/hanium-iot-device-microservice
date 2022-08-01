@@ -1,8 +1,9 @@
-import { Controller, Get, HttpStatus, Res } from '@nestjs/common';
-import { MessagePattern, Payload, Transport } from '@nestjs/microservices';
+import { Controller, Get, HttpStatus, Query, Res } from '@nestjs/common';
 import { DeviceTemperatureService } from '../device/thermometer/device-temperature.service';
-import { SlaveStateDto } from './dto/slave/slave-state.dto';
+import { ApiTags } from '@nestjs/swagger';
+import { UTILITY } from '../util/constants/swagger';
 
+@ApiTags(UTILITY)
 @Controller()
 export class ApiUtilityController {
   constructor(
@@ -15,8 +16,10 @@ export class ApiUtilityController {
     return res.status(HttpStatus.OK).send('ok');
   }
 
-  @MessagePattern('ping', Transport.TCP)
-  async pingToDeviceMicroservice(@Payload() payload: string): Promise<string> {
+  @Get('/ping')
+  async pingToDeviceMicroservice(
+    @Query('ping') payload: string,
+  ): Promise<string> {
     console.log(`Ping from api gateway`, payload);
     return 'device-pong';
   }

@@ -3,6 +3,7 @@ import { AppModule } from './app.module';
 import { Transport } from '@nestjs/microservices';
 import { Logger, ValidationPipe } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
+import { setupSwagger } from './util/swagger';
 
 async function bootstrap() {
   const app = await NestFactory.create(AppModule, { cors: true });
@@ -48,6 +49,8 @@ async function bootstrap() {
       url: MQTT_BROKER_URL,
     },
   });
+
+  setupSwagger(app);
 
   await app.startAllMicroservices();
   await app.listen(DEVICE_HEALTH_PORT, () => {

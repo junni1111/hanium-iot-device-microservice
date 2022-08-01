@@ -1,16 +1,26 @@
-import { CACHE_MANAGER, Controller, HttpStatus, Inject } from '@nestjs/common';
-import { MessagePattern, Payload, Transport } from '@nestjs/microservices';
+import {
+  Body,
+  CACHE_MANAGER,
+  Controller,
+  Get,
+  HttpStatus,
+  Inject,
+  Post,
+  Query,
+} from '@nestjs/common';
 import { DevicePollingService } from '../../device/device-polling.service';
-import { DeviceMasterService } from '../../device/master/device-master.service';
 import { ResponseStatus } from '../../device/interfaces/response-status';
-import { ESlaveConfigTopic, ESlaveState } from '../../util/constants/api-topic';
+import { ESlaveState } from '../../util/constants/api-topic';
 import { Cache } from 'cache-manager';
 import { SlaveStateDto } from '../dto/slave/slave-state.dto';
-import { SlaveConfigDto } from '../dto/slave/slave-config.dto';
 import { ApiSlaveService } from './api-slave.service';
 import { DeviceSlaveService } from '../../device/slave/device-slave.service';
+import { CreateSlaveDto } from '../dto/slave/create-slave.dto';
+import { ApiTags } from '@nestjs/swagger';
+import { SLAVE } from '../../util/constants/swagger';
 
-@Controller()
+@ApiTags(SLAVE)
+@Controller('slave')
 export class ApiSlaveController {
   constructor(
     @Inject(CACHE_MANAGER) private readonly cacheManager: Cache,
@@ -20,10 +30,45 @@ export class ApiSlaveController {
     private readonly apiSlaveService: ApiSlaveService,
   ) {}
 
+  @Post('')
+  async createSlave(
+    @Body() createSlaveDto: CreateSlaveDto,
+  ): Promise<ResponseStatus> {
+    try {
+      const createResult = await this.slaveService.createSlave(createSlaveDto);
+
+      /* TODO: Create Optimized Value First Time */
+      // const optimized = await this.masterService.optimize(master_id, slave_id);
+      return {
+        status: HttpStatus.OK,
+        topic: 'slave',
+        message: 'slave create success',
+        data: createResult,
+      };
+    } catch (e) {
+      console.log(e);
+    }
+  }
+
+  @Get('config')
+  async fetchConfig(
+    @Query('masterId') masterId: number,
+    @Query('slaveId') slaveId: number,
+  ) {
+    try {
+      /** Todo: Convert configs to camelCase */
+      const result = await this.slaveService.getConfigs(masterId, slaveId);
+      console.log(result);
+      return result;
+    } catch (e) {
+      console.log(e);
+    }
+  }
+
   /** Todo: 센서들 상태 캐싱값 받아와서 돌려줌 */
-  @MessagePattern(ESlaveState.ALL, Transport.TCP)
+  @Post('state')
   async getSlaveState(
-    @Payload() slaveStateDto: SlaveStateDto,
+    @Body() slaveStateDto: SlaveStateDto,
   ): Promise<ResponseStatus> {
     try {
       /* TODO: Validate master id & slave id */
@@ -38,18 +83,6 @@ export class ApiSlaveController {
         message: 'request check slave state success',
         data: sensorStates,
       };
-    } catch (e) {
-      console.log(e);
-    }
-  }
-
-  @MessagePattern(ESlaveConfigTopic.ALL, Transport.TCP)
-  async fetchConfig(@Payload() { masterId, slaveId }: Partial<SlaveConfigDto>) {
-    try {
-      /** Todo: Convert configs to camelCase */
-      const result = await this.slaveService.getConfigs(masterId, slaveId);
-      console.log(result);
-      return result;
     } catch (e) {
       console.log(e);
     }
