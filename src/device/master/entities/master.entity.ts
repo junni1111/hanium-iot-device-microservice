@@ -12,9 +12,9 @@ import { IsNumber, IsString } from 'class-validator';
 @Entity('masters')
 export class Master {
   @ApiProperty()
-  @PrimaryColumn({ type: 'integer' })
+  @PrimaryColumn({ type: 'integer', name: 'id' })
   @IsNumber()
-  id: number;
+  masterId: number;
 
   @ApiProperty()
   @Column({ type: 'varchar' })
