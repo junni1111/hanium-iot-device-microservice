@@ -14,6 +14,10 @@ export class DeviceMasterService {
   deleteMaster(masterId: number) {
     return this.masterRepository.delete(masterId);
   }
+
+  clearMasterDB() {
+    return this.masterRepository.createQueryBuilder().delete().execute();
+  }
   //
   // async createMaster(createMasterDto: CreateMasterDto) {
   //   const result = this.masterRepository.createMaster(createMasterDto);

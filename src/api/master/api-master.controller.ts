@@ -1,6 +1,7 @@
 import {
   Body,
   Controller,
+  Delete,
   Get,
   HttpStatus,
   Post,
@@ -76,5 +77,10 @@ export class ApiMasterController {
     } catch (e) {
       console.log(e);
     }
+  }
+
+  @Delete('db')
+  clearMasterDB() {
+    return this.masterService.clearMasterDB();
   }
 }

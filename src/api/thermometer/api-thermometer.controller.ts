@@ -2,6 +2,7 @@ import {
   Body,
   CACHE_MANAGER,
   Controller,
+  Delete,
   Get,
   HttpStatus,
   Inject,
@@ -141,6 +142,11 @@ export class ApiThermometerController {
       message: 'success fetch current temperature',
       data,
     };
+  }
+
+  @Delete('db')
+  clearTemperatureDB(@Query('type') type: string) {
+    return this.deviceTemperatureService.clearTemperatureDB(type);
   }
 
   // @MessagePattern('test/temperature', Transport.TCP)

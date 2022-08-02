@@ -2,6 +2,7 @@ import {
   Body,
   CACHE_MANAGER,
   Controller,
+  Delete,
   Get,
   HttpStatus,
   Inject,
@@ -86,5 +87,10 @@ export class ApiSlaveController {
     } catch (e) {
       console.log(e);
     }
+  }
+
+  @Delete('db')
+  clearSlaveDB() {
+    return this.slaveService.clearSlaveDB();
   }
 }
