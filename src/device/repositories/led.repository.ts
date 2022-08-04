@@ -1,16 +1,18 @@
 import { EntityRepository, Repository } from 'typeorm';
-import { defaultSlaveConfig, ILedConfig } from '../interfaces/slave-configs';
 import { LedConfig } from '../led/entities/led.entity';
+import { Slave } from '../slave/entities/slave.entity';
+import { LedConfigDto } from '../../api/led/dto/led-config.dto';
 
 @EntityRepository(LedConfig)
 export class LedRepository extends Repository<LedConfig> {
-  setConfig(
-    masterId: number,
-    slaveId: number,
-    configs: ILedConfig = { ...defaultSlaveConfig },
-  ) {
-    const sensor = this.create({ slave: { masterId, slaveId }, ...configs });
-    return this.save(sensor);
+  updateConfig(slave: Slave, configDto: LedConfigDto) {
+    const { ledCycle, ledRuntime } = configDto;
+
+    return this.createQueryBuilder()
+      .update(LedConfig)
+      .set({ ledCycle, ledRuntime })
+      .where('id = :id', { id: slave.ledFK })
+      .execute();
   }
 
   findBySlave(masterId: number, slaveId: number): Promise<LedConfig> {

@@ -1,8 +1,7 @@
 import { Test, TestingModule } from '@nestjs/testing';
 import { clearDB } from '../../util/test-helper';
-import { getTypeOrmTestModule } from '../../config/database-test.service';
-import { CreateMasterDto } from '../../api/dto/master/create-master.dto';
-import { CreateSlaveDto } from '../../api/dto/slave/create-slave.dto';
+import { CreateMasterDto } from '../master/dto/create-master.dto';
+import { CreateSlaveDto } from './dto/create-slave.dto';
 import { getConnection } from 'typeorm';
 
 import { DeviceSlaveModule } from '../../device/slave/device-slave.module';

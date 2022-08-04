@@ -17,12 +17,12 @@ import {
 } from '../../util/constants/api-topic';
 import { DeviceTemperatureService } from '../../device/thermometer/device-temperature.service';
 import { Cache } from 'cache-manager';
-import { SlaveConfigDto } from '../dto/slave/slave-config.dto';
 import { SensorConfigKey } from '../../util/key-generator';
 import { TemperatureBetweenDto } from '../dto/temperature/temperature-between.dto';
 import { addDays } from 'date-fns';
 import { ApiTags } from '@nestjs/swagger';
 import { THERMOMETER } from '../../util/constants/swagger';
+import { TemperatureConfigDto } from './dto/temperature-config.dto';
 
 @ApiTags(THERMOMETER)
 @Controller('temperature')
@@ -34,7 +34,9 @@ export class ApiThermometerController {
 
   /** Todo: Extract to service */
   @Post('config')
-  async setTemperatureConfig(@Body() temperatureConfigDto: SlaveConfigDto) {
+  async setTemperatureConfig(
+    @Body() temperatureConfigDto: TemperatureConfigDto,
+  ) {
     /** Todo: Change Key */
     const key = SensorConfigKey({
       sensor: ESlaveConfigTopic.TEMPERATURE,
@@ -43,7 +45,7 @@ export class ApiThermometerController {
     });
 
     try {
-      const configUpdateResult = await this.deviceTemperatureService.setConfigs(
+      const configUpdateResult = await this.deviceTemperatureService.setConfig(
         temperatureConfigDto,
       );
 

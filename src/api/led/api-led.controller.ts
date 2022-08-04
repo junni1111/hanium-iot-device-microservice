@@ -20,12 +20,13 @@ import { LedPowerDto } from '../dto/led/led-power.dto';
 import { LedStateDto } from '../dto/led/led-state.dto';
 import { Cache } from 'cache-manager';
 import { ApiLedService } from './api-led.service';
-import { SlaveConfigDto } from '../dto/slave/slave-config.dto';
+import { SlaveConfigDto } from '../slave/dto/slave-config.dto';
 import { ApiSlaveService } from '../slave/api-slave.service';
 import { SensorPowerKey, SensorStateKey } from '../../util/key-generator';
 import { ILedConfig } from '../../device/interfaces/slave-configs';
 import { ApiTags } from '@nestjs/swagger';
 import { LED } from '../../util/constants/swagger';
+import { LedConfigDto } from './dto/led-config.dto';
 
 @ApiTags(LED)
 @Controller('led')
@@ -39,9 +40,7 @@ export class ApiLedController {
   ) {}
 
   @Post('config')
-  async setLedConfig(@Body() ledConfigDto: SlaveConfigDto) {
-    console.log(`call set led config`, ledConfigDto);
-
+  async setLedConfig(@Body() ledConfigDto: LedConfigDto) {
     try {
       const requestResult = this.deviceLedService.requestLed(ledConfigDto);
       /** Todo: Extract to service */
@@ -75,6 +74,7 @@ export class ApiLedController {
           data: configUpdateResult,
         };
       }
+      console.log(`LED Config`);
 
       return {
         status: HttpStatus.OK,

@@ -1,14 +1,20 @@
-import { Injectable } from '@nestjs/common';
-import { SlaveRepository } from '../repositories/slave.repository';
-import { CreateSlaveDto } from '../../api/dto/slave/create-slave.dto';
+import {
+  ConflictException,
+  Injectable,
+  NotFoundException,
+} from '@nestjs/common';
+import { SlaveRepository } from './slave.repository';
+import { CreateSlaveDto } from '../../api/slave/dto/create-slave.dto';
 import { LedRepository } from '../repositories/led.repository';
 import { WaterPumpRepository } from '../repositories/water-pump.repository';
 import { ThermometerRepository } from '../repositories/thermometer.repository';
-import { ISlaveConfigs } from '../interfaces/slave-configs';
+import { defaultSlaveConfig, ISlaveConfigs } from '../interfaces/slave-configs';
+import { MasterRepository } from '../master/master.repository';
 
 @Injectable()
 export class DeviceSlaveService {
   constructor(
+    private masterRepository: MasterRepository,
     private slaveRepository: SlaveRepository,
     private thermometerRepository: ThermometerRepository,
     private waterPumpRepository: WaterPumpRepository,
@@ -17,25 +23,52 @@ export class DeviceSlaveService {
 
   async createSlave(createSlaveDto: CreateSlaveDto) {
     const { masterId, slaveId } = createSlaveDto;
+
     try {
-      const slave = await this.slaveRepository.createSlave(masterId, slaveId);
-      if (!slave) {
+      const master = await this.masterRepository.findOne({
+        where: { masterId },
+      });
+
+      if (!master) {
         /** Todo: Throw Error */
-        console.log(`Slave Create Error!`);
+        console.log(`Master Not Found!`);
         return;
       }
 
-      const water = await this.waterPumpRepository.setConfig(masterId, slaveId);
-      const led = await this.ledRepository.setConfig(masterId, slaveId);
-      const thermometer = await this.thermometerRepository.setConfigs(
-        masterId,
+      const ledConfig = this.ledRepository.create({ ...defaultSlaveConfig });
+      const waterConfig = this.waterPumpRepository.create({
+        ...defaultSlaveConfig,
+      });
+      const thermometerConfig = this.thermometerRepository.create({
+        ...defaultSlaveConfig,
+      });
+
+      const exist = await this.slaveRepository.findOne({
+        where: { master, slaveId },
+      });
+
+      if (exist) {
+        /** Todo: handle exception */
+        console.log(`Slave Exist!`);
+        throw new ConflictException('Slave already exist!');
+      }
+
+      const slave = await this.slaveRepository.createSlave(
+        master,
         slaveId,
+        ledConfig,
+        waterConfig,
+        thermometerConfig,
       );
-      await Promise.all([water, led, thermometer]);
+      if (!slave) {
+        /** Todo: Throw Error */
+        console.log(`Slave CreateM Error!`);
+        throw new NotFoundException('Slave created exception!');
+      }
 
       return slave;
     } catch (e) {
-      throw new Error(e);
+      throw e;
     }
   }
 

@@ -8,11 +8,11 @@ import { DeviceTemperatureModule } from './device-temperature.module';
 import { ThermometerConfig } from './entities/thermometer.entity';
 import { DeviceSlaveService } from '../slave/device-slave.service';
 import { DeviceSlaveModule } from '../slave/device-slave.module';
-import { CreateSlaveDto } from '../../api/dto/slave/create-slave.dto';
+import { CreateSlaveDto } from '../../api/slave/dto/create-slave.dto';
 import { DeviceMasterModule } from '../master/device-master.module';
 import { DeviceMasterService } from '../master/device-master.service';
-import { CreateMasterDto } from '../../api/dto/master/create-master.dto';
-import { MasterRepository } from '../repositories/master.repository';
+import { CreateMasterDto } from '../../api/master/dto/create-master.dto';
+import { MasterRepository } from '../master/master.repository';
 import { Master } from '../master/entities/master.entity';
 
 describe('DeviceTemperatureService', () => {

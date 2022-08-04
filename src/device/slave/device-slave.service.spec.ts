@@ -1,11 +1,11 @@
 import { Test, TestingModule } from '@nestjs/testing';
-import { CreateMasterDto } from '../../api/dto/master/create-master.dto';
+import { CreateMasterDto } from '../../api/master/dto/create-master.dto';
 import { getTypeOrmTestModule } from '../../config/database-test.service';
 import { getConnection } from 'typeorm';
 import { clearDB } from '../../util/test-helper';
 import { DeviceSlaveService } from './device-slave.service';
 import { DeviceSlaveModule } from './device-slave.module';
-import { CreateSlaveDto } from '../../api/dto/slave/create-slave.dto';
+import { CreateSlaveDto } from '../../api/slave/dto/create-slave.dto';
 import { DeviceMasterService } from '../master/device-master.service';
 
 describe('DeviceTemperatureService', () => {

@@ -5,8 +5,8 @@ import { DeviceSlaveService } from '../../device/slave/device-slave.service';
 import { getTypeOrmTestModule } from '../../config/database-test.service';
 import { DeviceWaterPumpService } from './device-water-pump.service';
 import { DeviceWaterPumpModule } from './device-water-pump.module';
-import { CreateMasterDto } from '../../api/dto/master/create-master.dto';
-import { CreateSlaveDto } from '../../api/dto/slave/create-slave.dto';
+import { CreateMasterDto } from '../../api/master/dto/create-master.dto';
+import { CreateSlaveDto } from '../../api/slave/dto/create-slave.dto';
 import { getConnection } from 'typeorm';
 import { WaterPumpRepository } from '../repositories/water-pump.repository';
 

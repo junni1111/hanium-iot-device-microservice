@@ -6,6 +6,7 @@ import {
   Get,
   HttpStatus,
   Inject,
+  NotFoundException,
   Post,
   Query,
 } from '@nestjs/common';
@@ -16,30 +17,31 @@ import { Cache } from 'cache-manager';
 import { SlaveStateDto } from '../dto/slave/slave-state.dto';
 import { ApiSlaveService } from './api-slave.service';
 import { DeviceSlaveService } from '../../device/slave/device-slave.service';
-import { CreateSlaveDto } from '../dto/slave/create-slave.dto';
+import { CreateSlaveDto } from './dto/create-slave.dto';
 import { ApiTags } from '@nestjs/swagger';
 import { SLAVE } from '../../util/constants/swagger';
+import { ISlaveConfigs } from '../../device/interfaces/slave-configs';
 
 @ApiTags(SLAVE)
 @Controller('slave')
 export class ApiSlaveController {
   constructor(
     @Inject(CACHE_MANAGER) private readonly cacheManager: Cache,
-    // private readonly masterService: DeviceMasterService,
-    private slaveService: DeviceSlaveService,
+    private readonly slaveService: DeviceSlaveService,
     private readonly pollingService: DevicePollingService,
     private readonly apiSlaveService: ApiSlaveService,
   ) {}
 
-  @Post('')
+  @Post()
   async createSlave(
     @Body() createSlaveDto: CreateSlaveDto,
   ): Promise<ResponseStatus> {
     try {
       const createResult = await this.slaveService.createSlave(createSlaveDto);
+      if (!createResult) {
+        throw new NotFoundException('Slave Create Error');
+      }
 
-      /* TODO: Create Optimized Value First Time */
-      // const optimized = await this.masterService.optimize(master_id, slave_id);
       return {
         status: HttpStatus.OK,
         topic: 'slave',
@@ -55,12 +57,9 @@ export class ApiSlaveController {
   async fetchConfig(
     @Query('masterId') masterId: number,
     @Query('slaveId') slaveId: number,
-  ) {
+  ): Promise<ISlaveConfigs> {
     try {
-      /** Todo: Convert configs to camelCase */
-      const result = await this.slaveService.getConfigs(masterId, slaveId);
-      console.log(result);
-      return result;
+      return this.slaveService.getConfigs(masterId, slaveId);
     } catch (e) {
       console.log(e);
     }

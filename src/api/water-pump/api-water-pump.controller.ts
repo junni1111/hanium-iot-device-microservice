@@ -20,13 +20,15 @@ import { WaterPowerTurnDto } from '../dto/water-pump/water-power-turn.dto';
 import { Cache } from 'cache-manager';
 import { WaterPumpStateDto } from '../dto/water-pump/water-pump-state.dto';
 import { ApiWaterPumpService } from './api-water-pump.service';
-import { SlaveConfigDto } from '../dto/slave/slave-config.dto';
+import { SlaveConfigDto } from '../slave/dto/slave-config.dto';
 import { ApiSlaveService } from '../slave/api-slave.service';
 import { DeviceMasterService } from '../../device/master/device-master.service';
 import { SensorPowerKey, SensorStateKey } from '../../util/key-generator';
 import { IWaterPumpConfig } from '../../device/interfaces/slave-configs';
 import { ApiTags } from '@nestjs/swagger';
 import { WATER_PUMP } from '../../util/constants/swagger';
+import { SlaveRepository } from '../../device/slave/slave.repository';
+import { WaterPumpConfigDto } from './dto/water-pump-config.dto';
 
 @ApiTags(WATER_PUMP)
 @Controller('water-pump')
@@ -41,13 +43,11 @@ export class ApiWaterPumpController {
 
   @Post('config')
   async setWaterPumpConfig(
-    @Body() waterPumpConfigDto: SlaveConfigDto,
+    @Body() waterPumpConfigDto: WaterPumpConfigDto,
   ): Promise<ResponseStatus> {
     try {
-      console.log(`call set waterpump config`, waterPumpConfigDto);
-
-      const waterPumpPacket =
-        await this.deviceWaterPumpService.requestWaterPump(waterPumpConfigDto);
+      const requestResult =
+        this.deviceWaterPumpService.requestWaterPump(waterPumpConfigDto);
 
       if (waterPumpConfigDto.waterPumpRuntime > 0) {
         const powerStateKey = SensorPowerKey({
@@ -84,7 +84,7 @@ export class ApiWaterPumpController {
         status: HttpStatus.OK,
         topic: ESlaveConfigTopic.WATER_PUMP,
         message: 'send water pump packet to device',
-        data: waterPumpPacket,
+        data: requestResult,
       };
     } catch (e) {
       console.log(e);

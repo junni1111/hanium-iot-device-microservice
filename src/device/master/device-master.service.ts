@@ -12,7 +12,7 @@ export class DeviceMasterService {
   }
 
   deleteMaster(masterId: number) {
-    return this.masterRepository.delete(masterId);
+    return this.masterRepository.delete({ masterId });
   }
 
   clearMasterDB() {
