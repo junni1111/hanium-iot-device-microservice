@@ -6,7 +6,6 @@ import {
   HttpStatus,
   Post,
   Query,
-  Res,
 } from '@nestjs/common';
 import { DevicePollingService } from '../../device/device-polling.service';
 import { DeviceMasterService } from '../../device/master/device-master.service';
