@@ -107,4 +107,8 @@ export class DeviceLedService {
       console.log(e);
     }
   }
+
+  claerLedDB() {
+    return this.ledConfigRepository.clearLedDB();
+  }
 }

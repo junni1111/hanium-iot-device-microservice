@@ -2,6 +2,7 @@ import {
   Body,
   CACHE_MANAGER,
   Controller,
+  Delete,
   HttpStatus,
   Inject,
   Post,
@@ -75,5 +76,10 @@ export class ApiFanController {
       console.log(`catch fan config error`, e);
       return e;
     }
+  }
+
+  @Delete('db')
+  clearFanDB() {
+    return 'FAN NOT EXIST DB!';
   }
 }

@@ -23,4 +23,8 @@ export class LedRepository extends Repository<LedConfig> {
       .select(['led.ledCycle', 'led.ledRuntime'])
       .getOne();
   }
+
+  clearLedDB() {
+    return this.createQueryBuilder().delete().execute();
+  }
 }

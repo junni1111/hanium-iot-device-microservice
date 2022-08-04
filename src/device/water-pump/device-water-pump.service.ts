@@ -149,4 +149,8 @@ export class DeviceWaterPumpService {
       console.log(e);
     }
   }
+
+  clearWaterPumpDB() {
+    return this.pumpConfigRepository.createQueryBuilder().delete().execute();
+  }
 }

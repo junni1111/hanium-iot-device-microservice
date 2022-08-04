@@ -67,4 +67,9 @@ export class ApiMasterController {
       console.log(e);
     }
   }
+
+  @Delete('db')
+  clearMasterDB() {
+    return this.masterService.clearMasterDB();
+  }
 }

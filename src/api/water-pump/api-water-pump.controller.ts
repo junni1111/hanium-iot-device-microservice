@@ -2,9 +2,11 @@ import {
   Body,
   CACHE_MANAGER,
   Controller,
+  Delete,
   HttpStatus,
   Inject,
   Post,
+  Query,
 } from '@nestjs/common';
 import { ResponseStatus } from '../../device/interfaces/response-status';
 import {
@@ -170,5 +172,10 @@ export class ApiWaterPumpController {
       console.log(`catch water pump config error`, e);
       return e;
     }
+  }
+
+  @Delete('db')
+  clearWaterPumpDB() {
+    return this.deviceWaterPumpService.clearWaterPumpDB();
   }
 }

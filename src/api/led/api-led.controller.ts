@@ -2,6 +2,7 @@ import {
   Body,
   CACHE_MANAGER,
   Controller,
+  Delete,
   HttpStatus,
   Inject,
   Post,
@@ -166,5 +167,10 @@ export class ApiLedController {
       console.log(`catch led config error`, e);
       return e;
     }
+  }
+
+  @Delete('db')
+  clearLedDB() {
+    return this.deviceLedService.claerLedDB();
   }
 }

@@ -9,7 +9,10 @@ async function bootstrap() {
   const app = await NestFactory.create(AppModule, { cors: true });
   const configService = app.get(ConfigService);
   const DEVICE_HOST = configService.get<string>('DEVICE_HOST');
-  const DEVICE_PORT = configService.get<number>('DEVICE_PORT_8000_TCP_PORT');
+  const DEVICE_PORT = configService.get<number>(
+    'DEVICE_PORT_8000_TCP_PORT',
+    8000,
+  );
   const MQTT_BROKER_URL = configService.get<string>('MQTT_BROKER_URL');
   const REDIS_HOST = configService.get<string>('REDIS_HOST');
   const REDIS_PORT = configService.get<number>('REDIS_PORT');

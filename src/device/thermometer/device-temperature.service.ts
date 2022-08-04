@@ -254,4 +254,21 @@ export class DeviceTemperatureService {
       temperature / (averageCount + 1)
     );
   }
+
+  clearTemperatureDB(type: string) {
+    switch (type) {
+      case 'log':
+        return this.temperatureRepository
+          .createQueryBuilder()
+          .delete()
+          .execute();
+      case 'config':
+        return this.thermometerRepository
+          .createQueryBuilder()
+          .delete()
+          .execute();
+      default:
+        return 'failed';
+    }
+  }
 }

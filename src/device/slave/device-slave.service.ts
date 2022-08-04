@@ -102,6 +102,10 @@ export class DeviceSlaveService {
       throw new Error(e);
     }
   }
+
+  clearSlaveDB() {
+    return this.slaveRepository.createQueryBuilder().delete().execute();
+  }
   //
   // async createMaster(createMasterDto: CreateMasterDto) {
   //   const result = this.masterRepository.createMaster(createMasterDto);
