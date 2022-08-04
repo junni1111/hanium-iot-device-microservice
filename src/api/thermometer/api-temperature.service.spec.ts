@@ -5,8 +5,8 @@ import { clearDB } from '../../util/test-helper';
 import { DeviceTemperatureModule } from '../../device/thermometer/device-temperature.module';
 import { DeviceMasterService } from '../../device/master/device-master.service';
 import { DeviceSlaveService } from '../../device/slave/device-slave.service';
-import { CreateMasterDto } from '../dto/master/create-master.dto';
-import { CreateSlaveDto } from '../dto/slave/create-slave.dto';
+import { CreateMasterDto } from '../master/dto/create-master.dto';
+import { CreateSlaveDto } from '../slave/dto/create-slave.dto';
 import { getTypeOrmTestModule } from '../../config/database-test.service';
 
 describe('온도 api 서비스 테스트', () => {
@@ -42,7 +42,7 @@ describe('온도 api 서비스 테스트', () => {
   });
 
   it('팬이 작동할 온도 범위를 설정한다.', async () => {
-    const saved = await temperatureService.setConfigs({
+    const saved = await temperatureService.setConfig({
       masterId: MOCK_MASTER_ID,
       slaveId: MOCK_SLAVE_ID,
       rangeBegin: 11,
@@ -51,7 +51,7 @@ describe('온도 api 서비스 테스트', () => {
     });
     expect(saved.rangeBegin).toEqual(11);
 
-    const updated = await temperatureService.setConfigs({
+    const updated = await temperatureService.setConfig({
       masterId: MOCK_MASTER_ID,
       slaveId: MOCK_SLAVE_ID,
       rangeBegin: 1111,

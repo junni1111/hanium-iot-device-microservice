@@ -1,7 +1,7 @@
 import { CACHE_MANAGER, Inject, Injectable } from '@nestjs/common';
 import { MQTT_BROKER } from '../../util/constants/constants';
 import { ClientProxy } from '@nestjs/microservices';
-import { SlaveRepository } from '../repositories/slave.repository';
+import { SlaveRepository } from '../slave/slave.repository';
 import { Cache } from 'cache-manager';
 import { ESlaveConfigTopic, ESlaveState } from '../../util/constants/api-topic';
 import {
@@ -13,8 +13,9 @@ import {
 import { TemperatureRepository } from './device-temperature.repository';
 import { ThermometerRepository } from '../repositories/thermometer.repository';
 import { GraphPoint } from '../interfaces/graph-config';
-import { SlaveConfigDto } from '../../api/dto/slave/slave-config.dto';
+import { SlaveConfigDto } from '../../api/slave/dto/slave-config.dto';
 import { ITemperatureConfig } from '../interfaces/slave-configs';
+import { TemperatureConfigDto } from '../../api/thermometer/dto/temperature-config.dto';
 
 @Injectable()
 export class DeviceTemperatureService {
@@ -131,21 +132,20 @@ export class DeviceTemperatureService {
   }
 
   /** Todo: Refactor */
-  setConfigs({
-    masterId,
-    slaveId,
-    rangeBegin,
-    rangeEnd,
-    updateCycle,
-  }: Partial<SlaveConfigDto>) {
+  async setConfig(configDto: TemperatureConfigDto) {
     try {
-      const config: ITemperatureConfig = {
-        rangeBegin,
-        rangeEnd,
-        updateCycle,
-      };
+      const { masterId, slaveId } = configDto;
 
-      return this.thermometerRepository.setConfigs(masterId, slaveId, config);
+      const slave = await this.slaveRepository.findOne({
+        where: { masterId, slaveId },
+      });
+
+      if (!slave) {
+        /** Todo: handle exception */
+        return;
+      }
+
+      return this.thermometerRepository.updateConfig(slave, configDto);
     } catch (e) {
       console.log(e);
     }

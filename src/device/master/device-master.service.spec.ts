@@ -1,6 +1,6 @@
 import { Test, TestingModule } from '@nestjs/testing';
 import { DeviceMasterService } from './device-master.service';
-import { CreateMasterDto } from '../../api/dto/master/create-master.dto';
+import { CreateMasterDto } from '../../api/master/dto/create-master.dto';
 import { DeviceMasterModule } from './device-master.module';
 import { getTypeOrmTestModule } from '../../config/database-test.service';
 import { getConnection } from 'typeorm';

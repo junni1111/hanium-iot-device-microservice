@@ -1,8 +1,5 @@
 import { EntityRepository, Repository } from 'typeorm';
 import { Temperature } from './entities/temperature.entity';
-import { Master } from '../master/entities/master.entity';
-import { Slave } from '../slave/entities/slave.entity';
-import { ThermometerConfig } from './entities/thermometer.entity';
 
 @EntityRepository(Temperature)
 export class TemperatureRepository extends Repository<Temperature> {

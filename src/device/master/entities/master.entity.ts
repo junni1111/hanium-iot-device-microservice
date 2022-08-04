@@ -3,24 +3,29 @@ import {
   CreateDateColumn,
   Entity,
   OneToMany,
-  PrimaryColumn,
+  PrimaryGeneratedColumn,
 } from 'typeorm';
 import { Slave } from '../../slave/entities/slave.entity';
 import { ApiProperty } from '@nestjs/swagger';
-import { IsNumber, IsString } from 'class-validator';
+import { IsDate, IsNumber, IsString } from 'class-validator';
 
 @Entity('masters')
 export class Master {
-  @ApiProperty()
-  @PrimaryColumn({ type: 'integer' })
-  @IsNumber()
+  @PrimaryGeneratedColumn()
   id: number;
 
   @ApiProperty()
-  @Column({ type: 'varchar' })
+  @IsNumber()
+  @Column({ unique: true, name: 'master_id' })
+  masterId: number;
+
+  @ApiProperty()
   @IsString()
+  @Column({ type: 'varchar' })
   address: string;
 
+  @ApiProperty()
+  @IsDate()
   @CreateDateColumn({ type: 'timestamptz', name: 'create_at' })
   createAt: Date;
 

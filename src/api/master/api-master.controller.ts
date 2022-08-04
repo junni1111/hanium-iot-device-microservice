@@ -1,17 +1,8 @@
-import {
-  Body,
-  Controller,
-  Get,
-  HttpStatus,
-  Post,
-  Query,
-  Res,
-} from '@nestjs/common';
+import { Body, Controller, Get, HttpStatus, Post, Query } from '@nestjs/common';
 import { DevicePollingService } from '../../device/device-polling.service';
 import { DeviceMasterService } from '../../device/master/device-master.service';
-import { ResponseStatus } from '../../device/interfaces/response-status';
 import { EPollingState } from '../../device/interfaces/polling-status';
-import { CreateMasterDto } from '../dto/master/create-master.dto';
+import { CreateMasterDto } from './dto/create-master.dto';
 import { DeviceSlaveService } from '../../device/slave/device-slave.service';
 import { ApiTags } from '@nestjs/swagger';
 import { MASTER } from '../../util/constants/swagger';
@@ -21,13 +12,12 @@ import { MASTER } from '../../util/constants/swagger';
 export class ApiMasterController {
   constructor(
     private readonly masterService: DeviceMasterService,
-    private slaveService: DeviceSlaveService,
+    private readonly slaveService: DeviceSlaveService,
     private readonly pollingService: DevicePollingService,
   ) {}
 
-  @Post('')
+  @Post()
   async createMaster(@Body() createMasterDto: CreateMasterDto) {
-    console.log('dto : ', createMasterDto);
     try {
       const createResult = await this.masterService.createMaster(
         createMasterDto,

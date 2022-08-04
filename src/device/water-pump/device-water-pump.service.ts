@@ -1,7 +1,7 @@
 import { CACHE_MANAGER, Inject, Injectable } from '@nestjs/common';
 import { MQTT_BROKER } from '../../util/constants/constants';
 import { WaterPumpPacketDto } from '../dto/water-pump-packet.dto';
-import { SlaveConfigDto } from '../../api/dto/slave/slave-config.dto';
+import { SlaveConfigDto } from '../../api/slave/dto/slave-config.dto';
 import { IWaterPumpConfig } from '../interfaces/slave-configs';
 import {
   EPowerState,
@@ -13,6 +13,8 @@ import { Cache } from 'cache-manager';
 import { SensorPowerKey, SensorStateKey } from '../../util/key-generator';
 import { WaterPumpRepository } from '../repositories/water-pump.repository';
 import { MqttBrokerService } from '../mqtt-broker.service';
+import { SlaveRepository } from '../slave/slave.repository';
+import { WaterPumpConfigDto } from '../../api/water-pump/dto/water-pump-config.dto';
 
 @Injectable()
 export class DeviceWaterPumpService {
@@ -20,6 +22,7 @@ export class DeviceWaterPumpService {
     @Inject(MQTT_BROKER) private brokerService: MqttBrokerService,
     @Inject(CACHE_MANAGER) private readonly cacheManager: Cache,
     private pumpConfigRepository: WaterPumpRepository,
+    private slaveRepository: SlaveRepository,
   ) {}
 
   async turnWaterPump({ masterId, slaveId, powerState }: LedPowerDto) {
@@ -49,7 +52,7 @@ export class DeviceWaterPumpService {
     slaveId,
     waterPumpCycle,
     waterPumpRuntime,
-  }: Partial<SlaveConfigDto>) {
+  }: WaterPumpConfigDto) {
     try {
       const cycleHigh = (waterPumpCycle & 0xff00) / 0x100;
       const cycleLow = waterPumpCycle & 0x00ff;
@@ -129,18 +132,19 @@ export class DeviceWaterPumpService {
     return this.pumpConfigRepository.findBySlave(masterId, slaveId);
   }
 
-  setConfig({
-    masterId,
-    slaveId,
-    waterPumpCycle,
-    waterPumpRuntime,
-  }: Partial<SlaveConfigDto>) {
+  async setConfig(configDto: WaterPumpConfigDto) {
     try {
-      const config: IWaterPumpConfig = {
-        waterPumpCycle,
-        waterPumpRuntime,
-      };
-      return this.pumpConfigRepository.setConfig(masterId, slaveId, config);
+      const { masterId, slaveId } = configDto;
+
+      const slave = await this.slaveRepository.findOne({
+        where: { masterId, slaveId },
+      });
+      if (!slave) {
+        /** Todo: handle exception */
+        return;
+      }
+
+      return this.pumpConfigRepository.updateConfig(slave, configDto);
     } catch (e) {
       console.log(e);
     }

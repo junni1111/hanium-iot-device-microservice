@@ -2,7 +2,7 @@ import { CACHE_MANAGER, Inject, Injectable } from '@nestjs/common';
 import { MQTT_BROKER } from '../../util/constants/constants';
 import { ClientProxy } from '@nestjs/microservices';
 import { LedPacketDto } from '../dto/led-packet.dto';
-import { SlaveConfigDto } from '../../api/dto/slave/slave-config.dto';
+import { SlaveConfigDto } from '../../api/slave/dto/slave-config.dto';
 import { ILedConfig } from '../interfaces/slave-configs';
 import { LedPowerDto } from '../../api/dto/led/led-power.dto';
 import { EPowerState } from '../../util/constants/api-topic';
@@ -10,6 +10,8 @@ import { Cache } from 'cache-manager';
 import { ECommand } from '../interfaces/packet';
 import { MqttBrokerService } from '../mqtt-broker.service';
 import { LedRepository } from '../repositories/led.repository';
+import { SlaveRepository } from '../slave/slave.repository';
+import { LedConfigDto } from '../../api/led/dto/led-config.dto';
 
 @Injectable()
 export class DeviceLedService {
@@ -17,6 +19,7 @@ export class DeviceLedService {
     @Inject(MQTT_BROKER) private readonly mqttBroker: ClientProxy,
     @Inject(CACHE_MANAGER) private readonly cacheManager: Cache,
     private brokerService: MqttBrokerService,
+    private slaveRepository: SlaveRepository,
     private ledConfigRepository: LedRepository,
   ) {}
 
@@ -41,21 +44,14 @@ export class DeviceLedService {
     return this.brokerService.publish(topic, JSON.stringify(message));
   }
 
-  async requestLed({
-    masterId,
-    slaveId,
-    ledCycle,
-    ledRuntime,
-  }: Partial<SlaveConfigDto>) {
+  async requestLed({ masterId, slaveId, ledCycle, ledRuntime }: LedConfigDto) {
     try {
-      console.log(`Request LED: `, masterId, slaveId, ledCycle, ledRuntime);
       const cycleHigh = (ledCycle & 0xff00) / 0x100;
       const cycleLow = ledCycle & 0x00ff;
       const runtimeHigh = (ledRuntime & 0xff00) / 0x100;
       const runtimeLow = ledRuntime & 0x00ff;
       const topic = `master/${masterId}/led`;
 
-      console.log(topic);
       const message = new LedPacketDto(
         0x23,
         0x22,
@@ -67,8 +63,6 @@ export class DeviceLedService {
         //통보없이 자동 off : 0xaf
         [0xaa, cycleHigh, cycleLow, runtimeHigh, runtimeLow],
       );
-
-      console.log(message);
 
       return this.brokerService.publish(topic, JSON.stringify(message));
     } catch (e) {
@@ -95,15 +89,20 @@ export class DeviceLedService {
     return this.ledConfigRepository.findBySlave(masterId, slaveId);
   }
 
-  async setConfig({
-    masterId,
-    slaveId,
-    ledCycle,
-    ledRuntime,
-  }: Partial<SlaveConfigDto>) {
+  async setConfig(configDto: LedConfigDto) {
     try {
-      const config: ILedConfig = { ledCycle, ledRuntime };
-      return this.ledConfigRepository.setConfig(masterId, slaveId, config);
+      const { masterId, slaveId } = configDto;
+
+      const slave = await this.slaveRepository.findOne({
+        where: { masterId, slaveId },
+      });
+
+      if (!slave) {
+        /** Todo: handle exception */
+        return;
+      }
+
+      return this.ledConfigRepository.updateConfig(slave, configDto);
     } catch (e) {
       console.log(e);
     }

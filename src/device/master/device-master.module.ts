@@ -1,11 +1,10 @@
 import { Module } from '@nestjs/common';
 import { TypeOrmModule } from '@nestjs/typeorm';
-import { Master } from './entities/master.entity';
-import { MasterRepository } from '../repositories/master.repository';
+import { MasterRepository } from './master.repository';
 import { DeviceMasterService } from './device-master.service';
 
 @Module({
-  imports: [TypeOrmModule.forFeature([Master, MasterRepository])],
+  imports: [TypeOrmModule.forFeature([MasterRepository])],
   providers: [DeviceMasterService],
   exports: [TypeOrmModule, DeviceMasterService],
 })
