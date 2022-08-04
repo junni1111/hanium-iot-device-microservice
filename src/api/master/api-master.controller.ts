@@ -1,4 +1,12 @@
-import { Body, Controller, Get, HttpStatus, Post, Query } from '@nestjs/common';
+import {
+  Body,
+  Controller,
+  Delete,
+  Get,
+  HttpStatus,
+  Post,
+  Query,
+} from '@nestjs/common';
 import { DevicePollingService } from '../../device/device-polling.service';
 import { DeviceMasterService } from '../../device/master/device-master.service';
 import { EPollingState } from '../../device/interfaces/polling-status';
