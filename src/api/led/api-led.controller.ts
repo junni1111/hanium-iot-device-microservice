@@ -8,7 +8,6 @@ import {
   Post,
 } from '@nestjs/common';
 import { DeviceMasterService } from '../../device/master/device-master.service';
-import { ResponseStatus } from '../../device/interfaces/response-status';
 import {
   EPowerState,
   ESlaveConfigTopic,
@@ -88,7 +87,8 @@ export class ApiLedController {
   }
 
   @Post('state')
-  async getLedState(@Body() ledStateDto: LedStateDto): Promise<ResponseStatus> {
+  async getLedState(@Body() ledStateDto: LedStateDto) {
+    console.log(`led state!`);
     try {
       const state = await this.apiSlaveService.getRunningState(
         ledStateDto,

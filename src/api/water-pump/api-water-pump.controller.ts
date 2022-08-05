@@ -15,7 +15,7 @@ import {
   ESlaveTurnPowerTopic,
 } from '../../util/constants/api-topic';
 import { DeviceWaterPumpService } from '../../device/water-pump/device-water-pump.service';
-import { WaterPumpPowerDto } from './dto/water-power-power.dto';
+import { WaterPumpPowerDto } from './dto/water-pump-power.dto';
 import { Cache } from 'cache-manager';
 import { WaterPumpStateDto } from './dto/water-pump-state.dto';
 import { ApiWaterPumpService } from './api-water-pump.service';

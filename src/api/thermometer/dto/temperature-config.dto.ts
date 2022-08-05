@@ -7,4 +7,4 @@ export class TemperatureConfigDto extends PickType(SlaveConfigDto, [
   'rangeBegin',
   'rangeEnd',
   'updateCycle',
-]) {}
+] as const) {}
