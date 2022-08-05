@@ -54,7 +54,6 @@ export class ApiSlaveService {
     sensor: ESlaveState,
   ) {
     const key = SensorStateKey({ sensor, masterId, slaveId });
-    console.log(`sensor : ${sensor}, key : ${key}`);
     return await this.cacheManager.get<EPowerState>(key);
   }
 
@@ -63,7 +62,6 @@ export class ApiSlaveService {
     sensor: ESlaveTurnPowerTopic,
   ) {
     const key = SensorPowerKey({ sensor, masterId, slaveId });
-    console.log(`sensor : ${sensor}, key : ${key}`);
     return this.cacheManager.get<EPowerState>(key);
   }
 }
