@@ -9,7 +9,7 @@ import {
 import { Cache } from 'cache-manager';
 import { DeviceFanService } from '../fan/device-fan.service';
 import { DeviceTemperatureService } from './device-temperature.service';
-import { TemperatureRangeDto } from '../../api/dto/temperature/temperature-range.dto';
+import { TemperatureRangeDto } from '../../api/thermometer/dto/temperature-range.dto';
 import { TEMPERATURE } from '../../util/constants/mqtt-topic';
 
 @Controller()

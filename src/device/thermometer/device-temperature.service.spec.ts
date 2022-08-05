@@ -1,6 +1,6 @@
 import { Test, TestingModule } from '@nestjs/testing';
 import { ThermometerRepository } from '../repositories/thermometer.repository';
-import { TemperatureRepository } from './device-temperature.repository';
+import { TemperatureRepository } from '../repositories/device-temperature.repository';
 import { clearDB } from '../../util/test-helper';
 import { getConnection } from 'typeorm';
 import { getTypeOrmTestModule } from '../../config/database-test.service';
@@ -12,7 +12,7 @@ import { CreateSlaveDto } from '../../api/slave/dto/create-slave.dto';
 import { DeviceMasterModule } from '../master/device-master.module';
 import { DeviceMasterService } from '../master/device-master.service';
 import { CreateMasterDto } from '../../api/master/dto/create-master.dto';
-import { MasterRepository } from '../master/master.repository';
+import { MasterRepository } from '../repositories/master.repository';
 import { Master } from '../master/entities/master.entity';
 
 describe('DeviceTemperatureService', () => {

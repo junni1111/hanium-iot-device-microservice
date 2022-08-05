@@ -1,6 +1,6 @@
 import { Injectable } from '@nestjs/common';
 import { CreateMasterDto } from '../../api/master/dto/create-master.dto';
-import { MasterRepository } from './master.repository';
+import { MasterRepository } from '../repositories/master.repository';
 import { Master } from './entities/master.entity';
 
 @Injectable()

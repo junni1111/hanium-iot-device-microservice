@@ -5,8 +5,8 @@ import {
   ESlaveState,
   ESlaveTurnPowerTopic,
 } from '../../util/constants/api-topic';
-import { SlaveStateDto } from '../dto/slave/slave-state.dto';
-import { SensorStateDto } from '../dto/slave/sensor-state.dto';
+import { SlaveStateDto } from './dto/slave-state.dto';
+import { SensorStateDto } from './dto/sensor-state.dto';
 import { SensorPowerKey, SensorStateKey } from '../../util/key-generator';
 
 export class ApiSlaveService {

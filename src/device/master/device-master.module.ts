@@ -1,6 +1,6 @@
 import { Module } from '@nestjs/common';
 import { TypeOrmModule } from '@nestjs/typeorm';
-import { MasterRepository } from './master.repository';
+import { MasterRepository } from '../repositories/master.repository';
 import { DeviceMasterService } from './device-master.service';
 
 @Module({

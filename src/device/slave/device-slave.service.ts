@@ -3,13 +3,13 @@ import {
   Injectable,
   NotFoundException,
 } from '@nestjs/common';
-import { SlaveRepository } from './slave.repository';
+import { SlaveRepository } from '../repositories/slave.repository';
 import { CreateSlaveDto } from '../../api/slave/dto/create-slave.dto';
 import { LedRepository } from '../repositories/led.repository';
 import { WaterPumpRepository } from '../repositories/water-pump.repository';
 import { ThermometerRepository } from '../repositories/thermometer.repository';
 import { defaultSlaveConfig, ISlaveConfigs } from '../interfaces/slave-configs';
-import { MasterRepository } from '../master/master.repository';
+import { MasterRepository } from '../repositories/master.repository';
 
 @Injectable()
 export class DeviceSlaveService {

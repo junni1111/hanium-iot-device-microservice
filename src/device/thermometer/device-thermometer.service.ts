@@ -1,5 +1,5 @@
 import { CACHE_MANAGER, Inject, Injectable } from '@nestjs/common';
-import { TemperatureRepository } from './device-temperature.repository';
+import { TemperatureRepository } from '../repositories/device-temperature.repository';
 import { ThermometerRepository } from '../repositories/thermometer.repository';
 
 @Injectable()

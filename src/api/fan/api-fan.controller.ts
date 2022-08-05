@@ -17,9 +17,9 @@ import { Cache } from 'cache-manager';
 import { ApiSlaveService } from '../slave/api-slave.service';
 import { SensorPowerKey, SensorStateKey } from '../../util/key-generator';
 import { DeviceFanService } from '../../device/fan/device-fan.service';
-import { SlavePowerDto } from '../dto/slave/slave-power.dto';
 import { ApiTags } from '@nestjs/swagger';
 import { FAN } from '../../util/constants/swagger';
+import { FanPowerDto } from './dto/fan-power.dto';
 
 @ApiTags(FAN)
 @Controller('fan')
@@ -32,7 +32,7 @@ export class ApiFanController {
   ) {}
 
   @Post('power')
-  async turnFan(@Body() fanPowerDto: SlavePowerDto) {
+  async turnFan(@Body() fanPowerDto: FanPowerDto) {
     console.log(`@@@@@@ TURN FAN`, fanPowerDto);
     const powerStateKey = SensorPowerKey({
       sensor: ESlaveTurnPowerTopic.FAN,

@@ -1,5 +1,5 @@
 import { EntityRepository, Repository } from 'typeorm';
-import { Slave } from './entities/slave.entity';
+import { Slave } from '../slave/entities/slave.entity';
 import { Master } from '../master/entities/master.entity';
 import { LedConfig } from '../led/entities/led.entity';
 import { WaterPumpConfig } from '../water-pump/entities/water-pump.entity';

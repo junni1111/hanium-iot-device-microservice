@@ -1,7 +1,7 @@
 import { CACHE_MANAGER, Inject, Injectable } from '@nestjs/common';
 import { MQTT_BROKER } from '../../util/constants/constants';
 import { ClientProxy } from '@nestjs/microservices';
-import { SlaveRepository } from '../slave/slave.repository';
+import { SlaveRepository } from '../repositories/slave.repository';
 import { Cache } from 'cache-manager';
 import { ESlaveConfigTopic, ESlaveState } from '../../util/constants/api-topic';
 import {
@@ -10,11 +10,9 @@ import {
   SensorConfigKey,
   SensorStateKey,
 } from '../../util/key-generator';
-import { TemperatureRepository } from './device-temperature.repository';
+import { TemperatureRepository } from '../repositories/device-temperature.repository';
 import { ThermometerRepository } from '../repositories/thermometer.repository';
 import { GraphPoint } from '../interfaces/graph-config';
-import { SlaveConfigDto } from '../../api/slave/dto/slave-config.dto';
-import { ITemperatureConfig } from '../interfaces/slave-configs';
 import { TemperatureConfigDto } from '../../api/thermometer/dto/temperature-config.dto';
 
 @Injectable()
