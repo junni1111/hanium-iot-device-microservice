@@ -41,10 +41,8 @@ export class DeviceController {
       this.pollingService.mockPollingExceptionTrigger(context, pollingStatus);
     }
 
-    /**
-     * Todo: Cache Status To Redis */
+    /** Cache Status To Redis */
     await this.cacheManager.set<number>(key, pollingStatus, { ttl: 60 });
-    // console.log(`캐싱 값: `, key, pollingStatus);
   }
 
   @EventPattern(SLAVE_STATE, Transport.MQTT)
