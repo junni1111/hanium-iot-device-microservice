@@ -13,11 +13,6 @@ import {
 import { TemperatureRepository } from '../repositories/device-temperature.repository';
 import { ThermometerRepository } from '../repositories/thermometer.repository';
 import { GraphPoint } from '../interfaces/graph-config';
-<<<<<<< HEAD
-import { SlaveConfigDto } from '../../api/slave/dto/slave-config.dto';
-import { ITemperatureConfig } from '../interfaces/slave-configs';
-=======
->>>>>>> 87cc732c0a39fb2bf28c9b7c68c001b9fcdd02e7
 import { TemperatureConfigDto } from '../../api/thermometer/dto/temperature-config.dto';
 
 @Injectable()
