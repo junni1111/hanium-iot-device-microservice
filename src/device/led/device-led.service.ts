@@ -1,10 +1,8 @@
 import { CACHE_MANAGER, Inject, Injectable } from '@nestjs/common';
 import { MQTT_BROKER } from '../../util/constants/constants';
 import { ClientProxy } from '@nestjs/microservices';
-import { LedPacketDto } from '../dto/led-packet.dto';
-import { SlaveConfigDto } from '../../api/slave/dto/slave-config.dto';
-import { ILedConfig } from '../interfaces/slave-configs';
-import { LedPowerDto } from '../../api/dto/led/led-power.dto';
+import { LedPacketDto } from './dto/led-packet.dto';
+import { LedPowerDto } from '../../api/led/dto/led-power.dto';
 import { EPowerState } from '../../util/constants/api-topic';
 import { Cache } from 'cache-manager';
 import { ECommand } from '../interfaces/packet';

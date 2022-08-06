@@ -31,16 +31,16 @@ async function bootstrap() {
     }),
   );
 
-  app.connectMicroservice({
-    transport: Transport.MQTT,
-    options: {
-      url: MQTT_BROKER_URL,
-    },
-  });
+  // app.connectMicroservice({
+  //   transport: Transport.MQTT,
+  //   options: {
+  //     url: MQTT_BROKER_URL,
+  //   },
+  // });
 
   setupSwagger(app);
 
-  await app.startAllMicroservices();
+  // await app.startAllMicroservices();
   await app.listen(DEVICE_PORT, () => {
     Logger.log(
       `Running Device Microservice. 

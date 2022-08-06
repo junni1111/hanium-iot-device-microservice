@@ -8,7 +8,6 @@ import {
   Post,
 } from '@nestjs/common';
 import { DeviceMasterService } from '../../device/master/device-master.service';
-import { ResponseStatus } from '../../device/interfaces/response-status';
 import {
   EPowerState,
   ESlaveConfigTopic,
@@ -16,11 +15,10 @@ import {
   ESlaveTurnPowerTopic,
 } from '../../util/constants/api-topic';
 import { DeviceLedService } from '../../device/led/device-led.service';
-import { LedPowerDto } from '../dto/led/led-power.dto';
-import { LedStateDto } from '../dto/led/led-state.dto';
+import { LedPowerDto } from './dto/led-power.dto';
+import { LedStateDto } from './dto/led-state.dto';
 import { Cache } from 'cache-manager';
 import { ApiLedService } from './api-led.service';
-import { SlaveConfigDto } from '../slave/dto/slave-config.dto';
 import { ApiSlaveService } from '../slave/api-slave.service';
 import { SensorPowerKey, SensorStateKey } from '../../util/key-generator';
 import { ILedConfig } from '../../device/interfaces/slave-configs';
@@ -89,7 +87,8 @@ export class ApiLedController {
   }
 
   @Post('state')
-  async getLedState(@Body() ledStateDto: LedStateDto): Promise<ResponseStatus> {
+  async getLedState(@Body() ledStateDto: LedStateDto) {
+    console.log(`led state!`);
     try {
       const state = await this.apiSlaveService.getRunningState(
         ledStateDto,

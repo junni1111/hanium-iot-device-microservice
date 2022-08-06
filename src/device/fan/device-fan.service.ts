@@ -1,22 +1,14 @@
-import {
-  CACHE_MANAGER,
-  HttpStatus,
-  Inject,
-  Injectable,
-  Logger,
-} from '@nestjs/common';
-import { MQTT_BROKER } from '../../util/constants/constants';
-import { ClientProxy } from '@nestjs/microservices';
+import { CACHE_MANAGER, Inject, Injectable, Logger } from '@nestjs/common';
 import { Cache } from 'cache-manager';
-import { FanPacketDto } from '../dto/fan-packet.dto';
-import { FanPowerDto } from '../../api/dto/fan/fan-power.dto';
+import { FanPacketDto } from './dto/fan-packet.dto';
+import { FanPowerDto } from '../../api/fan/dto/fan-power.dto';
 import {
   EPowerState,
   ESlaveState,
   ESlaveTurnPowerTopic,
 } from '../../util/constants/api-topic';
 import { ECommand } from '../interfaces/packet';
-import { TemperatureRangeDto } from '../../api/dto/temperature/temperature-range.dto';
+import { TemperatureRangeDto } from '../../api/thermometer/dto/temperature-range.dto';
 import { SensorPowerKey, SensorStateKey } from '../../util/key-generator';
 import { MqttBrokerService } from '../mqtt-broker.service';
 

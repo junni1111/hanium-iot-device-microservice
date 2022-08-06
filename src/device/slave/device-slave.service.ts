@@ -106,29 +106,4 @@ export class DeviceSlaveService {
   clearSlaveDB() {
     return this.slaveRepository.createQueryBuilder().delete().execute();
   }
-  //
-  // async createMaster(createMasterDto: CreateMasterDto) {
-  //   const result = this.masterRepository.createMaster(createMasterDto);
-  //   return result;
-  // }
-
-  // async createSlave(createSlaveDto: CreateSlaveDto) {
-  //   const result = this.slaveRepository.createSlave(createSlaveDto);
-  //
-  //   return result;
-  // }
-  //
-  // async optimize(masterId: number, slaveId: number) {
-  //   return this.slaveRepository.setOptimizeConfigs(masterId, slaveId);
-  // }
-  //
-  // async getConfigs(masterId: number, slaveId: number) {
-  //   console.log(`get configs: `, masterId, slaveId);
-  //   return this.slaveRepository.getConfigs(masterId, slaveId);
-  // }
-  //
-  //
-  // async deleteSlave(masterId: number, slaveId: number) {
-  //   return this.slaveRepository.deleteSlave(masterId, slaveId);
-  // }
 }

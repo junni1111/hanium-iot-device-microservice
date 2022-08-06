@@ -1,9 +1,9 @@
 import { EntityRepository, Repository } from 'typeorm';
 import { Slave } from './entities/slave.entity';
-import { Master } from '../master/entities/master.entity';
 import { LedConfig } from '../led/entities/led.entity';
 import { WaterPumpConfig } from '../water-pump/entities/water-pump.entity';
 import { ThermometerConfig } from '../thermometer/entities/thermometer.entity';
+import { Master } from '../master/entities/master.entity';
 
 @EntityRepository(Slave)
 export class SlaveRepository extends Repository<Slave> {
