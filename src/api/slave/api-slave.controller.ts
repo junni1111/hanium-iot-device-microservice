@@ -4,15 +4,12 @@ import {
   Controller,
   Delete,
   Get,
-  HttpStatus,
   Inject,
   NotFoundException,
   Post,
   Query,
 } from '@nestjs/common';
 import { DevicePollingService } from '../../device/device-polling.service';
-import { ResponseStatus } from '../../device/interfaces/response-status';
-import { ESlaveState } from '../../util/constants/api-topic';
 import { Cache } from 'cache-manager';
 import { SlaveStateDto } from './dto/slave-state.dto';
 import { ApiSlaveService } from './api-slave.service';
@@ -20,7 +17,6 @@ import { DeviceSlaveService } from '../../device/slave/device-slave.service';
 import { CreateSlaveDto } from './dto/create-slave.dto';
 import { ApiTags } from '@nestjs/swagger';
 import { SLAVE } from '../../util/constants/swagger';
-import { ISlaveConfigs } from '../../device/interfaces/slave-configs';
 
 @ApiTags(SLAVE)
 @Controller('slave')

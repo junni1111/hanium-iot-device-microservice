@@ -3,7 +3,6 @@ import {
   CACHE_MANAGER,
   Controller,
   Delete,
-  HttpStatus,
   Inject,
   Post,
 } from '@nestjs/common';

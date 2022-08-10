@@ -4,14 +4,11 @@ import {
   CACHE_MANAGER,
   Controller,
   Delete,
-  HttpStatus,
   Inject,
   Post,
 } from '@nestjs/common';
-import { ResponseStatus } from '../../device/interfaces/response-status';
 import {
   EPowerState,
-  ESlaveConfigTopic,
   ESlaveState,
   ESlaveTurnPowerTopic,
 } from '../../util/constants/api-topic';

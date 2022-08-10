@@ -1,4 +1,4 @@
-import { Controller, Get, HttpStatus, Query, Res } from '@nestjs/common';
+import { Controller, Get, Query } from '@nestjs/common';
 import { ApiTags } from '@nestjs/swagger';
 import { UTILITY } from '../util/constants/swagger';
 
