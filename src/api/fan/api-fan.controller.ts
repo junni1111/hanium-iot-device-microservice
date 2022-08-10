@@ -66,15 +66,10 @@ export class ApiFanController {
         { ttl: 0 },
       );
 
-      return {
-        status: HttpStatus.OK,
-        topic: ESlaveTurnPowerTopic.FAN,
-        message: 'send turn fan packet to device',
-        data: fanPowerDto.powerState,
-      };
+      return fanPowerDto.powerState;
     } catch (e) {
       console.log(`catch fan config error`, e);
-      return e;
+      throw e;
     }
   }
 

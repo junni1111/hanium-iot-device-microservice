@@ -2,6 +2,7 @@ import { EntityRepository, Repository } from 'typeorm';
 import { LedConfig } from '../led/entities/led.entity';
 import { Slave } from '../slave/entities/slave.entity';
 import { LedConfigDto } from '../../api/led/dto/led-config.dto';
+import { NotFoundException } from '@nestjs/common';
 
 @EntityRepository(LedConfig)
 export class LedRepository extends Repository<LedConfig> {

@@ -6,9 +6,9 @@ import { UTILITY } from '../util/constants/swagger';
 @Controller()
 export class ApiUtilityController {
   @Get('/')
-  async healthCheck(@Res() res) {
+  async healthCheck() {
     console.log(`Health Check`);
-    return res.status(HttpStatus.OK).send('ok');
+    return 'ok';
   }
 
   @Get('ping')

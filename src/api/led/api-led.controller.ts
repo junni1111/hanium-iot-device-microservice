@@ -1,4 +1,5 @@
 import {
+  BadRequestException,
   Body,
   CACHE_MANAGER,
   Controller,
@@ -65,24 +66,14 @@ export class ApiLedController {
       );
 
       if (!configUpdateResult) {
-        return {
-          status: HttpStatus.BAD_REQUEST,
-          topic: ESlaveConfigTopic.LED,
-          message: 'led config not affected',
-          data: configUpdateResult,
-        };
+        throw new BadRequestException('led config not affected');
       }
       console.log(`LED Config`);
 
-      return {
-        status: HttpStatus.OK,
-        topic: ESlaveConfigTopic.LED,
-        message: 'send led packet to device',
-        data: requestResult,
-      };
+      return 'ok';
     } catch (e) {
       console.log(`catch led config error`, e);
-      return e;
+      throw e;
     }
   }
 
@@ -95,14 +86,10 @@ export class ApiLedController {
         ESlaveState.LED,
       );
 
-      return {
-        status: HttpStatus.OK,
-        topic: ESlaveState.LED,
-        message: 'request check led state success',
-        data: state,
-      };
+      return state;
     } catch (e) {
-      console.log(e);
+      console.log('catch led state error', e);
+      throw e;
     }
   }
 
@@ -156,20 +143,15 @@ export class ApiLedController {
 
       Promise.allSettled([cacheRunningState, cachePowerState]);
 
-      return {
-        status: HttpStatus.OK,
-        topic: ESlaveTurnPowerTopic.LED,
-        message: 'send turn led packet to device',
-        data: ledTurnDto.powerState,
-      };
+      return ledTurnDto.powerState;
     } catch (e) {
       console.log(`catch led config error`, e);
-      return e;
+      throw e;
     }
   }
 
   @Delete('db')
   clearLedDB() {
-    return this.deviceLedService.claerLedDB();
+    return this.deviceLedService.clearLedDB();
   }
 }

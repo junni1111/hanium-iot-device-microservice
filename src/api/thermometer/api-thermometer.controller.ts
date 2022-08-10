@@ -1,4 +1,5 @@
 import {
+  BadRequestException,
   Body,
   CACHE_MANAGER,
   Controller,
@@ -9,12 +10,7 @@ import {
   Post,
   Query,
 } from '@nestjs/common';
-import { ResponseStatus } from '../../device/interfaces/response-status';
-import {
-  ESlaveConfigTopic,
-  TEMPERATURE_BETWEEN,
-  TEMPERATURE_WEEK,
-} from '../../util/constants/api-topic';
+import { ESlaveConfigTopic } from '../../util/constants/api-topic';
 import { DeviceTemperatureService } from '../../device/thermometer/device-temperature.service';
 import { Cache } from 'cache-manager';
 import { SensorConfigKey } from '../../util/key-generator';
@@ -50,12 +46,7 @@ export class ApiThermometerController {
       );
 
       if (!configUpdateResult) {
-        return {
-          status: HttpStatus.INTERNAL_SERVER_ERROR,
-          topic: ESlaveConfigTopic.TEMPERATURE,
-          message: 'temperature config not affected',
-          data: configUpdateResult,
-        };
+        throw new BadRequestException('temperature config not affected');
       }
 
       /** Todo: 범위 값 저장 방식 고민 */
@@ -65,22 +56,17 @@ export class ApiThermometerController {
         { ttl: 3600 },
       );
 
-      return {
-        status: HttpStatus.OK,
-        topic: ESlaveConfigTopic.TEMPERATURE,
-        message: 'success to save temperature config',
-        data: cachedResult,
-      };
+      return cachedResult;
     } catch (e) {
       console.log(`catch temperature config error`, e);
-      return e;
+      throw e;
     }
   }
 
   @Post('between')
   async fetchTemperatures(
     @Body() temperatureBetweenDto: TemperatureBetweenDto,
-  ): Promise<ResponseStatus> {
+  ) {
     try {
       const temperatures =
         await this.deviceTemperatureService.getTemperaturesBetweenDates(
@@ -90,13 +76,9 @@ export class ApiThermometerController {
           temperatureBetweenDto.end,
         );
 
-      return {
-        status: HttpStatus.OK,
-        topic: TEMPERATURE_BETWEEN,
-        message: 'success',
-        data: temperatures,
-      };
+      return temperatures;
     } catch (e) {
+      console.log('catch fetch temperature error', e);
       throw e;
     }
   }
@@ -104,9 +86,9 @@ export class ApiThermometerController {
   @Post('week')
   async fetchTemperatureOneWeek(
     @Body() temperatureBetweenDto: TemperatureBetweenDto,
-  ): Promise<ResponseStatus> {
+  ) {
     try {
-      const data = await this.deviceTemperatureService.getAveragePoints(
+      const temperatures = await this.deviceTemperatureService.getAveragePoints(
         temperatureBetweenDto.masterId,
         temperatureBetweenDto.slaveId,
         new Date(temperatureBetweenDto.begin),
@@ -115,14 +97,10 @@ export class ApiThermometerController {
         1,
       );
 
-      return {
-        status: HttpStatus.OK,
-        topic: TEMPERATURE_WEEK,
-        message: 'success',
-        data,
-      };
+      return temperatures;
     } catch (e) {
-      console.log(e);
+      console.log('catch fetch temperature error', e);
+      throw e;
     }
   }
 
@@ -131,19 +109,20 @@ export class ApiThermometerController {
   async getCurrentTemperature(
     @Query('masterId') masterId: number,
     @Query('slaveId') slaveId: number,
-  ): Promise<ResponseStatus> {
+  ) {
     /* Todo: Change to DTO */
-    const data = await this.deviceTemperatureService.getCachedTemperature(
-      masterId,
-      slaveId,
-    );
+    try {
+      const temperature =
+        await this.deviceTemperatureService.getCachedTemperature(
+          masterId,
+          slaveId,
+        );
 
-    return {
-      status: HttpStatus.OK,
-      topic: 'temperature',
-      message: 'success fetch current temperature',
-      data,
-    };
+      return temperature;
+    } catch (e) {
+      console.log('catch get current temperature error', e);
+      throw e;
+    }
   }
 
   @Delete('db')

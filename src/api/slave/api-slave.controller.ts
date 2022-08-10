@@ -33,23 +33,17 @@ export class ApiSlaveController {
   ) {}
 
   @Post()
-  async createSlave(
-    @Body() createSlaveDto: CreateSlaveDto,
-  ): Promise<ResponseStatus> {
+  async createSlave(@Body() createSlaveDto: CreateSlaveDto) {
     try {
       const createResult = await this.slaveService.createSlave(createSlaveDto);
       if (!createResult) {
         throw new NotFoundException('Slave Create Error');
       }
 
-      return {
-        status: HttpStatus.OK,
-        topic: 'slave',
-        message: 'slave create success',
-        data: createResult,
-      };
+      return createResult;
     } catch (e) {
-      console.log(e);
+      console.log('catch create slave error', e);
+      throw e;
     }
   }
 
@@ -57,19 +51,18 @@ export class ApiSlaveController {
   async fetchConfig(
     @Query('masterId') masterId: number,
     @Query('slaveId') slaveId: number,
-  ): Promise<ISlaveConfigs> {
+  ) {
     try {
       return this.slaveService.getConfigs(masterId, slaveId);
     } catch (e) {
-      console.log(e);
+      console.log('catch fetch slave config error', e);
+      throw e;
     }
   }
 
   /** Todo: 센서들 상태 캐싱값 받아와서 돌려줌 */
   @Post('state')
-  async getSlaveState(
-    @Body() slaveStateDto: SlaveStateDto,
-  ): Promise<ResponseStatus> {
+  async getSlaveState(@Body() slaveStateDto: SlaveStateDto) {
     try {
       /* TODO: Validate master id & slave id */
 
@@ -77,14 +70,10 @@ export class ApiSlaveController {
         slaveStateDto,
       );
 
-      return {
-        status: HttpStatus.OK,
-        topic: ESlaveState.ALL,
-        message: 'request check slave state success',
-        data: sensorStates,
-      };
+      return sensorStates;
     } catch (e) {
-      console.log(e);
+      console.log('catch get slave state error', e);
+      throw e;
     }
   }
 

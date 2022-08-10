@@ -31,14 +31,10 @@ export class ApiMasterController {
         createMasterDto,
       );
 
-      return {
-        status: HttpStatus.OK,
-        topic: 'master',
-        message: 'master create success',
-        data: createResult,
-      };
+      return createResult;
     } catch (e) {
-      console.log(e);
+      console.log('catch create master error', e);
+      throw e;
     }
   }
 
@@ -72,7 +68,8 @@ export class ApiMasterController {
           };
       }
     } catch (e) {
-      console.log(e);
+      console.log('catch polling mater state error', e);
+      throw e;
     }
   }
 

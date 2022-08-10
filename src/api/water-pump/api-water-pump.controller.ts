@@ -1,4 +1,5 @@
 import {
+  BadRequestException,
   Body,
   CACHE_MANAGER,
   Controller,
@@ -39,9 +40,7 @@ export class ApiWaterPumpController {
   ) {}
 
   @Post('config')
-  async setWaterPumpConfig(
-    @Body() waterPumpConfigDto: WaterPumpConfigDto,
-  ): Promise<ResponseStatus> {
+  async setWaterPumpConfig(@Body() waterPumpConfigDto: WaterPumpConfigDto) {
     try {
       const requestResult =
         this.deviceWaterPumpService.requestWaterPump(waterPumpConfigDto);
@@ -69,44 +68,28 @@ export class ApiWaterPumpController {
       );
 
       if (!configUpdateResult) {
-        return {
-          status: HttpStatus.BAD_REQUEST,
-          topic: ESlaveConfigTopic.WATER_PUMP,
-          message: 'water pump config not affected',
-          data: configUpdateResult,
-        };
+        throw new BadRequestException('water pump config not affected');
       }
 
-      return {
-        status: HttpStatus.OK,
-        topic: ESlaveConfigTopic.WATER_PUMP,
-        message: 'send water pump packet to device',
-        data: requestResult,
-      };
+      return 'ok';
     } catch (e) {
-      console.log(e);
+      console.log('catch water pump config error', e);
       throw e;
     }
   }
 
   @Post('state')
-  async getWaterPumpState(
-    @Body() waterPumpStateDto: WaterPumpStateDto,
-  ): Promise<ResponseStatus> {
+  async getWaterPumpState(@Body() waterPumpStateDto: WaterPumpStateDto) {
     try {
       const state = await this.apiSlaveService.getRunningState(
         waterPumpStateDto,
         ESlaveState.WATER_PUMP,
       );
 
-      return {
-        status: HttpStatus.OK,
-        topic: ESlaveState.WATER_PUMP,
-        message: 'request check water pump state success',
-        data: state,
-      };
+      return state;
     } catch (e) {
-      console.log(e);
+      console.log('catch get water pump state error', e);
+      throw e;
     }
   }
 
@@ -159,15 +142,10 @@ export class ApiWaterPumpController {
 
       Promise.allSettled([cacheRunningState, cachePowerState]);
 
-      return {
-        status: HttpStatus.OK,
-        topic: ESlaveTurnPowerTopic.WATER_PUMP,
-        message: 'send turn water pump packet to device',
-        data: waterPumpPowerDto.powerState,
-      };
+      return waterPumpPowerDto.powerState;
     } catch (e) {
-      console.log(`catch water pump config error`, e);
-      return e;
+      console.log(`catch turn water pump power error`, e);
+      throw e;
     }
   }
 

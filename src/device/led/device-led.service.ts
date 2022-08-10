@@ -1,4 +1,9 @@
-import { CACHE_MANAGER, Inject, Injectable } from '@nestjs/common';
+import {
+  BadRequestException,
+  CACHE_MANAGER,
+  Inject,
+  Injectable,
+} from '@nestjs/common';
 import { MQTT_BROKER } from '../../util/constants/constants';
 import { ClientProxy } from '@nestjs/microservices';
 import { LedPacketDto } from './dto/led-packet.dto';
@@ -106,7 +111,7 @@ export class DeviceLedService {
     }
   }
 
-  claerLedDB() {
+  clearLedDB() {
     return this.ledConfigRepository.clearLedDB();
   }
 }
