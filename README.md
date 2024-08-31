@@ -32,7 +32,7 @@
 
 ### Download from repository
 
-<pre>git clone https://github.com/KGESH/hanium-iot-device-microservice.git</pre>
+<pre>git clone https://github.com/junni1111/hanium-iot-device-microservice.git</pre>
 
 ### Go to download path
 
